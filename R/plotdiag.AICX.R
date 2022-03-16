@@ -1,9 +1,9 @@
 #' @export
-plotdiag.Cook <-
+plotdiag.AICX <-
 function(forn,  
      maintitle="Put main title here", 
      subtitle= "Put subtitle here", 
-     caption="Put caption here",
+     caption="Put caption title here",
      wmf="Put_plot_file_title_here", 
      Cairo=TRUE,
      printgraph = TRUE,
@@ -11,7 +11,7 @@ function(forn,
      subdiag=FALSE, subverb=FALSE,
      diagnose=FALSE, verbose=TRUE)
 {
-     #                          plotdiag.Cook
+     #                          plotdiag.AICX
      #
      # VALUE      Plot of the diagnostic statistics resulting from a forward search of a database.  Shows the influence of each observation on the estmate of variance.
      #                 Handles linear models and mixed effects (grouped data) models.  The same subset of independent variables will be evaluated in each subgroup.
@@ -33,7 +33,7 @@ function(forn,
      MC <- match.call()
      if(verbose) {
           print("", quote = FALSE)
-          print("Running plotdiag.Cook", quote = FALSE)
+          print("Running plotdiag.AICX", quote = FALSE)
           print("", quote = FALSE)
           print(date(), quote = FALSE)
           print("", quote = FALSE)
@@ -66,7 +66,7 @@ function(forn,
           }
           #    Add titles, axis labels, and caption. 
                horlabel <- "Subset size m"
-               vertlabel <- "Modified Cook distance"
+               vertlabel <- "AIC"
           out <- out + ggplot2::ggtitle(mtitle2, subtitle=stitle2) + ggplot2::xlab(horlabel) + ggplot2::ylab(vertlabel) + ggplot2::labs(caption=cap)
                  if(subdiag)Hmisc::prn(as.character(out))   
           ############################
@@ -100,7 +100,7 @@ function(forn,
      # Preparation for plotting #
      ############################
      prepstuff <- function(rightforn,gg){
-          df1 <- rightforn$"Modified Cook distance"
+          df1 <- rightforn$AIC
           df2 <- df1
           ndf2 <- length(df2)
           column1 <- 1:ndf2
@@ -150,7 +150,7 @@ function(forn,
      #
      if(verbose) {
           print("", quote = FALSE)
-          print("Finished running plotdiag.Cook", quote = FALSE)
+          print("Finished running plotdiag.AICX", quote = FALSE)
           print("", quote = FALSE)
           print(date(), quote = FALSE)
           print("", quote = FALSE)

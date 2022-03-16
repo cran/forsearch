@@ -1,9 +1,9 @@
 \name{forsearch_lm}
 \alias{forsearch_lm}
-\title{Create Statistics Of Forward Search in Database To Be Analyzed by LM Function 
+\title{Create Statistics Of Forward Search in Linear Model Database
 }
 \description{
-Prepares summary statistics at each stage of forward search for subsequent plotting. Forward seach is conducted in two steps: Step 1 to identify minimal set of observations to estimate unknown parameters, and Step 2 to add one observation at each stage such that observations in the set are best fitting at that stage.
+Prepares summary statistics at each stage of forward search for subsequent plotting. Forward search is conducted in two steps: Step 1 to identify minimal set of observations to estimate unknown parameters, and Step 2 to add one observation at each stage such that observations in the set are best fitting at that stage.
 }
 \usage{
 forsearch_lm(formula, data, initial.sample, diagnose = FALSE, verbose = TRUE)
@@ -17,7 +17,7 @@ forsearch_lm(formula, data, initial.sample, diagnose = FALSE, verbose = TRUE)
 }
   \item{diagnose}{TRUE causes printing of intermediate steps of function
 }
-  \item{verbose}{TRuE causes function identifier to display before and after run}
+  \item{verbose}{TRUE causes function identifier to display before and after run}
 }
 \value{LIST
 \item{Rows in stage}{Observation numbers of rows included at each stage}

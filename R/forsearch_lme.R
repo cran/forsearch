@@ -96,6 +96,11 @@ function(
      lmAlldata <- stats::lm(formula=fixed2, data=df1, singular.ok=TRUE, x=TRUE, y=TRUE)                               #   lm
      y1 <- lmAlldata$y
      x1 <- lmAlldata$x                                              # takes care of more complex fixed effect formulas
+coeffnames <- dimnames(x1)[2]
+
+
+#prn(coeffnames)
+#stop("OK")
      p <- dim(x1)[2]
 
      nrowsdf1 <- dim(df1)[1]
@@ -262,6 +267,7 @@ function(
      hold.dims <- vector("list", nrowsdf1)
      hold.sigma <- rep(-999, nrowsdf1)   
      param.est <- matrix(0,nrow=p, ncol=nrowsdf1)
+     t.set <- param.est
      hold.coeffs.fixed <- vector("list",nrowsdf1)
      hold.coeffs.random <- vector("list",nrowsdf1)
      leverage <- matrix(-999,nrow=1,ncol=3)
@@ -307,6 +313,7 @@ function(
           hold.coeffs.fixed[[i-1]] <- zholdlme$coefficients[[1]]
           hold.coeffs.random[[i-1]] <- zholdlme$coefficients[[2]]
           param.est[,i-1] <- c(zholdlme$coefficients[[1]])                        # same as holdcoeffs.fixed[[i-1]]
+    t.set[,i-1] <- summary(zholdlme)$tTable[,4]
           hold.dims[[i-1]] <- zholdlme$dims
           hold.sigma[i-1] <- zholdlme$sigma
           newrows <- NULL
@@ -369,6 +376,9 @@ function(
      m <- 1:nrowsdf1
      param.est <- cbind(m,param.est)
      # 
+t.set <- as.data.frame(t(t.set))
+dimnames(t.set)[2] <- coeffnames
+t.set <- cbind(m,t.set)
      dimleverage <- dim(leverage)
      dimnames(leverage) <- list(rep("",dimleverage[1]),c("m","Observation","leverage"))
      #
@@ -486,5 +496,6 @@ function(
            Leverage=                          leverage[-1,],
           "Modified Cook distance"=           modCook,
            Dims=                              zholdlme$dims,
+          "t statistics"=                     t.set,
            Call=                              MC )
 }

@@ -9,7 +9,8 @@ folder containing working directory.
 }
 \usage{
 plotdiag.Cook(forn, maintitle = "Put main title here", subtitle = "Put subtitle here", 
-wmf = "Put_plot_file_title_here", Cairo=TRUE,printgraph=TRUE, loess = FALSE, 
+caption = "Put caption here", wmf = "Put_plot_file_title_here", 
+Cairo=TRUE,printgraph=TRUE, loess = FALSE, 
 subdiag = FALSE,subverb = FALSE,diagnose = FALSE, verbose = TRUE)
 }
 \arguments{
@@ -22,12 +23,14 @@ Main title of plot
   \item{subtitle}{
 Subtitle of plot
 }
+  \item{caption}{Content of caption
+}
   \item{wmf}{
 File name of stored plot; omit ".wmf"  
 }
 \item{Cairo}{TRUE causes use of Cairo graphics
 }
-\item{printgraph}{TRuE causes graph to print to file and
+\item{printgraph}{TRUE causes graph to print to file and
       closes device
 }
 \item{loess}{
@@ -55,9 +58,7 @@ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New Yo
 \author{William R. Fairweather
 }
 \examples{
-%print("Cook");
 info3 <- system.file("extdata","Alfalfa.O.forlme.R",package="forsearch");
-%print(info3);
 Alfalfa.O.forlme <- source(info3);
 Alfalfa.O.forlme <- Alfalfa.O.forlme[[1]];
 plotdiag.Cook(Alfalfa.O.forlme, wmf="Alfalfa_Cook", Cairo=FALSE,

@@ -1,6 +1,7 @@
 #' @export
-plotdiag.Cook <-
+plotdiag.deviances <-
 function(forn,  
+     devtype,
      maintitle="Put main title here", 
      subtitle= "Put subtitle here", 
      caption="Put caption here",
@@ -11,12 +12,13 @@ function(forn,
      subdiag=FALSE, subverb=FALSE,
      diagnose=FALSE, verbose=TRUE)
 {
-     #                          plotdiag.Cook
+     #                          plotdiag.deviances
      #
      # VALUE      Plot of the diagnostic statistics resulting from a forward search of a database.  Shows the influence of each observation on the estmate of variance.
      #                 Handles linear models and mixed effects (grouped data) models.  The same subset of independent variables will be evaluated in each subgroup.
      #
      # INPUT    forn         File resulting from run of forsearch_lm( ) or forsearch_lme( ), the latter for mixed effects models.
+     #          devtype      "R" or "N" for Residual deviance or Null deviance 
      #          maintitle    Graph main title
      #          subtitle     Graph subtitle
      #          caption      Graph caption
@@ -33,7 +35,7 @@ function(forn,
      MC <- match.call()
      if(verbose) {
           print("", quote = FALSE)
-          print("Running plotdiag.Cook", quote = FALSE)
+          print("Running plotdiag.deviances", quote = FALSE)
           print("", quote = FALSE)
           print(date(), quote = FALSE)
           print("", quote = FALSE)
@@ -66,7 +68,8 @@ function(forn,
           }
           #    Add titles, axis labels, and caption. 
                horlabel <- "Subset size m"
-               vertlabel <- "Modified Cook distance"
+               vertlabel <- "Null deviance"
+               if(devtype == "R") vertlabel <- "Residual deviance"
           out <- out + ggplot2::ggtitle(mtitle2, subtitle=stitle2) + ggplot2::xlab(horlabel) + ggplot2::ylab(vertlabel) + ggplot2::labs(caption=cap)
                  if(subdiag)Hmisc::prn(as.character(out))   
           ############################
@@ -100,7 +103,7 @@ function(forn,
      # Preparation for plotting #
      ############################
      prepstuff <- function(rightforn,gg){
-          df1 <- rightforn$"Modified Cook distance"
+          df1 <- rightforn
           df2 <- df1
           ndf2 <- length(df2)
           column1 <- 1:ndf2
@@ -138,6 +141,10 @@ function(forn,
      ################################################################
      # Extract each subgroup for plotting if forn is a grouped list #
      ################################################################
+     if(devtype != "R" & devtype != "N") stop("Please indicate devtype='R' or devtype='N'")
+     if(devtype=="R")forn2 <-forn$"Residual deviance"
+     else forn2 <- forn$"Null deviance"
+ 
      if(grouped){
           nnames_forn <- length(forn)
           for(gg in 1:nnames_forn){
@@ -145,12 +152,12 @@ function(forn,
           }         #    gg
      }              #    grouped
      else{
-          prepstuff(rightforn=forn, gg="")
+          prepstuff(rightforn=forn2, gg="")
      }              # not grouped
      #
      if(verbose) {
           print("", quote = FALSE)
-          print("Finished running plotdiag.Cook", quote = FALSE)
+          print("Finished running plotdiag.deviances", quote = FALSE)
           print("", quote = FALSE)
           print(date(), quote = FALSE)
           print("", quote = FALSE)

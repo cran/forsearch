@@ -4,6 +4,7 @@ function(forn,
      hilos=c(1,0),
      maintitle = "Put main title here", 
      subtitle = "Put subtitle here", 
+     caption="Put caption here",
      wmf = "Put_graph_title_here", 
      Cairo=TRUE,
      printgraph = TRUE,
@@ -22,6 +23,7 @@ function(forn,
      #          maintitle    Graph main title
      #          subtitle     Graph subtitle
      #          printgraph   TRUE causes graph to be printed in a Windows metafile and closes the device
+     #          caption         Graph caption
      #          wmf          Single-word graph title in storage space for each plot; omit ".wmf"; ".wmf" and subgroup appendix (if needed) will be added in function
      #          Cairo           TRUE causes use of Cairo graphics
      #          subdiag      Logical. TRUE causes printing of diagnostic content of called subfunctions
@@ -89,7 +91,7 @@ function(forn,
                  rescale = c("R", "fit", "fixed"), bg = "transparent", canvas = "white", gamma = getOption("gamma"),
                  xpos = NA, ypos = NA, buffered = getOption("windowsBuffered"), restoreConsole = FALSE)
           }      # Cairo
-      Hmisc::prn(out)             # this line plots the graph
+      print(out)             # this line plots the graph
 
       if(printgraph){
            filename <- paste(wmf,".wmf",sep="")
@@ -127,10 +129,8 @@ function(forn,
           print(utils::head(df3[,2:3],n=10L), quote=FALSE)     # for identifing outliers on graph
           print("", quote = F)
 
-          cap2 <- paste("Average final leverage p/n =",round(min(df2[,1]) / maxm, 2), sep=" ")
           wmf2 <- paste(wmf,".wmf",sep="")    
           if(grouped){
-               cap2 <- paste(cap2,paste("Subgroup",gg),sep=". ") 
                wmf2 <- paste(wmf," Subgroup ",gg,".wmf",sep="")    
           }
                plotD1(data=df2, xcol=1, ycol=3, cov2col=2, df3=df3,
@@ -139,7 +139,7 @@ function(forn,
                      highslows=hilos,
                      horlabel="Subset size m",
                      vertlabel="Leverage",
-                     cap=cap2, filewidth=5,fileheight=5,
+                     cap=caption, filewidth=5,fileheight=5,
                      subdiag=subdiag,subverb=subverb)
      }
      # End of preparation function #

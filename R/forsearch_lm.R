@@ -41,7 +41,7 @@ function(formula, data, initial.sample, diagnose=FALSE, verbose=TRUE)
      coeffnames <- names(lmAlldata$coefficients)
      z1 <- lmAlldata$x
      y1 <- lmAlldata$y
-
+     #
      #########################################################
      # Add a little random difference to avoid singularities #
      #########################################################
@@ -70,8 +70,7 @@ function(formula, data, initial.sample, diagnose=FALSE, verbose=TRUE)
      rows.in.model <- vector("list",dimx1)
      residuals <- matrix(0,nrow=dimx1,ncol=dimx1)
      param.est <- matrix(0,nrow=p, ncol=dimx1)
-
-
+     t.set <- param.est
 
 
      xtemp.list <- vector("list",dimx1)
@@ -97,7 +96,7 @@ function(formula, data, initial.sample, diagnose=FALSE, verbose=TRUE)
                                             if(diagnose)Hmisc::prn(zlist)    
      medaugx <- matrix(1, nrow=initial.sample, ncol=2)
      for(i in 1:initial.sample){
-               rowz <- zlist[[i]]
+               rowz <- zlist[[i]]                   # rowz is a matrix with 2 cols
                xtemp <- as.matrix(x1[rowz,])
                ytemp <- as.matrix(c(y1[rowz]))
                                             if(diagnose){
@@ -174,7 +173,6 @@ function(formula, data, initial.sample, diagnose=FALSE, verbose=TRUE)
                nabetahat <- is.na(betahat)
                betahat[nabetahat] <- 0
           }
-
           model.resids <- getthislm$residuals
           betahatset[i-1,] <- betahat
           medaugx <- matrix(1:dimx1, nrow=dimx1, ncol=2, byrow=FALSE)      # initialize medaugx
@@ -182,6 +180,14 @@ function(formula, data, initial.sample, diagnose=FALSE, verbose=TRUE)
           param.est[,i-1] <- betahat
           if(i > p) s.2[i-1] <- sum(model.resids * model.resids)/(i-p)
                                             if(diagnose) {Hmisc::prn(model.resids); Hmisc::prn(s.2[i-1])}
+          #
+          #################################
+          # Extract t values from summary #
+          #################################
+          if(i > mstart){
+               t.setbase <- c(summary(getthislm)$coefficients[,3], rep(0,p))
+               t.set[,i-1] <- t.setbase[1:p]
+          }
           #
           ############
           # Leverage #
@@ -228,6 +234,10 @@ function(formula, data, initial.sample, diagnose=FALSE, verbose=TRUE)
      m <- 1:dimx1
      param.est <- cbind(m,param.est)
      # 
+     t.set <- as.data.frame(t(t.set))
+     names(t.set) <- coeffnames
+     t.set <- cbind(m,t.set)
+     #
      ############################################
      # Estimate sigma and standardize residuals #
      ############################################
@@ -278,5 +288,6 @@ function(formula, data, initial.sample, diagnose=FALSE, verbose=TRUE)
           "s^2"=                               s.2, 
            Leverage=                           leverage, 
           "Modified Cook distance"=            modCook, 
+          "t statistics"=                      t.set,
            Call=                               MC)
 }

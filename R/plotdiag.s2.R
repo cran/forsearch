@@ -3,6 +3,7 @@ plotdiag.s2 <-
 function(forn,  
      maintitle= "Put main title here", 
      subtitle= "Put subtitle here" , 
+     caption="Put caption here",
      wmf = "Put_graph_filename_here", 
      Cairo=TRUE,
      printgraph = TRUE,
@@ -18,6 +19,7 @@ function(forn,
      # INPUT    forn         File (list) resulting from run of forsearch1( ) or myforsearch2( ), the latter for mixed effects models.
      #          maintitle    Graph main title
      #          subtitle     Graph subtitle
+     #          caption         Graph caption
      #          wmf          Graph title in storage space for ungrouped plots; omit ".wmf"; ".wmf" and subgroup appendix (if needed) will be added in function
      #          Cairo           TRUE causes use of Cairo graphics
      #          printgraph   TRUE causes graph to be printed in a Windows metafile and closes the device
@@ -77,7 +79,7 @@ function(forn,
                  xpos = NA, ypos = NA, buffered = getOption("windowsBuffered"), restoreConsole = FALSE)
           }      # Cairo
 
-          Hmisc::prn(out)             # this line plots the graph
+          print(out)             # this line plots the graph
 
           if(printgraph){
                filename <- paste(wmf,".wmf",sep="")
@@ -114,7 +116,6 @@ function(forn,
           nrows <- length(df1)
           s2 <- data.frame(column1,df2)
           s2 <- s2[-1*c(1,2),]
-          cap2 <- "Result of forward search"
           wmf2 <- paste(wmf,".wmf",sep="")    
           ##############################################
           # Call for plot using support function above #
@@ -122,7 +123,7 @@ function(forn,
           plotB2(data=s2,
                mtitle2=maintitle,
                stitle2=subtitle,
-               cap=cap2)
+               cap=caption)
      }
 
      # End of preparation function #

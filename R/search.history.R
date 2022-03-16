@@ -44,13 +44,25 @@ function(list1, diagnose=FALSE, verbose=TRUE)
           uu <- x1[[i]]
           if(!is.null(uu)){                         #  keep going until find some IN entries
                vv <- x1[[i-1]]
-               if(is.null(vv)) IN[[i]] <- uu        # vv can be NULL only at first nontrivial addition to set
+               if(is.null(vv)){
+                    IN[[i]] <- uu                   # vv can be NULL only at first nontrivial addition to set
+               }
                else{
-                    rr <- match(vv, uu, nomatch = 0)# rr and tt are vectors
-                    IN[[i]] <- uu[-1*rr]            # IN will be the later one(s) that don't match the earlier ones
-                    tt <- match(uu, vv, nomatch=0)
-                    OUT[[i]] <- vv[-1*tt]           # OUT wll be the early one(s) that don't match the later ones 
-               }       #    else
+                    rr <- match(vv, uu, nomatch = 0)# rr and tt are vectors of POSITIONS of matches; rr is positions of elements of vv in uu
+                    if(sum(rr)>0){
+                         IN[[i]] <- uu[-1*rr]            # IN will be the later one(s) that don't match the earlier ones
+                    }
+                    else{
+                         IN[[i]] <- uu                   #  all new observations replace all old ones
+                    }
+                    tt <- match(uu, vv, nomatch = 0)
+                    if(sum(tt)>0){
+                         OUT[[i]] <- vv[-1*tt]           # OUT wll be the early one(s) that don't match the later ones 
+                    }
+                    else{
+                         OUT[[i]]<- vv                   #  all old ones eliminated
+                    }
+               }       #    vv not null
           }       #   uu  not null 
      }      #  i    
      #
@@ -72,7 +84,6 @@ function(list1, diagnose=FALSE, verbose=TRUE)
           histOUT[i,] <- vv
      }      #   i
      lasthist <- dim(histOUT)[2]
-
      # histIN is already in the minimalist columnar format
 
      INname <- paste("IN",1:maxIN,sep="")
@@ -81,7 +92,6 @@ function(list1, diagnose=FALSE, verbose=TRUE)
      history <- histIN
 
      if(sum(histOUT)>0){
-
           orijOUT <- dim(histOUT)[2]
           for(j in (maxIN-1):2){
                if(sum(histOUT[,j])==0) {histOUT <- histOUT[,-j]}
@@ -90,10 +100,11 @@ function(list1, diagnose=FALSE, verbose=TRUE)
           histOUT <- as.matrix(histOUT,nrow=maxIN)
           dimOUT2 <- dim(histOUT)[2]
           if(dimOUT2 > 0){
-               history <- cbind(histIN,histOUT)
+XX <- rep(" //",lenx1)
+               history <- cbind(histIN,XX,histOUT)
                history <- as.data.frame(history)
                OUTname <- paste("OUT",1:dimOUT2,sep="")
-               names(history) <- c(INname,OUTname)
+               names(history) <- c(INname,"XX",OUTname)
           }     # dimOUT > 0
      }   # sum histOUT > 0  
      #

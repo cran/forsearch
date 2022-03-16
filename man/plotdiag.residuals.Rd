@@ -3,16 +3,13 @@
 \title{Plot Diagnostic Statistics Of Residuals Or Squared Residuals
 }
 \description{
-123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
-
-
 Plot output from forsearch_lm or forsearch_lme to show change in residuals or squared 
 residuals as the number of observations in the forward search procedure increases. Save 
 plot in folder containing working directory. 
 }
 \usage{
-plotdiag.residuals(forn, squared = FALSE, hilos = c(1, 0), maintitle, subtitle, wmf, 
-Cairo=TRUE,printgraph=TRUE,
+plotdiag.residuals(forn, squared = FALSE, hilos = c(1, 0), maintitle, subtitle, 
+caption, wmf, Cairo=TRUE,printgraph=TRUE,
 legend = "Dummy legend name", subdiag = FALSE, subverb = FALSE, diagnose = FALSE, 
 verbose = TRUE)
 }
@@ -28,11 +25,13 @@ verbose = TRUE)
 }
   \item{subtitle}{Subtitle of plot
 }
+  \item{caption}{Caption of plot}
+  
   \item{wmf}{File name of stored plot; omit ".wmf" 
 }
 \item{Cairo}{TRUE causes use of Cairo graphics
 }
-  \item{printgraph}{TRuE causes graph to print to file and
+  \item{printgraph}{TRUE causes graph to print to file and
           closes device
 }
   \item{legend}{Legend title
@@ -56,9 +55,7 @@ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New Yo
 \author{William R. Fairweather
 }
 \examples{
-%print("residuals");
 info3 <- system.file("extdata","MOf.R",package="forsearch");
-%print(info3);
 Machines.O.forlme <- source(info3);
 Machines.O.forlme <-Machines.O.forlme[[1]];
 plotdiag.residuals(Machines.O.forlme,hilos=c(1,1),wmf="Machines Residuals",Cairo=FALSE,

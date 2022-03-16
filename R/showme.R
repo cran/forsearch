@@ -32,12 +32,13 @@ function(x, verbose=TRUE)
      Hmisc::prn(utils::head(x$Leverage))
      Hmisc::prn(utils::tail(x$Leverage))
      Hmisc::prn(x$"Modified Cook distance")
+     Hmisc::prn(x$"t statistics")
 
 #[1] "Rows in stage"              "Standardized residuals"    
 #[3] "Number of model parameters" "Sigma"                     
 #[5] "Fixed parameter estimates"  "s^2"                       
 #[7] "Leverage"                   "Modified Cook distance"    
-#[9] "Call"                      
+#[9] "t statistics"               "Call"                      
      #
      if(verbose) {
           print("", quote = FALSE)

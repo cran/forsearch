@@ -9,7 +9,7 @@ working directory.
 }
 \usage{
 plotdiag.params.random(forn, coeff.codenums, maintitle = "Put maintitle here", 
-subtitle = "Put subtitle here", wmf = "Put_stored_name_here",
+subtitle = "Put subtitle here", caption = "Put caption here",wmf = "Put_stored_name_here",
 Cairo=TRUE,printgraph = TRUE,
 legend = "Dummy legend name", diagnose = FALSE, verbose = TRUE)
 }
@@ -23,11 +23,13 @@ legend = "Dummy legend name", diagnose = FALSE, verbose = TRUE)
 }
   \item{subtitle}{Subtitle of plot
 }
+  \item{caption}{Content of caption
+}
   \item{wmf}{File name of stored plot; omit ".wmf"  
 }
   \item{Cairo}{TRUE causes use of Cairo graphics
 }
-  \item{printgraph}{TRuE causes graph to print to file and
+  \item{printgraph}{TRUE causes graph to print to file and
           closes device
 }
   \item{legend}{Name of legend
@@ -45,9 +47,7 @@ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New Yo
 \author{William R. Fairweather
 }
 \examples{
-%print("params.random");
 info3 <- system.file("extdata","MOf.R",package="forsearch");
-%print(info3);
 Machines.O.forlme <- source(info3);
 Machines.O.forlme <-Machines.O.forlme[[1]];
 plotdiag.params.random(Machines.O.forlme,coeff.codenums=c(3,5,6), 

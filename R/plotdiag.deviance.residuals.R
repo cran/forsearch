@@ -1,19 +1,20 @@
 #' @export
-plotdiag.residuals <-
-function(forn, 
-     squared=FALSE,
+plotdiag.deviance.residuals <-
+function(
+     forn, 
+     squared=FALSE, 
+     augmented=TRUE,
      hilos=c(1,0),
      maintitle="Put main title here", 
      subtitle="Put subtitle here", 
      caption="Put caption here",
      wmf = "Put_graph_title_here", 
-     Cairo=TRUE,
-     printgraph = TRUE,
+     Cairo=TRUE, printgraph = TRUE,
      legend="Dummy legend name",
      subdiag=FALSE, subverb=FALSE,
      diagnose=FALSE, verbose=TRUE)
 {
-     #                          plotdiag.residuals
+     #                          plotdiag.deviance.residuals
      #
      # VALUE      Plot of the diagnostic statistics resulting from a forward search of a database.  Shows the influence of each observation on the scaled residuals.
      #                 For databases with more than 6 independent variables (including intercept), must subset the parameters in the plot. This doesn't affect
@@ -22,10 +23,12 @@ function(forn,
      #
      # INPUT    forn         File (list) resulting from run of forsearch1( ) or myforsearch2( ), the latter for mixed effects models.
      #          squared      Logical. TRUE causes residuals to be squared.
+     #          augmented    Logical. TRUE causes both deviance residuals and augmented residuals to be plotted.  Augmented residuals are those of observations not
+     #                          used in the current fitting
      #          hilos        Vector with number of high and number of low responses to flag in graph 
      #          maintitle    Graph main title
      #          subtitle     Graph subtitle
-     #          caption         Graph caption
+     #          caption      Graph caption
      #          wmf          Graph title in storage space for each plot; omit ".wmf"; ".wmf" and subgroup appendix (if needed) will be added in function
      #          Cairo        TRUE causes use of Cairo graphics
      #          legend       Legend name, if needed
@@ -38,7 +41,7 @@ function(forn,
      MC <- match.call()
      if(verbose) {
           print("", quote = FALSE)
-          print("Running plotdiag.residuals", quote = FALSE)
+          print("Running plotdiag.deviance.residuals", quote = FALSE)
           print("", quote = FALSE)
           print(date(), quote = FALSE)
           print("", quote = FALSE)
@@ -50,7 +53,7 @@ function(forn,
      #################
      # Plot function #
      #################
-     plotD1 <- function(data, df3, xcol, ycol, dim1, dim2,
+     plotD1 <- function(data, df3, xcol, ycol, dim1, dim2,print.col,
           cov2col, SE=FALSE, loess=T, 
           facetcol=NULL, facetdir, 
           mtitle, stitle, cap, horlabel, vertlabel, 
@@ -59,7 +62,9 @@ function(forn,
      {
      XVAR <- data[,xcol]
      YVAR <- data[,ycol]
-#     if(squared) {YVAR <- YVAR^2}
+
+     if(squared) {YVAR <- YVAR^2}
+
      COV2 <- data[,cov2col]
      SD <- data$SD
      N <- data$N
@@ -80,7 +85,6 @@ function(forn,
             lower <- dfplot$YVAR - dfplot$SD
       }
       dfplot <- data.frame(dfplot,upper,lower)
-
       out <- ggplot2::ggplot(data=dfplot, ggplot2::aes(x=XVAR, y=YVAR, group=COV2, color=COV2))
       out <- out + ggplot2::geom_line() + ggplot2::geom_errorbar(ggplot2::aes(x=XVAR,ymin=lower,ymax=upper),width=0.2)+ ggplot2::theme(legend.position="none")
 
@@ -88,13 +92,13 @@ function(forn,
       lows <- highslows[2]
       if(highs>0){        
            for(ihigh in 1:highs){
-                out <- out + ggplot2::annotate("text", x=dim2+3,y=df3[ihigh,2],label=as.character(df3[ihigh,1]))
+                out <- out + ggplot2::annotate("text", x=print.col+2,y=df3[ihigh,3],label=as.character(df3[ihigh,2]))
            }
       }
       dimdf3 <- dim(df3)[1]
       if(lows>0){        
           for(ilow in 1:lows){
-                out <- out + ggplot2::annotate("text", x=dim2+3,y=df3[dimdf3+1-ilow,2],label=as.character(df3[dimdf3+1-ilow,1]))
+                out <- out + ggplot2::annotate("text", x=print.col+2,y=df3[dimdf3+1-ilow,3],label=as.character(df3[dimdf3+1-ilow,2]))
           }
       }
       ############################
@@ -120,8 +124,7 @@ function(forn,
                  xpos = NA, ypos = NA, buffered = getOption("windowsBuffered"), restoreConsole = FALSE)
       }      # Cairo
 
-      print(out)             # this line plots the graph
-
+      print(out)
       if(printgraph){
            filename <- paste(wmf,".wmf",sep="")
            ggplot2::ggsave(filename,width=filewidth, height=fileheight)
@@ -142,7 +145,11 @@ function(forn,
      # Preparation function for plotting #
      #####################################
      prepstuff <- function(rightforn,gg){
-          df1 <- rightforn$"Standardized residuals"
+          df1 <- rightforn$"Deviance residuals and augments"
+          if(!augmented){
+               df1 <- df1$AorD=="D"       
+          }
+          df1 <- df1[,-2]
           ndf1 <- dim(df1)[2]
           mm <- 1:ndf1
           for(ir in 1:ndf1){
@@ -152,41 +159,47 @@ function(forn,
                     mm <- mm[-1]
                } else break
           }      #   ir
-          if(squared){
-               df1 <- df1*df1
-          }
           dimdf1 <- dim(df1)
           dim1 <- dimdf1[1]
           dim2 <- dimdf1[2]
- 
-          df1order <- order(df1[,dim2], decreasing=TRUE)
-          lastresids <- df1[,dim2]
-          lastresids <- sort(lastresids,decreasing=TRUE)
-          residsdf3 <- data.frame(df1order,lastresids)
-          names(residsdf3)[1] <- "Observation"
+          print.col <- max(df1$m)         # print column
+          #   
+          ################################################################
+          # Print highest and lowest residuals to help identify extremes #
+          ################################################################
+          df3 <- df1[df1$m==max(df1$m),,]
+          df3 <- df3[order(df3$deviance, decreasing=TRUE),]
+          names(df3)[2] <- "Observation"
+
           print("", quote = F)
           print("Highest residuals when all included", quote=FALSE)
-          print(utils::head(residsdf3), quote=FALSE)     # for identifing outliers on graph
+          print(utils::head(df3), quote=FALSE)     # for identifing outliers on graph
           print("", quote = F)
           print("Lowest residuals when all included", quote=FALSE)
-          print(utils::tail(residsdf3), quote=FALSE)     # for identifing outliers on graph
+          print(utils::tail(df3), quote=FALSE)     # for identifing outliers on graph
           print("", quote = F)
 
-          COV2 <- rep(1:dim1, each=dim2)
-          XVAR <- rep(mm, times=dim1)
-          resids <- c(t(df1))
+          df2 <- df1[order(df1[,2],df1[,1]),]
+          names(df2)<- c("XVAR","COV2","resids")
+
           SD <- 0
           N <- 1
-          df2 <- as.data.frame(tibble::tibble(COV2, XVAR, resids, SD, N))
+          df2 <- as.data.frame(tibble::tibble(df2, SD, N))
                                      if(subdiag)Hmisc::prn(df2)
           wmf2 <- paste(wmf,".wmf",sep="")    
           if(grouped){
                wmf2 <- paste(wmf," Subgroup ",gg,".wmf",sep="")    
           }
-               if(squared){vl <- "Scaled squared residuals"}
-               else{vl <- "Scaled residuals"}
-               plotD1(data=df2, df3=residsdf3, xcol=2, ycol=3, 
-                     cov2col=1,dim1=dim1, dim2=dim2,
+          if(augmented){
+               if(squared){vl <- "Squared augmented deviance residuals"}
+               else{vl <- "Augmented deviance residuals"}
+          }
+          else{
+               if(squared){vl <- "Squared deviance residuals"}
+               else{vl <- "Deviance residuals"}
+          }
+               plotD1(data=df2, df3=df3, xcol=1, ycol=3, 
+                     cov2col=2,dim1=dim1, dim2=dim2,print.col=print.col,
                      mtitle=maintitle,
                      stitle=subtitle,
                      highslows=hilos,
@@ -217,7 +230,7 @@ function(forn,
      #
      if(verbose) {
           print("", quote = FALSE)
-          print("Finished running plotdiag.residuals", quote = FALSE)
+          print("Finished running plotdiag.deviance.residuals", quote = FALSE)
           print("", quote = FALSE)
           print(date(), quote = FALSE)
           print("", quote = FALSE)

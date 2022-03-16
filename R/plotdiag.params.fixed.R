@@ -3,6 +3,7 @@ plotdiag.params.fixed <-
 function(forn, coeff.codenums=NULL,
      maintitle="Put main title here", 
      subtitle="Put subtitle here", 
+     caption="Put caption here",
      wmf="Put_stored_name_here", 
      Cairo=TRUE,
      printgraph=TRUE,
@@ -20,6 +21,7 @@ function(forn, coeff.codenums=NULL,
      #          coeff.codenums  Vector of index numbers (codes) of fixed effects to print, or NULL to print them all
      #          maintitle       Graph main title
      #          subtitle        Graph subtitle
+     #          caption         Graph caption
      #          wmf             Graph title in storage space for ungrouped plots; omit ".wmf"; ".wmf" and subgroup appendix (if needed) will be added in function
      #          Cairo           TRUE causes use of Cairo graphics
      #          printgraph      TRUE causes graph to be printed in a Windows metafile and closes the device
@@ -88,7 +90,7 @@ function(forn, coeff.codenums=NULL,
                  xpos = NA, ypos = NA, buffered = getOption("windowsBuffered"), restoreConsole = FALSE)
           }      # Cairo
 
-          Hmisc::prn(out)             # this line plots the graph
+          print(out)             # this line plots the graph
 
           if(printgraph){
                 filename <- paste(wmf,".wmf",sep="")
@@ -127,7 +129,6 @@ function(forn, coeff.codenums=NULL,
                betacoeffs <- as.data.frame(tibble::tibble(col1,col2,col3))
                                   if(diagnose) Hmisc::prn(betacoeffs)
 
-               cap2 <- "Result of forward search"
                wmf2 <- paste(wmf,".wmf",sep="")    
                ##############################################
                # Call for plot using support function above #
@@ -137,7 +138,7 @@ function(forn, coeff.codenums=NULL,
                      stitle=subtitle,
                      horlabel="Subset size m",
                      vertlabel="Estimated beta coefficient",
-                     cap=cap2,
+                     cap=caption,
                      legendname=legend,
                      diagnose=subdiag,verbose=subverb)
 
@@ -154,7 +155,6 @@ function(forn, coeff.codenums=NULL,
                }    #  i
                betacoeffs <- as.data.frame(tibble::tibble(col1,col2,col3))
                                   if(diagnose) Hmisc::prn(betacoeffs)
-               cap2 <- "Result of forward search"
                wmf2 <- paste(wmf,".wmf",sep="")    
                ##############################################
                # Call for plot using support function above #
@@ -165,7 +165,7 @@ function(forn, coeff.codenums=NULL,
                      stitle=subtitle,
                      horlabel="Subset size m",
                      vertlabel="Estimated beta coefficients",
-                     cap=cap2,
+                     cap=caption,
                      legendname=legend,
                      diagnose=subdiag,verbose=subverb)
 

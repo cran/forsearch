@@ -2,7 +2,7 @@
 \alias{forsearch-package}
 \alias{forsearch}
 \docType{package}
-\title{Diagnostic Analysis Using Forward Search Procedure for LM and LME Models
+\title{Diagnostic Analysis Using Forward Search Procedure for Various Models
 \packageTitle{forsearch}
 }
 \description{

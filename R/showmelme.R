@@ -6,7 +6,7 @@ function(x, verbose=TRUE)
      #
      # VALUE     Shortened output from forsearch_lme function.  Largely, a support for programming efforts
      #
-     # INPUT    x            lm diagnostics object
+     # INPUT    x            lme diagnostics object
      #
      #          verbose      Logical. TRUE causes printing of program ID before and after running.
      #
@@ -43,6 +43,7 @@ function(x, verbose=TRUE)
 
      Hmisc::prn(utils::head(x$Leverage))
      Hmisc::prn(x$"Modified Cook distance")
+     Hmisc::prn(x$"t statistics")
 
 
 
@@ -57,6 +58,7 @@ function(x, verbose=TRUE)
 #           Leverage=                          leverage[-1,],
 #          "Modified Cook distance"=           modCook,
 #           Dims=                              zholdlme$dims,
+#          "t statistics"=                     t.set,
 #           Call= MC)
 
      #

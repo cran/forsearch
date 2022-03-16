@@ -1,9 +1,9 @@
 \name{forsearch_lme}
 \alias{forsearch_lme}
-\title{Create Statistics Of Forward Search In Database To Be Analyzed by LME Function 
+\title{Create Statistics Of Forward Search In Linear Mixed Effects Database
 }
 \description{
-Prepares summary statistics at each stage of forward search for subsequent plotting. Forward seach is conducted in three steps: Step 0 to set up accounting for group structure, Step 1 to identify minimal set of observations to estimate unknown parameters, and Step 2 to add one observation at each stage such that observations in the set are best fitting at that stage.
+Prepares summary statistics at each stage of forward search for subsequent plotting. Forward search is conducted in three steps: Step 0 to set up accounting for group structure, Step 1 to identify minimal set of observations to estimate unknown parameters, and Step 2 to add one observation at each stage such that observations in the set are best fitting at that stage.
 }
 \usage{
 forsearch_lme(fixed,  data, random, formula,  response.column,  initial.sample, robs, 

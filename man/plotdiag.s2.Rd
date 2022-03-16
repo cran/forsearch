@@ -9,7 +9,8 @@ working directory.
 }
 \usage{
 plotdiag.s2(forn, maintitle = "Put main title here", subtitle = "Put subtitle here", 
-    wmf = "Put_graph_filename_here", Cairo=TRUE,printgraph=TRUE, loess = FALSE, 
+    caption = "Put caption here", wmf = "Put_graph_filename_here", 
+    Cairo=TRUE,printgraph=TRUE, loess = FALSE, 
     subdiag = FALSE, subverb = FALSE, 
     diagnose = FALSE, verbose = TRUE)
 }
@@ -23,16 +24,19 @@ Main title of plot
   \item{subtitle}{
 Subtitle of plot
 }
-\item{wmf}{
+  \item{caption}{
+Content of caption
+}
+  \item{wmf}{
 File name of stored plot; omit ".wmf"  
 }
-\item{Cairo}{TRUE causes use of Cairo graphics
+  \item{Cairo}{TRUE causes use of Cairo graphics
 }
-\item{printgraph}{TRuE causes graph to print to file and
+  \item{printgraph}{TRUE causes graph to print to file and
           closes device
 }
-\item{loess}{
-If TRUE, adds loess curve to plot, otherwise, straight line
+  \item{loess}{
+          If TRUE, adds loess curve to plot, otherwise, straight line
 }
   \item{subdiag}{
 If TRUE, displays code to help diagnose subfunction errors
@@ -56,9 +60,7 @@ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New Yo
 \author{William R. Fairweather
 }
 \examples{
-%print("s2");
 info3 <- system.file("extdata","crossdata.for1.R",package="forsearch");
-%print(info3);
 crossdata.for1 <- source(info3);
 crossdata.for1 <-crossdata.for1[[1]];
 plotdiag.s2(forn=crossdata.for1, wmf="Crossdata_s2",Cairo=FALSE,printgraph=FALSE
