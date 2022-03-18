@@ -1,6 +1,6 @@
-415b5107789da138c48103d3d0cf647d *DESCRIPTION
+12ecfdac8dc70120a5b1a49d1a83694e *DESCRIPTION
 29faa0c44ec3aedb263ad7a30ff85538 *NAMESPACE
-d0693611d0be8023c623dfe81a49c5f3 *NEWS.md
+fca0b0cda408bef8a0874d96e1da42db *NEWS.md
 4f5ff48ed312e8b4ebabd99baf29adf9 *R/forsearch_glm.R
 fbc6150e6a86ad0b982b2351609896b2 *R/forsearch_lm.R
 28a51c2e7cbb60faf90dcfc4887ac157 *R/forsearch_lme.R
@@ -21,7 +21,8 @@ b54b0f03fcc5ee538eb27a7e095309c2 *R/plotdiag.residuals.R
 0548d037226d3b9fc8f54ab4c3a8a647 *R/showme.R
 862b5172e16ae4b142972450efda2dce *R/showmegl.R
 d17d56f8c2d4fb4219e426b0b957978f *R/showmelme.R
-58859a952c73795746d7cda453026e88 *build/partial.rdb
+57d51135090988ffcc37ba35a3820117 *README.md
+049bfb530a1e961f77b614cdebbfa94e *build/partial.rdb
 b78e97834642e3605b0fc43020bf400a *inst/extdata/Alfalfa.O.R
 2844c26de8b8658423b463e8d97a1047 *inst/extdata/Alfalfa.O.forlme.R
 bb3f168eda8fe4701a764366dd0803ff *inst/extdata/Alfalfa.R

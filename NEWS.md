@@ -1,4 +1,7 @@
 
+3/17/2022 forsearch version 2.1.0
+Correct the omission of README file
+
 3/16/2022 forsearch version 2.0.0
 =================================
     Major changes:
@@ -11,7 +14,7 @@ Added plotdiag.deviances() function
     Moderate changes:
 Added the collection of t statistics in forsearch_lm() and forsearch_lme() for subsequent plotting 
 Added plotdiag.tstats() function to plot t statistics
-Added showmeglm() function
+Added showmegl() function
 Changed some existing plotdiag functions to accommodate forsearch_glm()
 
     Minor changes and bug fixes:
