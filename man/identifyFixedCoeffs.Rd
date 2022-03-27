@@ -1,10 +1,10 @@
 \name{identifyFixedCoeffs}
 \alias{identifyFixedCoeffs}
-\title{Index To Identify Coefficients To Appear Together on Plot
+\title{Index To Identify Fixed Coefficients To Appear Together on Plot
 }
 \description{
  Runs the defined linear (lm) model. Displays the resulting coefficients. 
-    Supplies the codes for identifying them to the plotting functions of this package.
+    Attaches codes for identifying them to the plotting functions of this package.
 }
 \usage{identifyFixedCoeffs(formula, data, diagnose = FALSE, verbose = TRUE)
 }
@@ -28,16 +28,11 @@ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New Yo
 \author{William R. Fairweather
 }
 \examples{
-%print("FixedCoeffs");
-info3 <- system.file("extdata","crossdata.R",package="forsearch");
-%print(info3);
+\testonly{
+info3 <- system.file("extdata", "crossdata.R", package="forsearch");
 crossdata <- source(info3);
 crossdata <- crossdata[[1]];
-%print(crossdata);
-identifyFixedCoeffs(formula=y~x1*x2,data=crossdata)
+identifyFixedCoeffs(formula=y~x1*x2, data=crossdata)
 }
- \keyword{ attribute }
- \keyword{ debugging }
- \keyword{ optimize }
- \concept{ outliers }
-
+}
+ \keyword{ manip }

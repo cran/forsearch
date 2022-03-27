@@ -58,13 +58,12 @@ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New Yo
 \author{William R. Fairweather
 }
 \examples{
+\testonly{
 info3 <- system.file("extdata","Alfalfa.O.forlme.R",package="forsearch");
 Alfalfa.O.forlme <- source(info3);
 Alfalfa.O.forlme <- Alfalfa.O.forlme[[1]];
 plotdiag.Cook(Alfalfa.O.forlme, wmf="Alfalfa_Cook", Cairo=FALSE,
 printgraph=FALSE)
 }
- \keyword{ attribute }
- \keyword{ debugging }
- \keyword{ optimize }
- \concept{ outliers }
+}
+ \keyword{ hplot }

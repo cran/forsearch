@@ -71,13 +71,26 @@ verbose=    TRUE)
           }
           else{
                if(fam=="binomial"){
-                    out <- obs*log(obs/pred) + (ni-obs)*log((ni-obs)/(ni-pred))   # expects whole numbers, not proportions
+                    if(obs==0){
+                         out <- ni*log(ni/(ni-pred))                   # expects whole numbers, not proportions
+                    }
+                    else if(obs==ni){
+                         out <- obs*log(obs/pred) 
+                    }
+                    else{
+                         out <- obs*log(obs/pred) + (ni-obs)*log((ni-obs)/(ni-pred))  
+                    }
                }
                else if(fam=="Gamma"){
                    out <- -log(obs/pred) + (obs-pred)/pred
                }
                else if(fam=="poisson"){
-                   out <- obs*log(obs/pred) - obs + pred
+                    if(obs==0){
+                        out <- pred
+                    }
+                    else{
+                        out <- obs*log(obs/pred) - obs + pred
+                    }
                }
                else if(fam=="exponential"){
                     out <- -log(obs/pred) + obs*pred - 1
@@ -91,7 +104,8 @@ verbose=    TRUE)
                else{
                     out <- 2 * out
                     vv <- obs - pred
-                    out<-sqrt(out)*(vv/abs(vv))
+                    vv <- vv/abs(vv)            #  1 or -1
+                    out <- sqrt(out)*vv
                }
           }
           out
@@ -128,6 +142,8 @@ verbose=    TRUE)
      print("The formula applied in this analysis was:", quote=FALSE)
      print("", quote=FALSE)
      print(genformula, quote=FALSE)
+     print("", quote=FALSE)
+     print(paste("response.cols = ", name.response,sep=", "), quote=FALSE)
      print("", quote=FALSE)
 
      if(family[[1]]=="binomial"){

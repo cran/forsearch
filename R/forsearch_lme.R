@@ -212,8 +212,8 @@ coeffnames <- dimnames(x1)[2]
                                         if(diagnose) Hmisc::prn(zholdlm)
                allrows <- rbind(topSamples[[i]],botSamples[[i]])
                df2 <- df1[allrows[,1],]
-               LMzholdlm <- stats::lm(formula=fixed2, data=zzzz)
-               preds <- stats::predict(object=LMzholdlm, newdata=data2)   
+               LMzholdlm <- stats::lm(formula=fixed2, data=zzzz)                                                    # lm
+               preds <- stats::predict(object=LMzholdlm, newdata=data2)                                    # predict from lm fit
                yinput <- df2[,response.column]
                err2 <- (preds - yinput)^2
                catchsamp[[i]] <- data.frame(allrows[,1],preds,yinput,round(err2,4),-999)     
@@ -344,7 +344,7 @@ coeffnames <- dimnames(x1)[2]
           ###############################################################################
           for(j in 1:ngroups){
                                                  if(diagnose) {Hmisc::prn(c(i,j)); Hmisc::prn(df1.by.group[[j]])}
-               predlme <- stats::predict(object=LMzholdlme, newdata=df1.by.group[[j]])
+               predlme <- stats::predict(object=LMzholdlme, newdata=df1.by.group[[j]])                               # predict
                errs2 <- (predlme - df1.by.group[[j]][,response.column])^2 
                vv <- data.frame(df1.by.group[[j]]$Observation, predlme, df1.by.group[[j]][,response.column], errs2)
                vv <- vv[order(vv[,4]),]

@@ -1,6 +1,6 @@
 \name{search.history}
 \alias{search.history}
-\title{History Of Forward Search
+\title{Create Tabular History Of Forward Search
 }
 
 \description{The forward search functions output a list of vectors, each of which 
@@ -29,14 +29,11 @@ course of the forward search
 \author{William R. Fairweather
 }
 \examples{
-%print("history");
+\testonly{
 info3 <- system.file("extdata","MOf.R",package="forsearch");
-%print(info3);
 Machines.O.forlme <- source(info3);
 Machines.O.forlme <- Machines.O.forlme[[1]];
 search.history(Machines.O.forlme)
 }
- \keyword{ attribute }
- \keyword{ debugging }
- \keyword{ optimize }
- \concept{ outliers }
+}
+ \keyword{ manip }

@@ -1,6 +1,6 @@
 \name{forsearch_lme}
 \alias{forsearch_lme}
-\title{Create Statistics Of Forward Search In Linear Mixed Effects Database
+\title{Create Statistics Of Forward Search In a Linear Mixed Effects Database
 }
 \description{
 Prepares summary statistics at each stage of forward search for subsequent plotting. Forward search is conducted in three steps: Step 0 to set up accounting for group structure, Step 1 to identify minimal set of observations to estimate unknown parameters, and Step 2 to add one observation at each stage such that observations in the set are best fitting at that stage.
@@ -51,12 +51,10 @@ Group structure is ignored in calculating errors of fit. That is, predictions de
 \author{William R. Fairweather
 }
 \examples{
-%print("forsearch_lme");
+\testonly{
 info3 <- system.file("extdata","Alfalfa.O.R",package="forsearch");
-%print(info3);
 Alfalfa.O <- source(info3);
 Alfalfa.O <- Alfalfa.O[[1]];
-%print(Alfalfa.O);
 
 firstrun <- (1:72)[c(-3,-47)]
 Alfalfa.O.forlme<-forsearch_lme(
@@ -68,7 +66,5 @@ response.column=5,
 initial.sample=4,robs=2,skip.step1=firstrun
 )
 }
- \keyword{ attribute }
- \keyword{ debugging }
- \keyword{ optimize }
- \concept{ outliers }
+}
+ \keyword{ datagen }

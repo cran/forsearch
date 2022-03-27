@@ -36,13 +36,12 @@ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New Yo
 \author{William R. Fairweather
 }
 \examples{
+\testonly{
 info3 <- system.file("extdata","micem1.for.R",package="forsearch");
 info3 <- source(info3);
 info3 <- info3[[1]];
 plotdiag.deviances(info3, devtype="R", wmf="Deviance statistics: Residual", 
 Cairo=FALSE, printgraph=FALSE)
 }
- \keyword{ attribute }
- \keyword{ debugging }
- \keyword{ optimize }
- \concept{ outliers }
+}
+ \keyword{ hplot }

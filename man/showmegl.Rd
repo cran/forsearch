@@ -18,14 +18,11 @@ If TRUE, indicates the beginning and end of function run
 }
 \author{William R. Fairweather}
 \examples{
-print("showmegl");
+\testonly{
 info3 <- system.file("extdata","micem1.for.R",package="forsearch");
-print(info3);
 invo4 <- source(info3);
 invo4 <-invo4[[1]];
 showmegl(invo4)
 }
- \keyword{ attribute }
- \keyword{ debugging }
- \keyword{ optimize }
- \concept{ outliers }
+}
+ \keyword{ manip }

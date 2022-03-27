@@ -1,7 +1,6 @@
 \name{plotdiag.deviance.residuals}
 \alias{plotdiag.deviance.residuals}
-\title{Plot Diagnostic Statistics Of Deviance Residuals
-}
+\title{Plot Diagnostic Statistics Of Deviance Residuals}
 \description{
 Plot output from forsearch_glm to show change in deviance residuals or augmented 
 deviance residuals, either of which can be squared, as the number of observations 
@@ -48,13 +47,12 @@ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New Yo
 \author{William R. Fairweather
 }
 \examples{
+\testonly{
 info3 <- system.file("extdata","micem1.for.R",package="forsearch");
 info3 <- source(info3);
 info3 <-info3[[1]];
 plotdiag.deviance.residuals(info3,hilos=c(1,1),wmf="Micem1_for_DR",Cairo=FALSE,
 printgraph=FALSE)
 }
- \keyword{ attribute }
- \keyword{ debugging }
- \keyword{ optimize }
- \concept{ outliers }
+}
+ \keyword{ hplot }

@@ -19,14 +19,11 @@ output in an abbreviated format. Primarily for programmer use.
 \author{William R. Fairweather
 }
 \examples{
-%print("showme");
+\testonly{
 info3 <- system.file("extdata","crossdata.for1.R",package="forsearch");
-%print(info3);
 crossdata.for1 <- source(info3);
 crossdata.for1 <- crossdata.for1[[1]];
 showme(crossdata.for1)
 }
- \keyword{ attribute }
- \keyword{ debugging }
- \keyword{ optimize }
- \concept{ outliers }
+}
+ \keyword{ manip }

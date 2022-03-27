@@ -1,6 +1,6 @@
 \name{forsearch_lm}
 \alias{forsearch_lm}
-\title{Create Statistics Of Forward Search in Linear Model Database
+\title{Create Statistics Of Forward Search in a Linear Model Database
 }
 \description{
 Prepares summary statistics at each stage of forward search for subsequent plotting. Forward search is conducted in two steps: Step 1 to identify minimal set of observations to estimate unknown parameters, and Step 2 to add one observation at each stage such that observations in the set are best fitting at that stage.
@@ -35,15 +35,11 @@ forsearch_lm(formula, data, initial.sample, diagnose = FALSE, verbose = TRUE)
 \author{William R. Fairweather}
 
 \examples{
-%print("forsearch_lm");
+\testonly{
 info3 <- system.file("extdata","crossdata.R",package="forsearch");
-%print(info3);
 cross <- source(info3);
 cross <- cross[[1]];
-%print(cross);
 crossdata.for1 <- forsearch_lm(formula=y~x1*x2, data=cross, initial.sample = 100)
 }
- \keyword{ attribute }
- \keyword{ debugging }
- \keyword{ optimize }
- \concept{ outliers }
+}
+ \keyword{ datagen }

@@ -1,11 +1,11 @@
 \name{identifyCoeffs}
 \alias{identifyCoeffs}
-\title{Index To Identify Coefficients To Appear Together on Plot
+\title{Index To Identify Fixed and Random Coefficients To Appear Together on Plot
 }
 \description{
  Runs the defined, grouped linear mixed effects (lme) model. Displays the resulting fixed 
- and random coefficients. Supplies the codes for identifying them to the plotting 
- functions of this package.
+ and random coefficients. Attaches codes for identifying them to the plotting functions 
+ of this package.
 }
 
 \usage{identifyCoeffs(fixed, data, random, 
@@ -40,14 +40,11 @@ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New Yo
 \author{William R. Fairweather
 }
 \examples{
-%print("identify");
+\testonly{
 info3 <- system.file("extdata","Machines.O.R",package="forsearch");
-%print(info3);
 Machines.O. <- source(info3);
 identifyCoeffs(fixed=score~1, data=Machines.O, random= ~1 | Worker)
 }
- \keyword{ attribute }
- \keyword{ debugging }
- \keyword{ optimize }
- \concept{ outliers }
+}
+ \keyword{ manip }
 

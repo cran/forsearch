@@ -1,6 +1,14 @@
 
+4/17/2022 forsearch version 2.2.0
+=================================
+Clean up README and help files
+Modify forsearch_glm to handle observations of 0 or N (binomial)
+
+
 3/17/2022 forsearch version 2.1.0
+=================================
 Correct the omission of README file
+
 
 3/16/2022 forsearch version 2.0.0
 =================================

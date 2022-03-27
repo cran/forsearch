@@ -1,7 +1,7 @@
 Package: forsearch
+Version: 2.2.0
 Title: Outlier Diagnostics for Some Linear Effects and Linear Mixed
         Effects Models
-Version: 2.1.0
 Authors@R: c(person("William","Fairweather", role = c("aut", "cre"),
            email = "wrf343@flowervalleyconsulting.com"))
 Description: Identifies potential data outliers and their impact on estimates and analyses.
@@ -18,8 +18,8 @@ RoxygenNote: 7.1.2
 Depends: R (>= 2.10)
 Suggests: rmarkdown, knitr
 NeedsCompilation: no
-Packaged: 2022-03-17 19:47:00 UTC; NO
+Packaged: 2022-03-24 16:00:36 UTC; NO
 Author: William Fairweather [aut, cre]
 Maintainer: William Fairweather <wrf343@flowervalleyconsulting.com>
 Repository: CRAN
-Date/Publication: 2022-03-18 10:20:12 UTC
+Date/Publication: 2022-03-27 23:30:02 UTC

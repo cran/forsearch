@@ -19,14 +19,11 @@ If TRUE, indicates the beginning and end of function run
 }
 \author{William R. Fairweather}
 \examples{
-%print("showmelme");
+\testonly{
 info3 <- system.file("extdata","MOf.R",package="forsearch");
-%print(info3);
 Machines.O.forlme <- source(info3);
 Machines.O.forlme <-Machines.O.forlme[[1]];
 showmelme(Machines.O.forlme)
 }
- \keyword{ attribute }
- \keyword{ debugging }
- \keyword{ optimize }
- \concept{ outliers }
+}
+ \keyword{ manip }

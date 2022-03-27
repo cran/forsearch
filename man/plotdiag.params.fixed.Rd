@@ -52,13 +52,12 @@ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New Yo
 \author{William R. Fairweather
 }
 \examples{
+\testonly{
 info3 <- system.file("extdata","MOf.R",package="forsearch");
 Machines.O.forlme <- source(info3)[[1]];
 plotdiag.params.fixed(Machines.O.forlme,coeff.codenums=NULL, wmf="Machines_Fixed_Coefficients",
 Cairo=FALSE,printgraph=FALSE
 )
 }
- \keyword{ attribute }
- \keyword{ debugging }
- \keyword{ optimize }
- \concept{ outliers }
+}
+ \keyword{ hplot }
