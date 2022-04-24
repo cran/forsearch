@@ -1,6 +1,7 @@
 #' @export
 plotdiag.params.random <-
-function(forn, coeff.codenums, 
+function(forn, coeff.codenums=NULL,
+     asfacets=FALSE, facetdir=c("h","v"), 
      maintitle="Put maintitle here", 
      subtitle="Put subtitle here", 
      caption="Put caption here",
@@ -44,8 +45,8 @@ function(forn, coeff.codenums,
      #################
      # Plot function #
      #################
-     plotB1 <- function(data, xcol, ycol, cov1col,
-                     facetcol=NULL, facetdir, 
+     plotB1 <- function(data, xcol, ycol, cov1col=NULL, 
+                     facetcol=NULL, facetdir=NULL, 
                      mtitle,
                      stitle,
                      horlabel,
@@ -63,13 +64,16 @@ function(forn, coeff.codenums,
           FACET <- data[,facetcol]
           dfplot <- data.frame(dfplot,FACET)
                      if(diagnose)Hmisc::prn(dfplot)
-          out <- ggplot2::ggplot(data=dfplot,ggplot2::aes(XVAR,YVAR,COV1)) + ggplot2::geom_point(ggplot2::aes(shape = COV1))
-          out$labels$shape <- legendname
-
-          if(!is.null(facetcol)){
-               if(facetdir=="h") out <- out + ggplot2::facet_grid(.~FACET)
-               if(facetdir=="v") out <- out + ggplot2::facet_grid(FACET~.)
-               if(facetdir=="w") out <- out + ggplot2::facet_wrap(~FACET)
+          if(is.null(facetcol)){
+               out <- ggplot2::ggplot(data=dfplot,ggplot2::aes(XVAR,YVAR,COV1)) + ggplot2::geom_point(ggplot2::aes(shape = COV1))
+               out$labels$shape <- legendname
+          }
+          else{
+               if(!(facetdir=="v" | facetdir=="h")) stop("facetdir must be 'v' or 'h'")
+               ncells <- length(unique(FACET))
+               out <- ggplot2::ggplot(data=dfplot, ggplot2::aes(XVAR,YVAR) ) + ggplot2::geom_point(ggplot2::aes(shape = FACET))
+               if(facetdir=="h") out <- out + ggplot2::facet_wrap(~FACET,ncol=ncells,scales="free_y")
+               if(facetdir=="v") out <- out + ggplot2::facet_wrap(~FACET,nrow=ncells,scales="free_y")
           }      
   
           ############################################
@@ -86,6 +90,7 @@ function(forn, coeff.codenums,
                  rescale = c("R", "fit", "fixed"), bg = "transparent", canvas = "white", gamma = getOption("gamma"),
                  xpos = NA, ypos = NA, buffered = getOption("windowsBuffered"), restoreConsole = FALSE)
           }      # Cairo
+
           print(out)             # this line plots the graph
 
           if(printgraph){
@@ -99,39 +104,53 @@ function(forn, coeff.codenums,
      # Preparation for plotting #
      # Remove initial zeros     #
      ############################
-     prepstuff <- function(df2){
-          ndf2 <- dim(df2)[1]
-          for(ir in 1:ndf2){
-               uu <- df2[1,-1] 
-               if(sum(uu)==0){df2 <- df2[-1,]} else break
-          }      #   ir
-                                  if(diagnose) Hmisc::prn(df2)
-
+     prepstuff <- function(df2, usefacets){            #   df2 is a data frame
           nrows <- dim(df2)[1]
-          df3 <- df2[,-1]
-          ncols <- dim(df3)[2]
+          ncols <- dim(df2)[2] - 1         # columns without observation number
           cola <- df2[,1] 
-          col1 <- rep(cola, times=ncols)
-          namesdf3 <- names(df3)
-          col2 <- c(unlist(df3),use.names = FALSE)
-          col3 <- NULL
-          nnames <- length(namesdf3)
-          for(i in 1:nnames){
-               col3 <- c(col3,rep(namesdf3[i],nrows))
-          }    #  i
+          if(ncols > 1){
+               col1 <- rep(cola, times=ncols)
+
+               df3 <- df2[,-1]
+               namesdf3 <- names(df3)
+               col2 <- c(unlist(df3), use.names = FALSE)
+               col3 <- NULL
+               nnames <- length(namesdf3)
+               for(i in 1:nnames){
+                    col3 <- c(col3,rep(namesdf3[i],nrows))
+               }    #  i
+          }     # ncols > 1
+          else{
+               col1 <- cola
+               col2 <- c(df2[,2])
+               col3 <- rep(names(df2)[2],nrows)
+               usefacets <- FALSE
+          }
           betacoeffs <- as.data.frame(tibble::tibble(col1,col2,col3))
                                   if(diagnose) Hmisc::prn(betacoeffs)
-
+          index <- betacoeffs[,2] > 0
+          betacoeffs <- betacoeffs[index,]
           wmf2 <- paste(wmf,".wmf",sep="")    
           #
           ##############################################
           # Call for plot using support function above #
           ##############################################
-          plotB1(data=betacoeffs, xcol=1, ycol=2, cov1col=3,
+          if(usefacets){
+               plotB1(data=betacoeffs, xcol=1, ycol=2, facetcol=3, facetdir=facetdir,
                      mtitle=maintitle,
                      stitle=subtitle,
                      horlabel="Subset size m",
-                     vertlabel="Estimated beta coefficients",
+                     vertlabel="Root mean square of random coefficients",
+                     cap=caption,
+                     legendname=legend)
+
+          }
+          else
+               plotB1(data=betacoeffs, xcol=1, ycol=2, cov1col=3,
+                     mtitle=maintitle,
+                     stitle=subtitle,
+                     horlabel="Subset size m",
+                     vertlabel="Root mean square of random coefficients",
                      cap=caption,
                      legendname=legend)
 
@@ -147,19 +166,13 @@ function(forn, coeff.codenums,
      #############################################################
      # Extract each set of coefficients and form into data frame #
      #############################################################
-     lencc <- length(coeff.codenums)
-     if(lencc<2) stop("Must call for plot of at least 2 coefficients (coeff.codes)")
-
-     df1 <- forn$"Random parameter estimates" 
-     ccj <- coeff.codenums[1]
-     df2 <- data.frame(df1[[ccj]])
-     for(j in 2:lencc){
-          ccj <- coeff.codenums[j]
-          df2 <- cbind(df2, df1[[ccj]])
+     df2 <- forn$"Random parameter estimates" 
+     if(!is.null(coeff.codenums)){
+          df2 <- df2[,coeff.codenums]
      }
-     m <- 1:(dim(df2)[1])
+     m <- 1:(dim(df2)[1])                      #   add observation numbers
      df2 <- cbind(m,df2)
-     prepstuff(df2)
+     prepstuff(df2,usefacets=asfacets)
      #
      if(verbose) {
           print("", quote = FALSE)

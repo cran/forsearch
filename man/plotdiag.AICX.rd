@@ -11,7 +11,7 @@ Plot output from forsearch_glm to show change in AIC statistics as the
 plotdiag.AICX(forn, maintitle = "Put main title here", 
 subtitle = "Put subtitle here", caption="Put caption title here", 
 wmf = "Put_plot_file_title_here",
-Cairo=TRUE, printgraph=TRUE,loess = FALSE, subdiag=FALSE, subverb=FALSE, 
+Cairo=TRUE, printgraph=TRUE,loess = FALSE,  
 diagnose = FALSE,verbose = TRUE)
 }
 \arguments{
@@ -23,8 +23,6 @@ diagnose = FALSE,verbose = TRUE)
   \item{Cairo}{TRUE causes use of Cairo graphics}
   \item{printgraph}{TRUE causes graph to print to file and closes device}
   \item{loess}{TRUE causes plot of loess line, otherwise straight line}
-  \item{subdiag}{If TRUE, displays code to help diagnose subfunction errors}
-  \item{subverb}{If TRUE, indicates beginning and end of subfunction}
   \item{diagnose}{If TRUE, displays code to help diagnose main function errors}
   \item{verbose}{If TRUE, indicates beginning and end of function}
 }

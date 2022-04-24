@@ -8,7 +8,6 @@ function(forn,
      wmf = "Put_graph_title_here", 
      Cairo=TRUE,
      printgraph = TRUE,
-     subdiag=FALSE, subverb=FALSE,
      diagnose=FALSE, verbose=TRUE)
 {
      #                          plot.diag.leverage
@@ -26,8 +25,6 @@ function(forn,
      #          caption         Graph caption
      #          wmf          Single-word graph title in storage space for each plot; omit ".wmf"; ".wmf" and subgroup appendix (if needed) will be added in function
      #          Cairo           TRUE causes use of Cairo graphics
-     #          subdiag      Logical. TRUE causes printing of diagnostic content of called subfunctions
-     #          subverb      Logical. TRUE causes printing of subfunction ID before and after running.
      #          diagnose     Logical. TRUE causes printing of diagnostic content
      #          verbose      Logical. TRUE causes printing of program ID before and after running.
      #
@@ -51,7 +48,7 @@ function(forn,
           mtitle, stitle, cap, 
           horlabel, vertlabel, 
           filewidth, fileheight,  
-          subdiag, subverb)
+          diagnose, verbose)
      {
 
      XVAR <- data[,xcol]
@@ -99,7 +96,7 @@ function(forn,
            grDevices::dev.off()
       }    # printgraph
       #
-      if(subverb) {
+      if(verbose) {
         print("", quote = F)
         print("Finished running plotD1", quote = F)
         print("", quote = F)
@@ -140,7 +137,7 @@ function(forn,
                      horlabel="Subset size m",
                      vertlabel="Leverage",
                      cap=caption, filewidth=5,fileheight=5,
-                     subdiag=subdiag,subverb=subverb)
+                     diagnose=diagnose,verbose=verbose)
      }
      # End of preparation function #
 

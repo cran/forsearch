@@ -13,7 +13,7 @@ output: html_document
 
 In Step 2, the number of observations in the set is increased by 1 until all observations are included.  The first set of observations is chosen in such a way that there is little chance that it includes an outlier.  Subsequent sets are defined by adding the observation that least disturbs the estimates. This process causes the most outlying observation(s) to be added at the end of Step 2. In some stages of Step 2, one or more of the observations already in the set would be dropped out to make way for a better fitting set, but the set would still be incremented in size by 1.
 
-In forsearch, Step 1 is accomplished by sampling all the observations to determine which ones should be chosen for the initial set. The size of this sample is set by the user (initial.sample) in forsearch_lm(), forsearch_glm(), and forsearch_lme().
+In forsearch, Step 1 is accomplished by sampling all the observations to determine which ones should be chosen for the initial set. The size of this sample is set by the user (initial.sample) in forsearch_lm(), forsearch_glm(), and forsearch_lme().  For forsearch_lme, observations in each innermost subset are selected in order to prevent irrelevant jumps in the resulting graphics.
 
 During Step 2, the output of each run of a forsearch function is saved.  For example, fixed parameter estimates and the estimate of underlying variation are saved. For lme(), the other variance estimates are also saved. Other functions of the forsearch package are used to plot the changes in these statistics over the stages of Step 2. Outliers create characteristic plots.  The different plots indicate where the outlier(s) have an impact on the subsequent formal analysis of the data and where they do not. 
 
@@ -88,15 +88,16 @@ In the second example we consider a grouped data situation (Pinheiro and Bates, 
 
     Alf <- Alfalfa
 
-* Augment the data frame with Observation number
+* Augment the data frame with Observation number and create single variable subset
 
     Observation <- 1:72
     Alf.O <- data.frame(Observation, Alf)
+    BV <- paste(Block, Variety, sep="--")
 
 * Produce the observation statistics
 
-    Alfalfa.O.formle<-forsearch_lme(fixed=Yield~1, data=Alf.O, random= ~1 | Block/Variety,
-        formula=Yield~1|Block/Variety, response.column=5, initial.sample=100, robs=2)
+    Alfalfa.O.formle<-forsearch_lme(fixed=Yield~1, data=Alf.O, random= ~1 | BV,
+        formula=Yield~1|BV, response.column=5, initial.sample=100, robs=2)
 
 * Display the resulting file in condensed format
 
@@ -111,7 +112,7 @@ In the second example we consider a grouped data situation (Pinheiro and Bates, 
 
     plotdiag.residuals(data=Alfalfa.O.formle)
     plotdiag.params.fixed(data=Alfalfa.O.formle, coeff.codenums=NULL)
-    plotdiag.params.random(data=Alfalfa.O.formle, coeff.codenums=c(1,5,6,7))
+    plotdiag.params.random(data=Alfa.O.formle, coeff.codenums=NULL)
     plotdiag.leverage(data=Alfalfa.O.formle)
     plotdiag.Cook(data=Alfalfa.O.formle)
     plotdiag.tstats(data=Alfalfa.O.formle)
@@ -153,7 +154,8 @@ The third example is a set of 67 records of British train accidents (Atkinson an
 
 
 ```
-The table below summarizes the use of plotdiag.xxx functions in lm, lme and glm databases:
+The table below summarizes the use of plotdiag.xxx functions on forsearch_lm, _lme 
+and _glm object databases:
 
 ```
 ------------------- | -------------------------------- | --- | --- | ---
@@ -165,11 +167,13 @@ deviance.residuals	| Deviance residuals and augments  | 	 |     |  X
 deviances	        | Residual deviance, Null deviance |	 |	   |  X  
 leverage	        | Leverage	                       |  X  |  X  |  X  
 params.fixed	    | Fixed parameter estimates	       |  X  |  X  |  X  
-params.random	    | Random parameter estimates       |	 |  X  |  
+params.random       | Random parameter estimates       |     |  X  |
 phihatx	            | PhiHat			               |     |     |  X  
 residuals	        | Standardized residuals	       |  X  |  X  |  
 s2	                | s^2	                           |  X  |	   |  
 tstats	            | t statistics	                   |  X  |  X  |  X  
-
+fit3                | Fit statistics                   |     |  X  |
 ```
+
+
 

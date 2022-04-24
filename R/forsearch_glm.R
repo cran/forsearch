@@ -171,7 +171,9 @@ verbose=    TRUE)
      # Add a little random difference to every element of z1 to avoid singularities #                               
      ################################################################################
      dimz1x <- dim(z1)
-     rantimes <- stats::runif(prod(dimz1x),0,min(abs(z1))/100)
+     absz1 <- abs(z1)
+     absz1 <- absz1[absz1>0]
+     rantimes <- stats::runif(prod(dimz1x),0,min(absz1)/1000)
      rantimes <- matrix(rantimes,dimz1x[1],dimz1x[2])
      x1 <- z1 + rantimes
                                          if(diagnose) {Hmisc::prn(x1); Hmisc::prn(y1)}

@@ -10,8 +10,7 @@ plot in folder containing working directory.
 \usage{
 plotdiag.residuals(forn, squared = FALSE, hilos = c(1, 0), maintitle, subtitle, 
 caption, wmf, Cairo=TRUE,printgraph=TRUE,
-legend = "Dummy legend name", subdiag = FALSE, subverb = FALSE, diagnose = FALSE, 
-verbose = TRUE)
+legend = "Dummy legend name", diagnose = FALSE, verbose = TRUE)
 }
 \arguments{
   \item{forn}{Name of forward search output file
@@ -35,10 +34,6 @@ verbose = TRUE)
           closes device
 }
   \item{legend}{Legend title
-}
-  \item{subdiag}{If TRUE, displays code to help diagnose subfunction errors
-}
-  \item{subverb}{If TRUE, indicates beginning and end of function
 }
   \item{diagnose}{If TRUE, displays code to help diagnose main function errors
 }

@@ -11,7 +11,7 @@ folder containing working directory.
 plotdiag.Cook(forn, maintitle = "Put main title here", subtitle = "Put subtitle here", 
 caption = "Put caption here", wmf = "Put_plot_file_title_here", 
 Cairo=TRUE,printgraph=TRUE, loess = FALSE, 
-subdiag = FALSE,subverb = FALSE,diagnose = FALSE, verbose = TRUE)
+diagnose = FALSE, verbose = TRUE)
 }
 \arguments{
   \item{forn}{
@@ -35,12 +35,6 @@ File name of stored plot; omit ".wmf"
 }
 \item{loess}{
 If TRUE, adds loess curve to plot, otherwise, straight line
-}
-  \item{subdiag}{
-If TRUE, displays code to help diagnose subfunction errors
-}
-  \item{subverb}{
-If TRUE, indicates beginning and end of function
 }
   \item{diagnose}{
 If TRUE, displays code to help diagnose main function errors

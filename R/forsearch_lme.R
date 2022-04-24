@@ -69,11 +69,20 @@ function(
      ############################################################################
 
      print("BEGINNING STEP 0", quote=FALSE)
+     ########################################################################
+     # Print a summary of the assumed analysis so that the user can be sure #
+     # that the forwards search is done on the relevant analysis            #
+     ########################################################################
      fixed2 <- fixed
      random2 <- random
+     print("", quote = FALSE)
+     print("The assumed analysis for these data will be as follows:", quote=FALSE)
+     print("", quote = FALSE)
+     zholdlm <- nlme::lme(fixed=fixed2, data=data, random=random2)                      #    lme
+     print(summary(zholdlm))
+     print("****************", quote = FALSE)
      fixdat <- nlme::groupedData(formula, data)
-#     utils::globalVariables(c("zzzz", "Zlatest"))
-     
+     #     
      ##################################
      # Reassign internal name of file #
      # Add small random amount        #
@@ -83,8 +92,10 @@ function(
      for(j in 2:dimdf1[2]){
           if(is.numeric(df1[,j])){
                thiscol <- df1[,j]
-               mindf1 <- min(abs(thiscol))
-               newcol <- thiscol +  stats::runif(dimdf1[1],min=-.001,max=.001)/mindf1
+               absthiscol <- abs(thiscol)
+               absthiscol <- absthiscol[absthiscol>0]
+               mindf1 <- min(absthiscol)
+               newcol <- thiscol +  stats::runif(dimdf1[1], min=-.001, max=.001)/mindf1
                df1[,j] <- newcol 
           }
      }
@@ -96,44 +107,26 @@ function(
      lmAlldata <- stats::lm(formula=fixed2, data=df1, singular.ok=TRUE, x=TRUE, y=TRUE)                               #   lm
      y1 <- lmAlldata$y
      x1 <- lmAlldata$x                                              # takes care of more complex fixed effect formulas
-coeffnames <- dimnames(x1)[2]
-
-
+     coeffnames <- dimnames(x1)[2]
 #prn(coeffnames)
-#stop("OK")
      p <- dim(x1)[2]
 
      nrowsdf1 <- dim(df1)[1]
      rows.in.set <- vector("list", nrowsdf1)
      rows.in.set[[nrowsdf1]] <- -999
 
-     ############################
-     # Gather data on subgroups #
-     ############################
+     ###################################################################################################
+     # Gather data on subgroups as defined in (simplified) formula as applied to df1                   #
+     # The subgroups don't need to be those of the analysis; it is only a diversified start for Step 1 #
+     ###################################################################################################
      groups.df1 <- unique(nlme::getGroups(df1))
                                    if(diagnose){Hmisc::prn(groups.df1)}
-     ngroups.df1 <- length(groups.df1)
-     if(is.data.frame(groups.df1)) ngroups.df1 <- dim(groups.df1)[1]
-     GroupNo <- 1:ngroups.df1
-     groups.df1 <- cbind(GroupNo, groups.df1)
-     ngroups <- dim(groups.df1)[1]                    
-     df1.by.group <- vector("list", ngroups)
-     step1 <- vector("list", ngroups)
-     for(i in 1:ngroups){
-          uu <- NULL
-          for(j in 1:nrowsdf1){
-                                 if(diagnose){Hmisc::prn(c(i,j))} 
-              gdfi <- groups.df1[i,-1]
-              if(all(nlme::getGroups(df1[j,])==gdfi)) uu <- rbind(uu,df1[j,])
-          }    #  j
-          if(dim(uu)[1] < 2){
-               print("", quote = FALSE)
-               print(uu,quote=FALSE)
-               print("", quote = FALSE)
-               stop.message <- paste("There must be at least", 2, "observations in every (sub)group.", sep=" ")
-               stop(stop.message)
-          }
-          df1.by.group[[i]] <- uu    
+     ngroups.df1 <- length(groups.df1)                                            # a vector of length 27
+     df1.by.group <- vector("list", ngroups.df1)                                 # receptical list
+     step1 <- vector("list", ngroups.df1)
+     for(i in 1:ngroups.df1){
+          uu <- df1[nlme::getGroups(df1)==groups.df1[i],]
+          df1.by.group[[i]] <- uu
      }    # i
      #
      ############################################################################
@@ -153,10 +146,10 @@ coeffnames <- dimnames(x1)[2]
           randset <- 1:initial.sample
           step2 <- df1[1:2,]                 # data frame paradygm; first 2 rows will later be deleted
           #
-          #########################################################
-          # For each group generate initial.sample randomizations #
-          #########################################################
-          for(k in 1:ngroups){
+          ############################################################
+          # For each subgroup generate initial.sample randomizations #
+          ############################################################
+          for(k in 1:ngroups.df1){
                uu <- df1.by.group[[k]]
                dimuu1 <- dim(uu)[1]
                                         if(diagnose){Hmisc::prn(k);Hmisc::prn(dimuu1)} 
@@ -178,7 +171,7 @@ coeffnames <- dimnames(x1)[2]
           for(i in 1:initial.sample){
                combtopSamples <- NULL
                combbotSamples <- NULL
-               for(k in 1:ngroups){
+               for(k in 1:ngroups.df1){
                     vv <- step1[[k]][[i]]
                     sizevv <- dim(vv)[1]
                     combtopSamples <- rbind(combtopSamples, vv[1:robs,])
@@ -210,10 +203,25 @@ coeffnames <- dimnames(x1)[2]
                zholdlm <- nlme::lme(fixed=fixed2, data=zzzz, random=random2, control=newcontrol)                      #    lme
 #               detach()
                                         if(diagnose) Hmisc::prn(zholdlm)
+               dddd <- zholdlm$dims
+               totalvars <- sum(unlist(dddd$ncol[1:dddd$Q]))
+               temprand <- zholdlm$coefficients[[2]]
+               listnames <- names(temprand)
+               nlistnames <- length(listnames)
+               outnames <- NULL
+               for(jj in 1:nlistnames){
+                    colnames2 <- dimnames(temprand[[jj]])[2][[1]]
+                    stu <- NULL
+                    for(kk in 1:length(colnames2)){
+                         stu <- c(stu, paste(listnames[jj], colnames2[kk], sep=" - ")  )
+                    }          #   kk
+                    outnames <- c(outnames, stu)
+               }
+
                allrows <- rbind(topSamples[[i]],botSamples[[i]])
                df2 <- df1[allrows[,1],]
-               LMzholdlm <- stats::lm(formula=fixed2, data=zzzz)                                                    # lm
-               preds <- stats::predict(object=LMzholdlm, newdata=data2)                                    # predict from lm fit
+               LMzholdlm <- stats::lm(formula=fixed2, data=zzzz)
+               preds <- stats::predict(object=LMzholdlm, newdata=data2)   
                yinput <- df2[,response.column]
                err2 <- (preds - yinput)^2
                catchsamp[[i]] <- data.frame(allrows[,1],preds,yinput,round(err2,4),-999)     
@@ -247,6 +255,51 @@ coeffnames <- dimnames(x1)[2]
           stage <- length(skip.step1)
           rows.in.set[[stage]] <- skip.step1
           mstart <- stage + 1
+
+
+
+
+
+
+               dddd <- zholdlm$dims
+               totalvars <- sum(unlist(dddd$ncol[1:dddd$Q]))
+               temprand <- zholdlm$coefficients[[2]]
+               listnames <- names(temprand)
+               nlistnames <- length(listnames)
+               outnames <- NULL
+               for(jj in 1:nlistnames){
+                    colnames2 <- dimnames(temprand[[jj]])[2][[1]]
+                    stu <- NULL
+                    for(kk in 1:length(colnames2)){
+                         stu <- c(stu, paste(listnames[jj], colnames2[kk], sep=" - ")  )
+                    }          #   kk
+                    outnames <- c(outnames, stu)
+               }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
      }
      #
      ##################################################################
@@ -269,11 +322,11 @@ coeffnames <- dimnames(x1)[2]
      param.est <- matrix(0,nrow=p, ncol=nrowsdf1)
      t.set <- param.est
      hold.coeffs.fixed <- vector("list",nrowsdf1)
-     hold.coeffs.random <- vector("list",nrowsdf1)
+     hold.coeffs.random <- matrix(0,nrow=nrowsdf1, ncol=totalvars) 
      leverage <- matrix(-999,nrow=1,ncol=3)
      xtemp.list <- vector("list",nrowsdf1)
      modCook <- rep(0,nrowsdf1-1)
-
+     hold.summary.stats <- matrix(0,nrow=nrowsdf1,3)        # unnamed columns: AIC, BIC, log likelihood
 
      for(i in mstart:(nrowsdf1+1)){                  # mstart is the step after the original obs entered
                                              if(diagnose) Hmisc::prn(i)
@@ -311,9 +364,27 @@ coeffnames <- dimnames(x1)[2]
 
           resids <- zholdlme$residuals
           hold.coeffs.fixed[[i-1]] <- zholdlme$coefficients[[1]]
-          hold.coeffs.random[[i-1]] <- zholdlme$coefficients[[2]]
+
+          temprand<-zholdlme$coefficients[[2]]
+          gotvars <- rep(0,totalvars)
+          for(level in 1:totalvars){
+               uvars <- c(temprand[[level]])
+               gotvars[level] <- sqrt(sum(uvars*uvars)/length(uvars))
+          }
+          hold.coeffs.random[i-1,] <- gotvars
+          xbar <- mean(c(temprand[[1]]))
+          devs <- c(temprand[[1]])-xbar
+          sumsq <- mean(devs^2)
+          RMS <- sqrt(sumsq)
+
+          logLik <- zholdlme$logLik
+          AIC <- summary(zholdlme)$AIC
+          BIC <- summary(zholdlme)$BIC
+          hold.summary.stats[i-1,] <- c(AIC, BIC, logLik)
+
+
           param.est[,i-1] <- c(zholdlme$coefficients[[1]])                        # same as holdcoeffs.fixed[[i-1]]
-    t.set[,i-1] <- summary(zholdlme)$tTable[,4]
+          t.set[,i-1] <- summary(zholdlme)$tTable[,4]
           hold.dims[[i-1]] <- zholdlme$dims
           hold.sigma[i-1] <- zholdlme$sigma
           newrows <- NULL
@@ -342,9 +413,9 @@ coeffnames <- dimnames(x1)[2]
           ###############################################################################
           # Manipulate remaining observations to determine the ones to go into next set #
           ###############################################################################
-          for(j in 1:ngroups){
+          for(j in 1:ngroups.df1){
                                                  if(diagnose) {Hmisc::prn(c(i,j)); Hmisc::prn(df1.by.group[[j]])}
-               predlme <- stats::predict(object=LMzholdlme, newdata=df1.by.group[[j]])                               # predict
+               predlme <- stats::predict(object=LMzholdlme, newdata=df1.by.group[[j]])
                errs2 <- (predlme - df1.by.group[[j]][,response.column])^2 
                vv <- data.frame(df1.by.group[[j]]$Observation, predlme, df1.by.group[[j]][,response.column], errs2)
                vv <- vv[order(vv[,4]),]
@@ -362,7 +433,7 @@ coeffnames <- dimnames(x1)[2]
           # Gather errors from predictions to all data in database #
           ##########################################################
           td1 <- dim(df1)[1]
-           errors <- rep(-999, td1)
+          errors <- rep(-999, td1)
           for(j in 1:td1){
                predlmeall <- stats::predict(object=LMzholdlme, newdata=df1)
                errors[j] <- y1[j] - sum(hold.coeffs.fixed[[i-1]] * x1[j,])
@@ -375,10 +446,13 @@ coeffnames <- dimnames(x1)[2]
      names(param.est) <- paste("b",1:p, sep="")
      m <- 1:nrowsdf1
      param.est <- cbind(m,param.est)
+     #
+     hold.summary.stats <- data.frame(m, hold.summary.stats) 
+     names(hold.summary.stats) <- c("m", "AIC", "BIC", "logLik")
      # 
-t.set <- as.data.frame(t(t.set))
-dimnames(t.set)[2] <- coeffnames
-t.set <- cbind(m,t.set)
+     t.set <- as.data.frame(t(t.set))
+     dimnames(t.set)[2] <- coeffnames
+     t.set <- cbind(m,t.set)
      dimleverage <- dim(leverage)
      dimnames(leverage) <- list(rep("",dimleverage[1]),c("m","Observation","leverage"))
      #
@@ -416,68 +490,14 @@ t.set <- cbind(m,t.set)
      }
      #
      #######################################
-     # Reformat random parameter estimates #
-     #######################################
-     ynum <- mstart-1
-     dimsN <-     zholdlme$dims$N
-     dimsQ <-     zholdlme$dims$Q
-     dimsqvec <-  zholdlme$dims$qvec
-     dimsngrps <- zholdlme$dims$ngrps
-     dimsncol <-  zholdlme$dims$ncol
-     #
-     #########################################################
-     # Set up intermediate output list for random parameters #
-     #########################################################
-     reformrand <- vector("list",dimsN)      # same length as m (1:dimsN)
-     value0 <- rep(0,2)
-     for(mm in 1:dimsN){
-          reformrand[[mm]] <- value0
-     }
-     for(thism in ynum:dimsN){
-          value <-unlist(hold.coeffs.random[[thism]])
-          IDs <- IDs1 <- IDs2 <- NULL
-          for(jjj in 1:dimsQ){
-               IDs1 <-dimnames(hold.coeffs.random[[thism]][[jjj]])[[1]]
-               IDs2 <-dimnames(hold.coeffs.random[[thism]][[jjj]])[[2]]
-               IDs <- c(IDs, paste(rep(IDs1,times=length(IDs2)), rep(IDs2,each =length(IDs1)),sep="--"))
-               IDs <- c(IDs)
-          }       #    jjj
-          reformrand[[thism]] <- data.frame(IDs,value)
-     }      #    thism
-     #
-     ###################################################
-     # Set up final output list for random parameters  #
-     # No column for stage; set these in plot function #
-     ###################################################
-     lenvalue <- length(value)
-     out <- vector("list",lenvalue)
-     for(paramj in 1:lenvalue){
-          valhold <- rep(0,dimsN)
-          for(v1 in (mstart-1):dimsN){
-               valhold[v1] <- reformrand[[v1]][paramj,2]
-          }       #  v1
-          vh <- data.frame(valhold)
-          names(vh) <- reformrand[[v1]][paramj,1]
-          out[[paramj]] <- vh
-     }      #   paramj
-     #
-     ######################################################################
-     # Numbering must include fixed effects (see identifyCoeffs function) #
-     ######################################################################
-     out1 <-vector("list",p+lenvalue)
-     for(i in 1:p){
-          out1[[i]] <- "Numbering allows for fixed coefficients"
-     }
-     for(i in 1:lenvalue){
-          out1[[i+p]] <- out[[i]]
-     }
-     #
-     #######################################
      # Clean up files written to workspace #
      #######################################
      if(is.null(skip.step1))rm(list=c("zzzz", "Zlatest", "newcontrol"), pos=1)
      else rm(list=c("Zlatest","newcontrol"), pos=1)
-     #
+
+     hold.coeffs.random <- as.data.frame(hold.coeffs.random)
+     names(hold.coeffs.random) <- outnames
+    #
      if(verbose) {
           print("", quote = FALSE)
           print("Finished running forsearch_lme", quote = FALSE)
@@ -492,10 +512,11 @@ t.set <- cbind(m,t.set)
            Sigma=                             sigma,
           "Standardized residuals"=           hold.residuals,            
           "Fixed parameter estimates"=        param.est,
-          "Random parameter estimates"=       out1,
+          "Random parameter estimates"=       hold.coeffs.random,
            Leverage=                          leverage[-1,],
           "Modified Cook distance"=           modCook,
            Dims=                              zholdlme$dims,
           "t statistics"=                     t.set,
+          "Fit statistics"=                   hold.summary.stats,
            Call=                              MC )
 }

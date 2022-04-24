@@ -13,7 +13,7 @@ over the course of the search.
 search.history(list1, diagnose = FALSE, verbose = TRUE)
 }
 \arguments{
-  \item{list1}{Name of forsearch_lm or forsearch_lme output file
+  \item{list1}{Name of a forsearch_xxx output file
 }
   \item{diagnose}{
 If TRUE, displays code to help diagnose main function errors

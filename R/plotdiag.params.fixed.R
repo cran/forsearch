@@ -8,7 +8,6 @@ function(forn, coeff.codenums=NULL,
      Cairo=TRUE,
      printgraph=TRUE,
      legend="Dummy legend name",
-     subdiag=FALSE, subverb=FALSE,
      diagnose=FALSE, verbose=TRUE)
 {
      #                          plotdiag.params.fixed
@@ -26,8 +25,6 @@ function(forn, coeff.codenums=NULL,
      #          Cairo           TRUE causes use of Cairo graphics
      #          printgraph      TRUE causes graph to be printed in a Windows metafile and closes the device
      #          legend          Legend name
-     #          subdiag         Logical. TRUE causes printing of diagnostic content of called subfunctions
-     #          subverb         Logical. TRUE causes printing of subfunction ID before and after running.
      #
      #          diagnose        Logical. TRUE causes printing of diagnostic content
      #          verbose         Logical. TRUE causes printing of program ID before and after running.
@@ -98,13 +95,13 @@ function(forn, coeff.codenums=NULL,
                 grDevices::dev.off()
           }    # printgraph
           #
-          if(subverb) {
+          if(verbose) {
                print("", quote = F)
                print("Finished running plotB1", quote = F)
                print("", quote = F)
                print(date(), quote = F)
                print("", quote = F)
-          }    #  subverb
+          }    #  verbose
      }      #  plotB1
      #
      ############################
@@ -140,7 +137,7 @@ function(forn, coeff.codenums=NULL,
                      vertlabel="Estimated beta coefficient",
                      cap=caption,
                      legendname=legend,
-                     diagnose=subdiag,verbose=subverb)
+                     diagnose=diagnose,verbose=verbose)
 
           }
           else{
@@ -167,7 +164,7 @@ function(forn, coeff.codenums=NULL,
                      vertlabel="Estimated beta coefficients",
                      cap=caption,
                      legendname=legend,
-                     diagnose=subdiag,verbose=subverb)
+                     diagnose=diagnose,verbose=verbose)
 
           }    # else for is null cols
      }

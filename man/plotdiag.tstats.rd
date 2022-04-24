@@ -10,7 +10,7 @@ Plot output from forsearch_lm or forsearch_lme to show change in t statistics as
 \usage{
 plotdiag.tstats(forn, coeff.codenums=NULL, maintitle = "Put main title here", 
 subtitle = "Put subtitle here", caption="Put caption here", wmf = "Put_stored_name_here", 
-Cairo=TRUE, printgraph=TRUE,legend = "Dummy legend name", subdiag=FALSE, subverb=FALSE, 
+Cairo=TRUE, printgraph=TRUE,legend = "Dummy legend name",  
 diagnose = FALSE,verbose = TRUE)
 }
 \arguments{
@@ -34,10 +34,6 @@ diagnose = FALSE,verbose = TRUE)
           closes device
 }
   \item{legend}{Name of legend
-}
-  \item{subdiag}{If TRUE, displays code to help diagnose subfunction errors
-}
-  \item{subverb}{If TRUE, indicates beginning and end of subfunction
 }
   \item{diagnose}{If TRUE, displays code to help diagnose main function errors
 }

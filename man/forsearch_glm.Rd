@@ -15,7 +15,7 @@ estimate.phi=TRUE, skip.step1=NULL, diagnose=FALSE, verbose=TRUE)
 \arguments{
   \item{initial.sample}{Number of random sets of observations in Step 1 of forward 
   search}
-  \item{cobs}{Number of observations to include in each set of Step 1}
+  \item{cobs}{Number of observations to include in each innermost subset of Step 1}
   \item{response.cols}{Column number(s) of response(s)}
   \item{indep.cols}{Column number(s) of independent variables}
   \item{family}{Error distribution and link}

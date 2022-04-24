@@ -3,22 +3,25 @@
 \title{Plot Diagnostic Statistics Of Random Coefficients 
 }
 \description{
-Plot output from forsearch_lme to show change in random coefficients as the number of 
-observations in the forward search procedure increases. Save plot in folder containing 
-working directory. 
+Plot output from forsearch_lme to show change in root mean squares of random coefficients 
+as the number of observations in the forward search procedure increases. Save plot in 
+folder containing working directory. 
 }
 \usage{
-plotdiag.params.random(forn, coeff.codenums, maintitle = "Put maintitle here", 
-subtitle = "Put subtitle here", caption = "Put caption here",wmf = "Put_stored_name_here",
+plotdiag.params.random(forn, coeff.codenums=NULL, 
+asfacets=FALSE, facetdir=c("h","v"),
+maintitle = "Put maintitle here", subtitle = "Put subtitle here", 
+caption = "Put caption here",wmf = "Put_stored_name_here",
 Cairo=TRUE,printgraph = TRUE,
 legend = "Dummy legend name", diagnose = FALSE, verbose = TRUE)
 }
 \arguments{
   \item{forn}{Name of output file from forsearch_lme
 }
-  \item{coeff.codenums}{Numeric vector of random coefficients to include together on the 
-  plot. Codes are output by identifyCoeffs function
-}
+  \item{coeff.codenums}{columns of output file to be included in graph}
+  \item{asfacets}{TRUE causes printing in facets}
+  \item{facetdir}{"v" lays out the facets vertically, "h" lays them out 
+  horizontally}
   \item{maintitle}{Main title of plot
 }
   \item{subtitle}{Subtitle of plot
@@ -39,7 +42,7 @@ legend = "Dummy legend name", diagnose = FALSE, verbose = TRUE)
   \item{verbose}{If TRUE, indicates beginning and end of function
 }
 }
-\value{Process and plot Cook distance statistics from forsearch_lme
+\value{Process and plot RMS of random coefficients from forsearch_lme
 }
 \references{
 Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New York, 2000.
@@ -48,10 +51,11 @@ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New Yo
 }
 \examples{
 \testonly{
-info3 <- system.file("extdata","MOf.R",package="forsearch");
-Machines.O.forlme <- source(info3);
-Machines.O.forlme <-Machines.O.forlme[[1]];
-plotdiag.params.random(Machines.O.forlme,coeff.codenums=c(3,5,6), 
+info3 <- system.file("extdata","Machines.O.forlme2.R",package="forsearch");
+Machines.O.forlme2 <- source(info3);
+Machines.O.forlme2 <-Machines.O.forlme2[[1]];
+print(Machines.O.forlme2$"Random parameter estimates")
+plotdiag.params.random(Machines.O.forlme2,asfacets=FALSE, 
 wmf="Machines_Random_Coefficients",Cairo=FALSE,printgraph=FALSE)
 }
 }

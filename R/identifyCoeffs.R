@@ -54,30 +54,35 @@ diagnose=FALSE, verbose=TRUE)
      fixd <- coeffs[[1]]
      rndm <- coeffs[[2]]
 
-     print("Typical fixed coefficient estimates from a run of lme( ) on fixdat", quote=FALSE)
+     print("Typical fixed coefficient estimates from a run of lme( )", quote=FALSE)
      print(fixd)
      print("", quote = FALSE)
      print("", quote = FALSE)
-     print("Typical random coefficient estimates from a run of lme( ) on fixdat", quote=FALSE)
+     print("Typical random coefficient estimates from a run of lme( )", quote=FALSE)
      print(rndm)
      print("", quote = FALSE)
      #
      ######################################################
      # Develop the codes for selected random coefficients #
      ######################################################
+     namesrndm <- names(rndm)
      dimsN <- lmerun$dims$N
      dimsQ <- lmerun$dims$Q
      IDs <- NULL
-     for(jjj in 1:dimsQ){
-          IDs1 <- dimnames(rndm[[jjj]])[[1]]
-          IDs2 <- dimnames(rndm[[jjj]])[[2]]
+     for(iq in 1:dimsQ){
+          uu <- rndm[[iq]]
+          vv <- apply(uu^2,2,mean)
+          namesvv <- names(vv)
+          IDs1 <- namesrndm[iq]
+          IDs2 <- namesvv
           IDs <- c(IDs, paste(rep(IDs1,times=length(IDs2)), rep(IDs2,each =length(IDs1)),sep="--"))
           IDs <- c(IDs)
-     }    #  jjj
+     }     #  iq
+
+
      vectfixd <- 1:length(fixd)
      names(vectfixd) <- names(fixd)
-     uu <- unlist(rndm)
-     vectrandm <- (length(fixd) + 1):(length(fixd)+length(uu))
+     vectrandm <- 1:length(IDs)
      names(vectrandm) <- IDs
      vectrandm <- as.matrix(vectrandm, col=1)
 
@@ -88,7 +93,7 @@ diagnose=FALSE, verbose=TRUE)
      print("", quote = FALSE)
      print("", quote = FALSE)
 
-     print("Random coefficient estimates", quote=FALSE)
+     print("Root mean squares of random coefficient estimates", quote=FALSE)
      print(vectrandm)
      print("", quote = FALSE)
      #
@@ -99,5 +104,5 @@ diagnose=FALSE, verbose=TRUE)
           print(date(), quote = FALSE)
           print("", quote = FALSE)
      }
-     list("Fixed coefficients"=fixd, "Complete random coefficients"=rndm, "Use these random codes"=vectrandm)
+     list("Fixed coefficients codes"=vectfixd, "Random RMS codes"=vectrandm)
 }

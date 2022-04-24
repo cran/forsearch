@@ -15,7 +15,7 @@ forsearch_lme(fixed,  data, random, formula,  response.column,  initial.sample, 
   \item{fixed}{2-sided formula for fixed effects}
   \item{data}{data frame, first column of which must be "Observation"}
   \item{random}{1-sided formula for random effects}
-  \item{formula}{a formula of the form resp ~ cov | group where resp is the response, cov is the primary covariate, and group is the grouping factor}
+  \item{formula}{a formula of the form resp ~ cov | group where resp is the response, cov is the primary covariate, and group is the (non-nested) grouping factor}
   \item{response.column}{Column number of response variable}
   \item{initial.sample}{Number of observations in Step 1 of forward search}
   \item{robs}{Number of observations to include in Step 1 of forward search from each subgroup}
@@ -31,7 +31,9 @@ forsearch_lme(fixed,  data, random, formula,  response.column,  initial.sample, 
   \item{verbose}{TRUE causes function identifier to display before and after run}
 }
 \details{
-Group structure is ignored in calculating errors of fit. That is, predictions derive from lm fit and not lme fit. Diagnostic statistics are obtained from lme fits
+Group structure is ignored in calculating errors of fit in Step 1. That is, predictions 
+   derive from lm fit and not lme fit. Diagnostic statistics are obtained from lme fits. Argument
+   'formula' is used to identify the innermost group structure and the observations in each level.
 }
 \value{LIST
   \item{Rows in stage}{Observation numbers of rows included at each stage}
@@ -42,6 +44,7 @@ Group structure is ignored in calculating errors of fit. That is, predictions de
   \item{s^2}{Estimate of random error at each stage}
   \item{Leverage}{Matrix of leverage of each observation at each stage}
   \item{Modified Cook distance}{Estimate of sum of squared changes in parameter estimates at each stage}
+  \item{Fit statistics}{AIC, BIC, and log likelihood}
   \item{Call}{Call to this function}
 }
 \references{ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New York, 2000.
@@ -52,16 +55,15 @@ Group structure is ignored in calculating errors of fit. That is, predictions de
 }
 \examples{
 \testonly{
-info3 <- system.file("extdata","Alfalfa.O.R",package="forsearch");
-Alfalfa.O <- source(info3);
-Alfalfa.O <- Alfalfa.O[[1]];
-
+info3 <- system.file("extdata","Alfalfa.O.A.R",package="forsearch");
+Alfalfa.O.A <- source(info3);
+Alfalfa.O.A <- Alfalfa.O.A[[1]];
 firstrun <- (1:72)[c(-3,-47)]
 Alfalfa.O.forlme<-forsearch_lme(
 fixed=Yield~Date,
-data=Alfalfa.O,
+data=Alfalfa.O.A,
 random= ~1 | Block/Variety,
-formula=Yield~1|Block/Variety,
+formula=Yield~1|Subgroup,
 response.column=5,
 initial.sample=4,robs=2,skip.step1=firstrun
 )

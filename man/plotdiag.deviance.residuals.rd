@@ -11,8 +11,7 @@ directory.
 plotdiag.deviance.residuals(forn, squared = FALSE, augmented=TRUE, hilos = c(1, 0), 
 maintitle="Put main title here", subtitle="Put subtitle here", caption="Put caption here", 
 wmf= "Put_graph_title_here", Cairo=TRUE,printgraph=TRUE,
-legend = "Dummy legend name", subdiag = FALSE, subverb = FALSE, diagnose = FALSE, 
-verbose = TRUE)
+legend = "Dummy legend name", diagnose = FALSE,verbose = TRUE)
 }
 \arguments{
   \item{forn}{Name of forward search output file}
@@ -28,8 +27,6 @@ verbose = TRUE)
   \item{printgraph}{TRUE causes graph to print to file and
           closes device}
   \item{legend}{Legend title}
-  \item{subdiag}{If TRUE, displays code to help diagnose subfunction errors}
-  \item{subverb}{If TRUE, indicates beginning and end of function}
   \item{diagnose}{If TRUE, displays code to help diagnose main function errors}
   \item{verbose}{If TRUE, indicates beginning and end of function}
 }

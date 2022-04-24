@@ -1,4 +1,4 @@
-Alfalfa.O <-
+Alfalfa.O.A <-
 structure(list(Observation = 1:72, Variety = structure(c(2L, 
 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 
 2L, 2L, 2L, 2L, 2L, 2L, 2L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
@@ -34,4 +34,19 @@ structure(list(Observation = 1:72, Variety = structure(c(2L,
     1.8, 1.8200000000000001, 1.99, 1.78, 1.3700000000000001, 
     1.5600000000000001, 1.55, 1.3100000000000001, 1.01, 1.23, 
     1.51, 1.3, 1.3100000000000001, 1.1299999999999999, 1.3300000000000001
-    )), class = "data.frame", row.names = c(NA, 72L))
+    ), Subgroup = c("Ladak--1", "Ladak--1", "Ladak--1", "Ladak--1", 
+    "Ladak--2", "Ladak--2", "Ladak--2", "Ladak--2", "Ladak--3", 
+    "Ladak--3", "Ladak--3", "Ladak--3", "Ladak--4", "Ladak--4", 
+    "Ladak--4", "Ladak--4", "Ladak--5", "Ladak--5", "Ladak--5", 
+    "Ladak--5", "Ladak--6", "Ladak--6", "Ladak--6", "Ladak--6", 
+    "Cossack--1", "Cossack--1", "Cossack--1", "Cossack--1", "Cossack--2", 
+    "Cossack--2", "Cossack--2", "Cossack--2", "Cossack--3", "Cossack--3", 
+    "Cossack--3", "Cossack--3", "Cossack--4", "Cossack--4", "Cossack--4", 
+    "Cossack--4", "Cossack--5", "Cossack--5", "Cossack--5", "Cossack--5", 
+    "Cossack--6", "Cossack--6", "Cossack--6", "Cossack--6", "Ranger--1", 
+    "Ranger--1", "Ranger--1", "Ranger--1", "Ranger--2", "Ranger--2", 
+    "Ranger--2", "Ranger--2", "Ranger--3", "Ranger--3", "Ranger--3", 
+    "Ranger--3", "Ranger--4", "Ranger--4", "Ranger--4", "Ranger--4", 
+    "Ranger--5", "Ranger--5", "Ranger--5", "Ranger--5", "Ranger--6", 
+    "Ranger--6", "Ranger--6", "Ranger--6")), class = "data.frame", row.names = c(NA, 
+72L))

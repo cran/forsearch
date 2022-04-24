@@ -9,7 +9,6 @@ function(forn,
      Cairo=TRUE,
      printgraph = TRUE,
      loess=FALSE,
-     subdiag=FALSE, subverb=FALSE,
      diagnose=FALSE, verbose=TRUE)
 {
      #                          plotdiag.deviances
@@ -26,8 +25,8 @@ function(forn,
      #          Cairo        TRUE causes use of Cairo graphics
      #          printgraph   TRUE causes graph to be printed in a Windows metafile and closes the device
      #          loess        Logical T calls for loess fit to points
-     #          subdiag      Logical. TRUE causes printing of diagnostic content of called subfunctions
-     #          subverb      Logical. TRUE causes printing of subfunction ID before and after running.
+     #          diagnose      Logical. TRUE causes printing of diagnostic content of called subfunctions
+     #          verbose      Logical. TRUE causes printing of subfunction ID before and after running.
      #
      #          diagnose     Logical. TRUE causes printing of diagnostic content
      #          verbose      Logical. TRUE causes printing of program ID before and after running.
@@ -55,7 +54,7 @@ function(forn,
           XVAR <- data[,1]
           YVAR <- data[,2]
           dfplot <- as.data.frame(tibble::tibble(XVAR,YVAR))
-                     if(subdiag)Hmisc::prn(dfplot)
+                     if(diagnose)Hmisc::prn(dfplot)
           temp <- stats::lm(formula=YVAR ~ XVAR,data=dfplot)
           FIT <- temp$fitted.values
           out <- ggplot2::ggplot(data=dfplot,ggplot2::aes(XVAR,YVAR)) + ggplot2::geom_point()
@@ -71,7 +70,7 @@ function(forn,
                vertlabel <- "Null deviance"
                if(devtype == "R") vertlabel <- "Residual deviance"
           out <- out + ggplot2::ggtitle(mtitle2, subtitle=stitle2) + ggplot2::xlab(horlabel) + ggplot2::ylab(vertlabel) + ggplot2::labs(caption=cap)
-                 if(subdiag)Hmisc::prn(as.character(out))   
+                 if(diagnose)Hmisc::prn(as.character(out))   
           ############################
           # Print and save the graph #
           ############################
@@ -89,7 +88,7 @@ function(forn,
                grDevices::dev.off()
           }    # printgraph
           #
-          if(subverb) {
+          if(verbose) {
              print("", quote = FALSE)
              print("Finished running plotB1", quote = FALSE)
              print("", quote = FALSE)

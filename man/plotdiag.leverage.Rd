@@ -10,8 +10,7 @@ Save plot in folder containing working directory.
 \usage{
 plotdiag.leverage(forn, hilos = c(1, 0), maintitle = "Put main title here", 
 subtitle = "Put subtitle here", caption="Put caption here",wmf = "Put_graph_title_here", 
-Cairo=TRUE, printgraph = TRUE,subdiag = FALSE, subverb = FALSE, diagnose = FALSE, 
-verbose = TRUE)
+Cairo=TRUE, printgraph = TRUE,diagnose = FALSE,verbose = TRUE)
 }
 \arguments{
   \item{forn}{Name of forward search output file
@@ -33,12 +32,6 @@ File name of stored plot; omit ".wmf"
 }
 \item{printgraph}{TRUE causes graph to print to file and
           closes device
-}
-  \item{subdiag}{
-If TRUE, displays code to help diagnose subfunction errors
-}
-  \item{subverb}{
-If TRUE, indicates beginning and end of function
 }
   \item{diagnose}{
 If TRUE, displays code to help diagnose main function errors

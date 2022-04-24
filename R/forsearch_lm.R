@@ -37,7 +37,13 @@ function(formula, data, initial.sample, diagnose=FALSE, verbose=TRUE)
      uu <- names(data)
      if(uu[1] != "Observation")stop("First column of data must be 'Observation'")
 
+     print("", quote = FALSE)
+     print("The assumed analysis for these data will be as follows:", quote=FALSE)
+     print("", quote = FALSE)
      lmAlldata <- stats::lm(formula, data, singular.ok=TRUE, x=TRUE, y=TRUE)                                         # lm
+     print(summary(lmAlldata))
+     print("****************", quote = FALSE)
+
      coeffnames <- names(lmAlldata$coefficients)
      z1 <- lmAlldata$x
      y1 <- lmAlldata$y
@@ -46,10 +52,12 @@ function(formula, data, initial.sample, diagnose=FALSE, verbose=TRUE)
      # Add a little random difference to avoid singularities #
      #########################################################
      dimz1x <- dim(z1)
-     rantimes <- stats::runif(prod(dimz1x),0,min(abs(z1))/100)
+     absz1 <- abs(z1)
+     absz1 <- absz1[absz1>0]
+     rantimes <- stats::runif(prod(dimz1x),0,min(absz1)/1000)
      rantimes <- matrix(rantimes,dimz1x[1],dimz1x[2])
      x1 <- z1 + rantimes
-                                      if(diagnose) {Hmisc::prn(x1); Hmisc::prn(y1)}
+                     if(diagnose) {Hmisc::prn(z1);Hmisc::prn(rantimes);Hmisc::prn(x1); Hmisc::prn(y1)}
      #
      ############################################################################
      # Resampling algorithm for Step 1 of forward search     p31                #
