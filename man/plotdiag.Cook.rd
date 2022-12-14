@@ -10,7 +10,7 @@ folder containing working directory.
 \usage{
 plotdiag.Cook(forn, maintitle = "Put main title here", subtitle = "Put subtitle here", 
 caption = "Put caption here", wmf = "Put_plot_file_title_here", 
-Cairo=TRUE,printgraph=TRUE, loess = FALSE, 
+Cairo=TRUE,printgraph=TRUE, addline = c("none","loess","straight"), 
 diagnose = FALSE, verbose = TRUE)
 }
 \arguments{
@@ -33,8 +33,7 @@ File name of stored plot; omit ".wmf"
 \item{printgraph}{TRUE causes graph to print to file and
       closes device
 }
-\item{loess}{
-If TRUE, adds loess curve to plot, otherwise, straight line
+   \item{addline}{add a line to the graph; abbreviation allowed
 }
   \item{diagnose}{
 If TRUE, displays code to help diagnose main function errors
@@ -57,7 +56,7 @@ info3 <- system.file("extdata","Alfalfa.O.forlme.R",package="forsearch");
 Alfalfa.O.forlme <- source(info3);
 Alfalfa.O.forlme <- Alfalfa.O.forlme[[1]];
 plotdiag.Cook(Alfalfa.O.forlme, wmf="Alfalfa_Cook", Cairo=FALSE,
-printgraph=FALSE)
+printgraph=FALSE,addline="n")
 }
 }
  \keyword{ hplot }

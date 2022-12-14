@@ -4,12 +4,6 @@ function(x, verbose=TRUE)
 {
      #                          showme
      #
-     # VALUE     Abbreviated output from forsearch_lm function.  Largely, a support for programming efforts
-     #
-     # INPUT    x            lm diagnostics object
-     #
-     #          verbose      Logical. TRUE causes printing of program ID before and after running.
-     #
      MC <- match.call()
      if(verbose) {
           print("", quote = FALSE)
@@ -33,12 +27,6 @@ function(x, verbose=TRUE)
      Hmisc::prn(utils::tail(x$Leverage))
      Hmisc::prn(x$"Modified Cook distance")
      Hmisc::prn(x$"t statistics")
-
-#[1] "Rows in stage"              "Standardized residuals"    
-#[3] "Number of model parameters" "Sigma"                     
-#[5] "Fixed parameter estimates"  "s^2"                       
-#[7] "Leverage"                   "Modified Cook distance"    
-#[9] "t statistics"               "Call"                      
      #
      if(verbose) {
           print("", quote = FALSE)
@@ -47,4 +35,5 @@ function(x, verbose=TRUE)
           print(date(), quote = FALSE)
           print("", quote = FALSE)
      }
+     return()
 }

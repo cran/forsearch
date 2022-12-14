@@ -1,12 +1,34 @@
 
+12/14/2022 forsearch version 3.0.0
+======================================
+     Major changes:
+Rewrote forsearch_lme to clarify code for generation of Steps 1 and 2
+Extracted Step 1 and Step 2 increases in sample size to separate functions aStep1 and aStep2
+   from forsearch_lm and forsearch_lme
+Added functions aStep1 and aStep2 for linear model functions
+Added functions bStep1 and bStep2 for linear mixed effects models
+
+     Moderate changes:
+Added plotdiag.all function to create drafts of all applicable graphs
+Added functions variablelist() and picksome() to subdivide observations into their factor levels
+Added capability of forsearch_lm, forsearch_glm and forsearch_lme to process factor variables 
+   and interactions with regression variables
+Added capability of forsearch_lm to calculate leverage of observations over subsets
+Added examples for forsearch_lm, forsearch_glm, and forsearch_lme
+
+     Minor changes and bug fixes:
+Changed README to add plotdiag.all, variablelist, and picksome functions
+Changed some plotting functions to allow no fit of a line to the data
+Added option for all forsearch_xxx functions to blind initial display of data analysis structure,
+    anticipating future developments 
+ 
+
 4/21/2022 forsearch version 2.3.0
 =================================
      Major changes:
 None
 
      Moderate changes:
-Modify forsearch_lm, forsearch_lme, and forsearch_glm to add small random terms to 
-     independent variables when some values 0 
 Correct subgroup selection procedure in forsearch_lme
 Calculate root mean square of random coefficients instead of the coefficients themselves
      in forsearch_lme   

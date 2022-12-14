@@ -4,15 +4,6 @@ function(list1, diagnose=FALSE, verbose=TRUE)
 {
      #                                 search.history
      #
-     # VALUE     List of observations entering subset,list of observatons leaving subset, and history.  
-     #
-     # INPUT     list1        List of outputs from forsearch function
-     #
-     #           diagnose     Logical. TRUE causes printing of diagnostic content
-     #           verbose      Logical. TRUE causes printing of program ID before and after running.
-     #
-     # EXAMPLE:  search.history(forbes.for1)
-     #
      MC <- match.call()
      if(verbose) {
           print("", quote = FALSE)
@@ -100,7 +91,7 @@ function(list1, diagnose=FALSE, verbose=TRUE)
           histOUT <- as.matrix(histOUT,nrow=maxIN)
           dimOUT2 <- dim(histOUT)[2]
           if(dimOUT2 > 0){
-XX <- rep(" //",lenx1)
+               XX <- rep(" //",lenx1)
                history <- cbind(histIN,XX,histOUT)
                history <- as.data.frame(history)
                OUTname <- paste("OUT",1:dimOUT2,sep="")

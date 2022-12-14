@@ -12,22 +12,6 @@ function(forn,
 {
      #                          plot.diag.leverage
      #
-     # VALUE      Plot of the diagnostic statistics resulting from a forward search of a database.  Shows the leverage of each observation.
-     #                 For databases with more than 6 independent variables (including intercept), must subset the parameters in the plot. This doesn't affect
-     #                 fitting of the model; this has already been done in the forward search procedure that formed the input to this function.
-     #                 Handles linear models and mixed effects (grouped data) models.  The same subset of independent variables will be evaluated in each subgroup.
-     #
-     # INPUT    forn         File (list) resulting from run of forsearch_lm( ) or forsearch.lme( ), the latter for mixed effects models.
-     #          hilos        Vector with number of high and number of low responses to flag in graph 
-     #          maintitle    Graph main title
-     #          subtitle     Graph subtitle
-     #          printgraph   TRUE causes graph to be printed in a Windows metafile and closes the device
-     #          caption         Graph caption
-     #          wmf          Single-word graph title in storage space for each plot; omit ".wmf"; ".wmf" and subgroup appendix (if needed) will be added in function
-     #          Cairo           TRUE causes use of Cairo graphics
-     #          diagnose     Logical. TRUE causes printing of diagnostic content
-     #          verbose      Logical. TRUE causes printing of program ID before and after running.
-     #
      MC <- match.call()
      if(verbose) {
           print("", quote = FALSE)

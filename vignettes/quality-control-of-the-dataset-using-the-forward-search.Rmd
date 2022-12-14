@@ -1,10 +1,8 @@
 ---
-title: "Quality Control of the Dataset Using the Forward Search"
-author: "William R. Fairweather"
-date: "`r Sys.Date()`"
+title: "Quality control of the dataset using the forward search"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Quality Control of the Dataset}
+  %\VignetteIndexEntry{Quality control of the dataset using the forward search}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -19,11 +17,10 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(forsearch)
 ```
-```
 ## Introduction
 
 Years ago, statisticians were primarily concerned with development of statistical methods for the analysis of various kinds of data.  They developed the probability distributions and attributes of new estimates, tests of hypothesis, and predictive methodologies.  They then applied these methods to the data that was presented to them by subject matter specialists, fitting the methods to the data as well as they could.
-
+ 
 Some of the studies were not created only for scientific or engineering audiences, but also had the attention of regulatory authorities.  It became more and more important that the analytical methods be shown to fit the data.  Soon, the statisticians were asked to help design the studies in such a way that available analytical methods could be more appropriately used on their data.   
 
 Study protocols went from being nice-to-have guidelines to being serious plans for the conduct of the study.  Greater and greater detail was inserted into them.  Statistical analysis plans (SAPs) were soon required to accompany the protocol and to be synchronized with it to a greater and greater degree.
@@ -42,18 +39,35 @@ Scientific integrity is the adherence of the study conduct to the protocol and t
 
 Unfortunately, it is virtually impossible to enumerate all the different ways that data quality control and scientific integrity of the study can be compromised.  What we are describing here is a software tool that is available now and that can help point out in real time possible discrepancies in the first study with regard to data quality or scientific integrity.  This tool can and should be used prior to the statistical analysis of the first study.
 
-To complicate matters further, regulatory agencies and others worry that data quality control is only undertaken after some unexpected, adverse findings are discovered in the study.  Eliminating observations at this point has the appearance of sampling to a foregone conclusion or eliminating adverse results.
+To complicate matters further, regulatory agencies and others worry that data quality control is only undertaken after some unexpected, commercially adverse findings are discovered in the study.  Eliminating observations at this point has the appearance of sampling to a foregone conclusion or eliminating adverse results.
 
 Diagnostics involves identifying inconsistent observations, determining their impact on the primary analyses of the study, and justifying their disposition:  total acceptance of the observataion, modification of value or classification prior to acceptance, or removal. In the name of proper scientific integrity, disposition of outliers must be well documented.
 
 I believe that statisticians, especially those that work with studies and data every day, will have a bigger role in the quality control and scientific integrity of studies in the years to come.  The forsearch R extension will be a useful tool in this area.
 
-                                        To Be Continued
+
+```{r, echo = FALSE}
+Observation <- 1:17
+Boiling <- c(194.5, 194.3, 197.9, 198.4, 199.4, 199.9, 200.9, 201.1, 201.4, 201.3, 203.6, 204.6, 209.5, 208.6, 210.7, 211.9, 212.2)
+LogPressure <- c(131.79, 131.79, 135.02, 135.55, 136.46, 136.83, 137.82, 138.00, 138.06, 138.05, 140.04, 142.44, 145.47, 144.34, 146.30, 147.54, 147.80)
+```
+
+```{r}
+ 
+plot(Boiling,LogPressure)
+
+
+```
+
+
+```                                        To Be Continued
 
 ## References
 
 Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New York, 2000.
+
 Pinheiro JC and DM Bates. Mixed-Effects Models in S and S-Plus, Springer, New York, 2000.
+
 Collins, FS and LA Tabak (2014). Policy: NIH plans to enhance reproducibility, Nature, 505, p612–613.
 
 ```

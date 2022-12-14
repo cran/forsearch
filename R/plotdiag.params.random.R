@@ -1,6 +1,7 @@
 #' @export
 plotdiag.params.random <-
-function(forn, coeff.codenums=NULL,
+function(forn, 
+     coeff.codenums=NULL,
      asfacets=FALSE, facetdir=c("h","v"), 
      maintitle="Put maintitle here", 
      subtitle="Put subtitle here", 
@@ -12,24 +13,6 @@ function(forn, coeff.codenums=NULL,
      diagnose=FALSE, verbose=TRUE)
 {
      #                          plotdiag.params.random
-     #
-     # VALUE      Plot of the diagnostic statistics resulting from a forward search of a database.  Shows the influence of each observation on each independent variable coefficient.
-     #                 For databases with more than 6 independent variables (including intercept), must subset the parameters in the plot.
-     #                 Handles linear models and mixed effects (grouped data) models.  The same subset of independent variables will be evaluated in each subgroup.
-     #
-     # INPUT    forn            File resulting from run of forsearch_lme( ).
-     #          coeff.codenums  Vector of code numbers, subset of those resulting from identifyCoeffs( ).
-     #          maintitle       Graph main title
-     #          subtitle        Graph subtitle
-     #          caption         Graph caption
-     #          wmf             Graph title in storage space for ungrouped plots; omit ".wmf"; ".wmf" and subgroup appendix (if needed) will be added in function
-     #          Cairo           TRUE causes use of Cairo graphics
-     #          printgraph      TRUE causes graph to be printed in a Windows metafile and closes the device
-     #          legend          Legend name
-     #
-     #          diagnose        Logical. TRUE causes printing of diagnostic content
-     #          verbose         Logical. TRUE causes printing of program ID before and after running.
-     #
      #
      MC <- match.call()
      if(verbose) {

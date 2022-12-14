@@ -167,7 +167,6 @@ deviance.residuals	| Deviance residuals and augments  | 	 |     |  X
 deviances	        | Residual deviance, Null deviance |	 |	   |  X  
 leverage	        | Leverage	                       |  X  |  X  |  X  
 params.fixed	    | Fixed parameter estimates	       |  X  |  X  |  X  
-params.random       | Random parameter estimates       |     |  X  |
 phihatx	            | PhiHat			               |     |     |  X  
 residuals	        | Standardized residuals	       |  X  |  X  |  
 s2	                | s^2	                           |  X  |	   |  

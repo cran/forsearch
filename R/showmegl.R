@@ -6,10 +6,6 @@ function(x, verbose=TRUE)
      #
      # VALUE     Abbreviated output from forsearch_glm function.  Largely, a support for programming efforts
      #
-     # INPUT    x            glm diagnostics object
-     #
-     #          verbose      Logical. TRUE causes printing of program ID before and after running.
-     #
      MC <- match.call()
      if(verbose) {
           print("", quote = FALSE)
@@ -28,9 +24,6 @@ function(x, verbose=TRUE)
 
      Hmisc::prn(utils::head(x$"Fixed parameter estimates"))
      Hmisc::prn(utils::tail(x$"Fixed parameter estimates"))
-
-#     Hmisc::prn(utils::head(x$"Studentized deviance residuals"))
-#     Hmisc::prn(utils::tail(x$"Studentized deviance residuals"))
 
      Hmisc::prn(utils::head(x$"Deviance residuals and augments"))
      Hmisc::prn(utils::tail(x$"Deviance residuals and augments"))
@@ -59,4 +52,5 @@ function(x, verbose=TRUE)
           print(date(), quote = FALSE)
           print("", quote = FALSE)
      }
+     return()
 }

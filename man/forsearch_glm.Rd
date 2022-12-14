@@ -1,6 +1,6 @@
 \name{forsearch_glm}
 \alias{forsearch_glm}
-\title{Create Statistics Of Forward Search in a Generalized Linear Model Database}
+\title{Create Statistics of Forward Search in a Generalized Linear Model Database}
 \description{
 Prepares summary statistics at each stage of forward search for subsequent plotting. 
 Forward search is conducted in three steps: Step 1 to identify minimal set of observations 
@@ -9,19 +9,24 @@ observations in the set are best fitting at that stage. A preliminary step (Step
 contains code for pre-processing of the data.
 }
 \usage{
-forsearch_glm(initial.sample, cobs, response.cols, indep.cols, family, data, 
-estimate.phi=TRUE, skip.step1=NULL, diagnose=FALSE, verbose=TRUE)
+forsearch_glm(initial.sample=1000, cobs, response.cols, indep.cols, family,  data, 
+  n.obs.per.level = 1, estimate.phi = TRUE, skip.step1 = NULL, unblinded = TRUE, 
+  diagnose = FALSE, verbose = TRUE)
 }
 \arguments{
   \item{initial.sample}{Number of random sets of observations in Step 1 of forward 
   search}
-  \item{cobs}{Number of observations to include in each innermost subset of Step 1}
+  \item{cobs}{Number of observations to include in each inner subgroup of Step 1. 
+       }
   \item{response.cols}{Column number(s) of response(s)}
   \item{indep.cols}{Column number(s) of independent variables}
   \item{family}{Error distribution and link}
   \item{data}{Name of database}
+  \item{n.obs.per.level}{Number of observations per level of (possibly crossed) 
+           factor levels}
   \item{estimate.phi}{TRUE causes phi to be estimated; FALSE causes phi to be set = 1}
   \item{skip.step1}{NULL, or vector of observation numbers to include at end of Step 1}
+  \item{unblinded}{TRUE allows print of formula of analysis function}
   \item{diagnose}{TRUE causes printing of intermediate steps of function}
   \item{verbose}{TRUE causes function identifier to display before and after run}
 }
@@ -34,24 +39,68 @@ estimate.phi=TRUE, skip.step1=NULL, diagnose=FALSE, verbose=TRUE)
   \item{Null deviance}{Vector of null deviances}
   \item{PhiHat}{Vector of values of phi parameter}
   \item{Deviance residuals and augments}{Deviance residuals with indication of 
-whether each is included in fit}
+               whether each is included in fit}
   \item{AIC}{Vector of AIC values}
   \item{Leverage}{Matrix of leverage of each observation at each stage}
   \item{Call}{Call to this function}
 }
 \details{No compounding of independent variables is performed within this function. Cross
 products of two or more variables, functions of single variables, etc. must be explicit and
-must be represented by another variable in the independent set.}
+must be represented by another variable in the independent set. Step 2 is determined by the
+results of Step 1, which itself is random. So, it is possible to reproduce the entire run 
+by using the skip.step1 argument. Inner subgroups are produced by presence of categorical
+variables.
+}
 \references{ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New York, 2000.
 }
 \author{William R. Fairweather}
 \examples{
-\testonly{
-info3 <- system.file("extdata","micem1.R", package="forsearch");
-cross <- source(info3);
-cross <- cross[[1]];
-forsearch_glm(initial.sample=5,cobs=5,response.cols=c(4,8),indep.cols=c(9,3), 
-   family=binomial("logit"), data=cross, skip.step1=NULL)
-}   
+# Train deaths (Atkinson and Riani, 2000)
+
+Observation<-1:67
+
+%Month<-c(9,8,3,1,10,6,7,1,8,4,3,3,12,11,10,9,9,4,3,12,12
+%,10,7,2,12,2,12,12,12,11
+%,3,10,4,2,12,12,9,11,1,10,8,6,1,10,6,12,8,4,9,6,12,10
+%,7,2,5,12,5,5,4,3
+%,1,9,11,9,7,3,2)
+
+Year<-c(97,96,96,95,94,94,91,91,90,89,89,89,88,88,87,86,86,86,86,84,84,84
+,84,84,83,83,82,81,81,80
+,80,79,79,79,78,78,77,76,76,75,75,75,75,74,74,73,73,73,72,72,71,71,71
+,71,70,69,69,69,69,69
+,69,68,67,67,67,67,67)
+
+RollingStock<-c(2,2,3,2,1,1,1,1,2,3,1,1,1,2,1,2,1,3,2,2,1,2,2,3,1,2
+,1,1,2,3,1,1,1,1,1,1
+,1,3,3,2,3,1,2,3,1,1,1,3,3,1,3,3,1,1,1,2,1,1,2
+,1,1,1,1,1,1,1,1)
+
+Traffic<-c(0.436,0.424,0.424,0.426,0.419,0.419,0.439,0.439,0.431,0.436,0.436,0.436,
+0.443,0.443,0.397,0.414,0.414,0.414,0.414,0.389,0.389,0.389,0.389,0.389,0.401,
+0.401,0.372,0.417,0.417,0.43,0.43,0.426,0.426,0.426,0.43,0.43,0.425,0.426,0.426,
+0.436,0.436,0.436,0.436,0.452,0.452,0.433,0.433,0.433,0.431,0.431,0.444,0.444,
+0.444,0.444,0.452,0.447,0.447,0.447,0.447,0.447,0.447,0.449,0.459,0.459,0.459,
+0.459,0.459)
+
+Deaths<-c(7,1,1,1,5,2,4,2,1,1,2,5,35,1,4,1,2,1,1,3,1,3,13,2,1,1,1
+,4,1,2
+,1,5,7,1,1,3,2,1,2,1,2,6,1,1,1,10,5,1,1,6,3,1,2,1,2,1,1,6,2,2
+,4,2,49,1,7,5,9)
+
+train <- data.frame(Observation,Year,RollingStock,Traffic,Deaths)
+train<-train[1:25,]
+train.out <- forsearch_glm(initial.sample=100, cobs=4, response.cols=5, indep.cols=2:4, 
+   family=poisson("log"),  data=train,  n.obs.per.level = 1, 
+   estimate.phi = TRUE, skip.step1 = NULL, unblinded = TRUE) 
+\dontrun{
+# Recode RollingStock as categorical variable. Note change in n.obs.per.level
+#      argument
+train2 <- train
+train2[,3] <- as.factor(train2[,3])
+train2.out <- forsearch_glm(initial.sample=100, cobs=4, response.cols=5, indep.cols=2:4, 
+   family=poisson("log"),  data=train2,  n.obs.per.level = 2, 
+   estimate.phi = TRUE, skip.step1 = NULL, unblinded = TRUE) 
 }
- \keyword{ datagen }
+}
+\keyword{ datagen }

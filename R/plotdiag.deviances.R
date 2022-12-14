@@ -8,28 +8,10 @@ function(forn,
      wmf="Put_plot_file_title_here", 
      Cairo=TRUE,
      printgraph = TRUE,
-     loess=FALSE,
+     addline=c("none","loess","straight"),
      diagnose=FALSE, verbose=TRUE)
 {
      #                          plotdiag.deviances
-     #
-     # VALUE      Plot of the diagnostic statistics resulting from a forward search of a database.  Shows the influence of each observation on the estmate of variance.
-     #                 Handles linear models and mixed effects (grouped data) models.  The same subset of independent variables will be evaluated in each subgroup.
-     #
-     # INPUT    forn         File resulting from run of forsearch_lm( ) or forsearch_lme( ), the latter for mixed effects models.
-     #          devtype      "R" or "N" for Residual deviance or Null deviance 
-     #          maintitle    Graph main title
-     #          subtitle     Graph subtitle
-     #          caption      Graph caption
-     #          wmf          Graph title in storage space for ungrouped plots; omit ".wmf"; ".wmf" and subgroup appendix (if needed) will be added in function
-     #          Cairo        TRUE causes use of Cairo graphics
-     #          printgraph   TRUE causes graph to be printed in a Windows metafile and closes the device
-     #          loess        Logical T calls for loess fit to points
-     #          diagnose      Logical. TRUE causes printing of diagnostic content of called subfunctions
-     #          verbose      Logical. TRUE causes printing of subfunction ID before and after running.
-     #
-     #          diagnose     Logical. TRUE causes printing of diagnostic content
-     #          verbose      Logical. TRUE causes printing of program ID before and after running.
      #
      MC <- match.call()
      if(verbose) {
@@ -58,10 +40,11 @@ function(forn,
           temp <- stats::lm(formula=YVAR ~ XVAR,data=dfplot)
           FIT <- temp$fitted.values
           out <- ggplot2::ggplot(data=dfplot,ggplot2::aes(XVAR,YVAR)) + ggplot2::geom_point()
-          if(loess){
+          addline <- substr(addline,1,1)
+          if(addline=="l"){
                  out <- out + ggplot2::geom_smooth()
           }
-          else{
+          if(addline=="s"){
                 dfplot <- data.frame(dfplot,FIT)
                 out <- out + ggplot2::geom_line(ggplot2::aes(XVAR,FIT)) 
           }

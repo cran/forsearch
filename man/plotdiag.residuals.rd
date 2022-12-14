@@ -28,7 +28,7 @@ legend = "Dummy legend name", diagnose = FALSE, verbose = TRUE)
   
   \item{wmf}{File name of stored plot; omit ".wmf" 
 }
-\item{Cairo}{TRUE causes use of Cairo graphics
+  \item{Cairo}{TRUE causes use of Cairo graphics
 }
   \item{printgraph}{TRUE causes graph to print to file and
           closes device
@@ -37,7 +37,7 @@ legend = "Dummy legend name", diagnose = FALSE, verbose = TRUE)
 }
   \item{diagnose}{If TRUE, displays code to help diagnose main function errors
 }
-\item{verbose}{If TRUE, indicates beginning and end of function
+  \item{verbose}{If TRUE, indicates beginning and end of function
 }
 }
 \value{
@@ -53,8 +53,8 @@ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New Yo
 \testonly{
 info3 <- system.file("extdata","MOf.R",package="forsearch");
 Machines.O.forlme <- source(info3);
-Machines.O.forlme <-Machines.O.forlme[[1]];
-plotdiag.residuals(Machines.O.forlme,hilos=c(1,1),wmf="Machines Residuals",Cairo=FALSE,
+Machines.O.forlme <- Machines.O.forlme[[1]];
+plotdiag.residuals(Machines.O.forlme, hilos=c(1,1),wmf="Machines Residuals",Cairo=FALSE,
 printgraph=FALSE)
 }
 }

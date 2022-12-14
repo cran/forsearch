@@ -15,28 +15,6 @@ function(
 {
      #                          plotdiag.deviance.residuals
      #
-     # VALUE      Plot of the diagnostic statistics resulting from a forward search of a database.  Shows the influence of each observation on the scaled residuals.
-     #                 For databases with more than 6 independent variables (including intercept), must subset the parameters in the plot. This doesn't affect
-     #                 fitting of the model; this has already been done in the forward search procedure that formed the input to this function.
-     #                 Handles linear models and mixed effects (grouped data) models.  The same subset of independent variables will be evaluated in each subgroup.
-     #
-     # INPUT    forn         File (list) resulting from run of forsearch1( ) or myforsearch2( ), the latter for mixed effects models.
-     #          squared      Logical. TRUE causes residuals to be squared.
-     #          augmented    Logical. TRUE causes both deviance residuals and augmented residuals to be plotted.  Augmented residuals are those of observations not
-     #                          used in the current fitting
-     #          hilos        Vector with number of high and number of low responses to flag in graph 
-     #          maintitle    Graph main title
-     #          subtitle     Graph subtitle
-     #          caption      Graph caption
-     #          wmf          Graph title in storage space for each plot; omit ".wmf"; ".wmf" and subgroup appendix (if needed) will be added in function
-     #          Cairo        TRUE causes use of Cairo graphics
-     #          legend       Legend name, if needed
-     #          diagnose      Logical. TRUE causes printing of diagnostic content of called subfunctions
-     #          verbose      Logical. TRUE causes printing of subfunction ID before and after running.
-     #
-     #          diagnose     Logical. TRUE causes printing of diagnostic content
-     #          verbose      Logical. TRUE causes printing of program ID before and after running.
-     #
      MC <- match.call()
      if(verbose) {
           print("", quote = FALSE)

@@ -1,14 +1,17 @@
 #' @export
 forsearch_glm <-
 function(
-initial.sample, 
+initial.sample=1000, 
 cobs          ,
 response.cols ,
 indep.cols    ,
 family        ,
 data          ,  
+n.obs.per.level=1,
 estimate.phi= TRUE,
 skip.step1=   NULL,   
+unblinded = TRUE,
+
 #weights=    NULL,
 #subset=     NULL,
 #na.action=  NULL,
@@ -28,22 +31,7 @@ skip.step1=   NULL,
 diagnose=   FALSE, 
 verbose=    TRUE)
 {
-     #                          forsearch_glm
-     #
-     # VALUE         Prepares input for diagnostic plotting of database to be analyzed by glm function.
-     #
-     # INPUT 
-     #             formula            Include -1 to remove assumed constant independent variable (results in cell means analysis)
-     #             family             Discription of error distribution and link function (see glm), ex: poisson("log")
-     #             data               Name of data frame
-     #             initial.sample     Number of reorderings of 1:n
-     #             robs               Number of observations in initial sample (Step 1)
-     #
-     #             diagnose           Logical. TRUE causes printing of diagnostic content
-     #             verbose            Logical. TRUE causes printing of program ID before and after running.
-     #
-     # REF:  Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New York, 2000.
-     #
+#                                    forsearch_glm
      MC <- match.call()
      if(verbose) {
           print("", quote = FALSE)
@@ -108,9 +96,11 @@ verbose=    TRUE)
                     out <- sqrt(out)*vv
                }
           }
-          out
+          return(out)
      }                                   # end of devianceCode function
      #
+     options(warn = -1)
+     on.exit(options(warn = 0))
      ##################################################################
      # Get parts of formula to enable subsetting                      #
      # Ensure that first independent variable is Observation          #
@@ -143,9 +133,55 @@ verbose=    TRUE)
      print("", quote=FALSE)
      print(genformula, quote=FALSE)
      print("", quote=FALSE)
-     print(paste("response.cols = ", name.response,sep=", "), quote=FALSE)
+     print(paste("response.cols = ", name.response, sep=""), quote=FALSE)
      print("", quote=FALSE)
 
+     #############################################################
+     # Print structure of analysis by bliniding of real response #
+     #############################################################
+     indataXX <- indata
+     indataXX[,response.cols] <- 0
+     if(family[[1]]=="binomial"){
+          lmAlldata <- stats::glm(formula=genformula, family=family, data=indataXX, weights=bin.wts, singular.ok=TRUE, x=TRUE, y=TRUE)         # glm
+     }
+     else if(family[[1]]=="Gamma"){
+          lmAlldata <- stats::glm(formula=genformula, family=family, data=indataXX, singular.ok=TRUE, x=TRUE, y=TRUE)                          # glm
+     }
+     else if(family[[1]]=="poisson"){
+          lmAlldata <- stats::glm(formula=genformula, family=family, data=indataXX, singular.ok=TRUE, x=TRUE, y=TRUE)                          # glm
+     }
+     else{
+          stop("family name not recognized")
+     }
+     lmAlldata$df.residual <- 99999
+     lmAlldata$df.null     <- 99999
+
+     print("", quote = FALSE)
+     if(unblinded){
+          print("Check the following paradigm structure to be sure that the assumed analysis for these data is correct:", quote=FALSE)
+          print("", quote = FALSE)
+          print(lmAlldata)
+          print("",quote=FALSE)
+     }
+     ######################################
+     # Check for factor status of dataset #
+     ######################################
+     dimdata <- dim(data)[2]
+     ufactor <- rep(TRUE, dimdata)
+     for(m in 1:dimdata) ufactor[m] <- is.factor(data[,m])
+     yesfactor <- any(ufactor)     
+     p <- rnk <- lmAlldata$rank
+     nopl <- n.obs.per.level 
+     if(yesfactor){
+          # there are factors in the dataset
+          ssl <- variablelist(datadf <- data, verbose=FALSE)
+          pickm <- picksome(subsetlist=ssl, nobs=dim(data)[1], initial.sample = initial.sample, n.obs.per.level=nopl, rank=rnk, verbose = FALSE)
+          dimpickm <- dim(pickm)[2]  
+     }    # yesfactor
+     #
+     ############################################
+     # Restore to previous version of lmAlldata #
+     ############################################
      if(family[[1]]=="binomial"){
           lmAlldata <- stats::glm(formula=genformula, family=family, data=indata, weights=bin.wts, singular.ok=TRUE, x=TRUE, y=TRUE)         # glm
      }
@@ -158,25 +194,9 @@ verbose=    TRUE)
      else{
           stop("family name not recognized")
      }
-     print("Generalized linear model analysis of entire dataset", quote=FALSE)
-     print("",quote=FALSE)  
-     print(lmAlldata)
-      print("",quote=FALSE)
-
      coeffnames <- names(lmAlldata$coefficients)
-     z1 <- lmAlldata$x
+     x1 <- z1 <- lmAlldata$x
      y1 <- lmAlldata$y
-     #
-     ################################################################################
-     # Add a little random difference to every element of z1 to avoid singularities #                               
-     ################################################################################
-     dimz1x <- dim(z1)
-     absz1 <- abs(z1)
-     absz1 <- absz1[absz1>0]
-     rantimes <- stats::runif(prod(dimz1x),0,min(absz1)/1000)
-     rantimes <- matrix(rantimes,dimz1x[1],dimz1x[2])
-     x1 <- z1 + rantimes
-                                         if(diagnose) {Hmisc::prn(x1); Hmisc::prn(y1)}
      dimdata <- dim(data)
      #
      ############################################################################
@@ -197,7 +217,10 @@ verbose=    TRUE)
      zlist <- vector("list",initial.sample)                                           # Step 1
      result <- rep(0,p)                                                               # step 1
      deviance.matrix <- matrix(1:dimx1, nrow=dimx1, ncol=4, byrow=FALSE)              # step 1
+
      zlist.inner <- list(result=result,devmat=deviance.matrix,weights=NULL)           # step 1
+#Hmisc::prn(zlist.inner)
+#stop("inner")
      rows.in.model <- vector("list",dimx1)
      residuals <- matrix(0,nrow=dimx1,ncol=dimx1)
      param.est <- matrix(0,nrow=p, ncol=dimx1)
@@ -213,31 +236,36 @@ verbose=    TRUE)
      # Within each element of zlist, calculate the several estimates of b from the  #
      # first p of these rows and calculate the median of the residuals in each set. #
      # Don't run lm( ) in Step 1                                                    # 
-     # Don't enter errors into residuals in Step 1                                  #
      ################################################################################
      if(is.null(skip.step1)){
 
-           print("ENTERING STEP 1", quote=FALSE)
+          print("ENTERING STEP 1", quote=FALSE)
 
-        for(i in 1:initial.sample){
-               this.sample <- sample(1:dimx1,cobs)                                                                   # sample
-               zlist.inner$result <- this.sample
-               this.data <- indata[this.sample,]
-
+          for(i in 1:initial.sample){
+               if(!yesfactor){
+                   this.sample <- sample(1:dimx1,cobs)                                                                   # sample
+                   zlist.inner$result <- this.sample
+                   this.data <- indata[this.sample,]
+               }     # if not yesfactor
+               if(yesfactor){
+                   this.sample <- pickm[i,]
+                   zlist.inner$result <- pickm[i,]
+                   this.data <- indata[this.sample,]
+               }
                if(family[[1]]=="binomial"){
                     glm.s2 <- stats::glm(formula=genformula, family=family, data=this.data, weights=bin.wts, singular.ok=TRUE)          #   glm
                }
                else if(family[[1]]=="Gamma"){
-                    glm.s2 <- stats::glm(formula=genformula, family=family, data=this.data, singular.ok=TRUE)          #   glm
+                    glm.s2 <- stats::glm(formula=genformula, family=family, data=this.data, singular.ok=TRUE)                           #   glm
                }
                else if(family[[1]]=="poisson"){
-                    glm.s2 <- stats::glm(formula=genformula, family=family, data=this.data, singular.ok=TRUE)          #   glm
+                    glm.s2 <- stats::glm(formula=genformula, family=family, data=this.data, singular.ok=TRUE)                           #   glm
                }
                else{
                     stop("family name not recognized")
                }
-               pred.s2 <- stats::predict.glm(glm.s2, newdata=data, type="response")                                             #   predict
-               zlist.inner$devmat[,2] <- pred.s2
+               pred.s2 <- stats::predict.glm(glm.s2, newdata=data, type="response")                                                     #   predict
+               zlist.inner$devmat[,2] <- pred.s2      #                                                            # pred.s2 for each candidate ?
 
                if(family[[1]]=="binomial"){
                     for(j in 1:dimdata[1]){
@@ -248,7 +276,7 @@ verbose=    TRUE)
                               zlist.inner$devmat[j,3] <- 0
                          }
                          else{
-                              zlist.inner$devmat[j,3] <- (devianceCode(this.obsy1, this.pred, this.weight, fam=family[[1]]))^2            # devianceCode
+                              zlist.inner$devmat[j,3] <- (devianceCode(this.obsy1, this.pred, this.weight, fam=family[[1]]))^2          # devianceCode
                          }
                     }        # j in 1:dimdata 2
                }
@@ -256,14 +284,14 @@ verbose=    TRUE)
                     for(j in 1:dimdata[1]){
                          this.obsy1 <- y1[j]
                          this.pred <- zlist.inner$devmat[j,2]
-                         zlist.inner$devmat[j,3] <- (devianceCode(this.obsy1, this.pred, fam=family[[1]]))^2            # devianceCode
+                         zlist.inner$devmat[j,3] <- (devianceCode(this.obsy1, this.pred, fam=family[[1]]))^2                           # devianceCode
                     }        # j in 1:dimdata 2
                }
                else if(family[[1]]=="poisson"){
                     for(j in 1:dimdata[1]){
                          this.obsy1 <- y1[j]
                          this.pred <- zlist.inner$devmat[j,2]
-                         zlist.inner$devmat[j,3] <- (devianceCode(this.obsy1, this.pred, fam=family[[1]]))^2            # devianceCode
+                         zlist.inner$devmat[j,3] <- (devianceCode(this.obsy1, this.pred, fam=family[[1]]))^2                          # devianceCode
                     }        # j in 1:dimdata 2
                }
                else{
@@ -295,9 +323,9 @@ verbose=    TRUE)
                     break
                }
           }
-          chosen.set <- zlist[[got.set]]$result
+          chosen.set <- zlist[[got.set]]$result                             # chosen set
           lengotset <- length(chosen.set)
-          rows.in.model[[lengotset]] <- chosen.set
+          rows.in.model[[lengotset]] <- chosen.set                          # obs chosen for Step 1
           mstart <- lengotset + 1
      }       #   skip.step1 is NULL ?
      else{
@@ -330,10 +358,6 @@ verbose=    TRUE)
      storeDevianceResiduals <- vector("list",dimx1)         # initially saved without studentization as vector
      glmstudresids <- NULL                                  # after studentization 
      glmHat <- vector("list", dimx1)                        # will store Hat matrices for leverage, Cook, and (last one) studentization of errors
-
-
-
-
      #
      for(i in mstart:(dimx1+1)){                                                  # mstart is the step after the original p obs entered
           rim <- rows.in.model[[i-1]]                                             # picks up rows for previous step
@@ -345,13 +369,13 @@ verbose=    TRUE)
           subdata <- indata[rim,]
 
           if(family[[1]]=="binomial"){
-               getthisglm <- stats::glm(formula=genformula, family=family, data=subdata, weights=bin.wts, singular.ok=TRUE)           #   glm
+               getthisglm <- stats::glm(formula=genformula, family=family, data=subdata, weights=bin.wts, singular.ok=TRUE)          #   glm
           }
           else if(family[[1]]=="Gamma"){
-               getthisglm <- stats::glm(formula=genformula, family=family, data=subdata, singular.ok=TRUE)           #   glm
+               getthisglm <- stats::glm(formula=genformula, family=family, data=subdata, singular.ok=TRUE)                           #   glm
           }
           else if(family[[1]]=="poisson"){
-               getthisglm <- stats::glm(formula=genformula, family=family, data=subdata, singular.ok=TRUE)           #   glm
+               getthisglm <- stats::glm(formula=genformula, family=family, data=subdata, singular.ok=TRUE)                           #   glm
           }
           else{
                stop("family name not recognized")
@@ -395,9 +419,7 @@ verbose=    TRUE)
           medaugx[,2] <- 0 
           if(i > p) s.2[i-1] <- sum(model.resids * model.resids)/(i-p)
                                             if(diagnose) {Hmisc::prn(model.resids); Hmisc::prn(s.2[i-1])}
-
-
-          # Deviance #
+          # Deviances #
           glmdeviance[i-1] <- getthisglm$deviance
           if(estimate.phi){
                glmphi[i-1] <- glmdeviance[i-1]/(length(rim)-p)
@@ -445,7 +467,7 @@ verbose=    TRUE)
                disparity <- y1 - predicted
                storeDevianceResiduals[[i-1]] <- disparity
                disparity <- disparity^2
-               candidates <- data.frame(data,disparity)                                # data has Observation
+               candidates <- data.frame(data,disparity)                                # data has Observation column
                candidates <- candidates[order(candidates$disparity),]
                rows.in.model[[i]] <- sort(candidates[1:i,1])
                #
@@ -454,7 +476,6 @@ verbose=    TRUE)
                ######################################
                getdeviance <- rep(0,dimx1)
                for(tt in 1:dimx1){
-
                     if(family[[1]]=="binomial"){
                          obs <- y1[tt]
                          pred <- predicted[tt]
@@ -464,7 +485,7 @@ verbose=    TRUE)
                          }
                          else{
                               getdeviance[tt] <- devianceCode(y1[tt]*indata$bin.wts[tt], predicted[tt]*indata$bin.wts[tt], 
-                                    indata$bin.wts[tt],fam=family[[1]])   # devianceCode
+                                    indata$bin.wts[tt],fam=family[[1]])                                    # devianceCode
                          }
                     }
                     else if(family[[1]]=="Gamma"){
@@ -524,6 +545,7 @@ verbose=    TRUE)
           }
      }            # i in mstart ...                                                    END OF STEP 2
      ##############################################################################################################################
+
      ###############################################
      # Reformat deviance residuals as a data frame #
      ###############################################
@@ -532,7 +554,6 @@ verbose=    TRUE)
           ADdevres.df <- rbind(ADdevres.df, ADdevres[[i-1]])
      }
      #
-
      ############################################################
      # Set up deviance residuals for plotting                   #
      ############################################################
@@ -561,7 +582,7 @@ verbose=    TRUE)
      ############################################
      sigma <- sqrt(sum(medaugx[,2])/(dimx1-p))
      residuals <- residuals/sigma
-     #                                                                                                                   #CD
+     #                                                                                                                   #Cook
      ##########################
      # Modified Cook distance #
      ##########################
@@ -602,19 +623,20 @@ verbose=    TRUE)
      }
      if(!estimate.phi)glmphi <- "Phi not estimated, instead set = 1"
 
-     list(
+     listout <- list(
           "Rows in stage"=                     rows.in.model,
-           Family=                             family,   
+          "Family"=                            family,   
           "Number of model parameters"=        p, 
           "Fixed parameter estimates"=         param.est,          
-#          "Studentized deviance residuals"=    glmstudresids,
+#         "Studentized deviance residuals"=    glmstudresids,
           "Residual deviance"=                 glmdeviance,  
           "Null deviance"=                     glmnulldeviance,
-           PhiHat=                             glmphi,
+          "PhiHat"=                            glmphi,
           "Deviance residuals and augments"=   ADdevres.df, 
-           AIC=                                glmaic,       
-           Leverage=                           leverage[-1,],
-#          "Modified Cook distance"=            modCook, 
+          "AIC"=                               glmaic,       
+          "Leverage"=                          leverage[-1,],
+#         "Modified Cook distance"=            modCook, 
           "t statistics"=                      t.set,
-           Call=                               MC)
+          "Call"=                              MC)
+     return(listout)
 }

@@ -10,7 +10,7 @@ containing working directory.
 }
 \usage{
 plotdiag.fit3(forn, maintitle = "Put main title here", subtitle = "Put subtitle here", 
-    caption = "Put caption here", wmf = "Put_graph_filename_here", 
+    caption = "Put caption here", wmf = "Put_stored_name_here", 
     Cairo=TRUE,printgraph=TRUE, legend="Dummy legend name",
     diagnose = FALSE, verbose = TRUE)
 }
@@ -58,8 +58,8 @@ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New Yo
 info3 <- system.file("extdata","Alfalfa.O.forlme2.R",package="forsearch");
 crossdata.for1 <- source(info3);
 crossdata.for1 <-crossdata.for1[[1]];
-plotdiag.fit3(forn=crossdata.for1, wmf="Alfalfadata_fit3",Cairo=FALSE,printgraph=FALSE
-)
+plotdiag.fit3(forn=crossdata.for1, wmf="Alfalfadata_fit3",Cairo=FALSE,
+    printgraph=FALSE)
 }
 }
  \keyword{ hplot }

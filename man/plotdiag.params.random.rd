@@ -53,8 +53,8 @@ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New Yo
 \testonly{
 info3 <- system.file("extdata","Machines.O.forlme2.R",package="forsearch");
 Machines.O.forlme2 <- source(info3);
-Machines.O.forlme2 <-Machines.O.forlme2[[1]];
-print(Machines.O.forlme2$"Random parameter estimates")
+Machines.O.forlme2 <- Machines.O.forlme2[[1]];
+%print(Machines.O.forlme2$"Random parameter estimates")
 plotdiag.params.random(Machines.O.forlme2,asfacets=FALSE, 
 wmf="Machines_Random_Coefficients",Cairo=FALSE,printgraph=FALSE)
 }

@@ -6,10 +6,6 @@ function(x, verbose=TRUE)
      #
      # VALUE     Shortened output from forsearch_lme function.  Largely, a support for programming efforts
      #
-     # INPUT    x            lme diagnostics object
-     #
-     #          verbose      Logical. TRUE causes printing of program ID before and after running.
-     #
      MC <- match.call()
      if(verbose) {
           print("", quote = FALSE)
@@ -67,4 +63,5 @@ function(x, verbose=TRUE)
           print(date(), quote = FALSE)
           print("", quote = FALSE)
      }
+     return()
 }

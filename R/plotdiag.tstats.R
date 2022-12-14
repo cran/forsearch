@@ -1,6 +1,7 @@
 #' @export
 plotdiag.tstats <-
-function(forn, coeff.codenums=NULL,
+function(forn, 
+     coeff.codenums=NULL,
      maintitle="Put main title here", 
      subtitle="Put subtitle here", 
      caption="Put caption here",
@@ -11,25 +12,6 @@ function(forn, coeff.codenums=NULL,
      diagnose=FALSE, verbose=TRUE)
 {
      #                          plotdiag.tstats
-     #
-     # VALUE      Plot of the diagnostic statistics resulting from a forward search of a database.  Shows the influence of each observation on each independent variable coefficient.
-     #                 For databases with more than 6 independent variables (including intercept), must subset the parameters in the plot.
-     #                 Handles linear models and mixed effects (grouped data) models.  The same subset of independent variables will be evaluated in each subgroup.
-     #
-     # INPUT    forn            File resulting from run of forsearch_lm( ) or forsearch_lme( ), the latter for mixed effects models.
-     #          coeff.codenums  Vector of index numbers (codes) of fixed effects to print, or NULL to print them all
-     #          maintitle       Graph main title
-     #          subtitle        Graph subtitle
-     #          caption         Graph caption
-     #          wmf             Graph title in storage space for ungrouped plots; omit ".wmf"; ".wmf" and subgroup appendix (if needed) will be added in function
-     #          Cairo           TRUE causes use of Cairo graphics
-     #          printgraph      TRUE causes graph to be printed in a Windows metafile and closes the device
-     #          legend          Legend name
-     #          diagnose         Logical. TRUE causes printing of diagnostic content of called subfunctions
-     #          verbose         Logical. TRUE causes printing of subfunction ID before and after running.
-     #
-     #          diagnose        Logical. TRUE causes printing of diagnostic content
-     #          verbose         Logical. TRUE causes printing of program ID before and after running.
      #
      MC <- match.call()
      if(verbose) {
