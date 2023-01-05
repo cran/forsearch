@@ -18,7 +18,7 @@ forsearch_glm(initial.sample=1000, cobs, response.cols, indep.cols, family,  dat
   search}
   \item{cobs}{Number of observations to include in each inner subgroup of Step 1. 
        }
-  \item{response.cols}{Column number(s) of response(s)}
+  \item{response.cols}{Vector of column numbers (2) of responses and nonresponses}
   \item{indep.cols}{Column number(s) of independent variables}
   \item{family}{Error distribution and link}
   \item{data}{Name of database}
@@ -44,12 +44,10 @@ forsearch_glm(initial.sample=1000, cobs, response.cols, indep.cols, family,  dat
   \item{Leverage}{Matrix of leverage of each observation at each stage}
   \item{Call}{Call to this function}
 }
-\details{No compounding of independent variables is performed within this function. Cross
-products of two or more variables, functions of single variables, etc. must be explicit and
-must be represented by another variable in the independent set. Step 2 is determined by the
-results of Step 1, which itself is random. So, it is possible to reproduce the entire run 
-by using the skip.step1 argument. Inner subgroups are produced by presence of categorical
-variables.
+\details{Step 2 is determined by the results of Step 1, which itself is random. 
+     So, it is possible to reproduce the entire run by using the skip.step1 
+     argument. Inner subgroups are produced by presence of categorical
+     variables.
 }
 \references{ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New York, 2000.
 }

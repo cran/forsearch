@@ -8,13 +8,14 @@ Derives the first set of observation numbers for forsearch_lme in linear mixed
          effects models
 }
 \usage{
-bStep1(fixed, yf, mnf, nOuter, s.o, nopl, nobs, i.s, fbg, b.d, verbose=FALSE)
+bStep1(fixed, yf, mnf, nOuter, yobs, s.o, nopl, nobs, i.s, fbg, b.d, verbose=TRUE)
 }
 \arguments{
   \item{fixed}{Fixed parameter formula of lm function}
   \item{yf}{Indicator of presence of factors in the X matrix}
   \item{mnf}{Maximum number of observations in any outer subgroup}
   \item{nOuter}{Number of outer subgroups}
+  \item{yobs}{Column number of response variable}
   \item{s.o}{Vector of original observation numbers}
   \item{nopl}{Number of observations to take for each subgroup. Default is 1}
   \item{nobs}{Total number of observations in database}

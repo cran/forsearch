@@ -1,37 +1,20 @@
 #' @export
 forsearch_glm <-
 function(
-initial.sample=1000, 
-cobs          ,
-response.cols ,
-indep.cols    ,
-family        ,
-data          ,  
-n.obs.per.level=1,
-estimate.phi= TRUE,
-skip.step1=   NULL,   
-unblinded = TRUE,
+          initial.sample=1000,       cobs          ,           response.cols ,
+          indep.cols    ,            family        ,           data          ,  
+          n.obs.per.level=1,         estimate.phi= TRUE,       skip.step1=   NULL,   
+          unblinded = TRUE,
 
-#weights=    NULL,
-#subset=     NULL,
-#na.action=  NULL,
-#start=      NULL,
-#etastart=   NULL,
-#mustart=    NULL,
-#offset=     NULL,
-#control=    NULL,
-#model=      FALSE,
-#method=     NULL,
-#x=          FALSE,
-#y=          FALSE,
-#singular.ok=TRUE,
-#contrasts=  NULL,
-#intercept=  FALSE, 
+         #weights=    NULL,         #subset=     NULL,         #na.action=  NULL,
+         #start=      NULL,         #etastart=   NULL,         #mustart=    NULL,
+         #offset=     NULL,         #control=    NULL,         #model=      FALSE,
+         #method=     NULL,         #x=          FALSE,        #y=          FALSE,
+         #singular.ok=TRUE,         #contrasts=  NULL,         #intercept=  FALSE, 
 
-diagnose=   FALSE, 
-verbose=    TRUE)
+         diagnose=   FALSE,          verbose=    TRUE)
 {
-#                                    forsearch_glm
+#                                                     forsearch_glm
      MC <- match.call()
      if(verbose) {
           print("", quote = FALSE)
@@ -86,14 +69,19 @@ verbose=    TRUE)
                else{
                     stop("family name not recognized")
                }
-               if(abs(out)<= 10^(-12)){
+               if(is.na(out)){
                     out <- 0
                }
                else{
-                    out <- 2 * out
-                    vv <- obs - pred
-                    vv <- vv/abs(vv)            #  1 or -1
-                    out <- sqrt(out)*vv
+                    if(abs(out)<= 10^(-12)){
+                         out <- 0
+                    }
+                    else{
+                         out <- 2 * out
+                         vv <- obs - pred
+                         vv <- vv/abs(vv)            #  1 or -1
+                         out <- sqrt(out)*vv
+                    }
                }
           }
           return(out)
@@ -136,9 +124,9 @@ verbose=    TRUE)
      print(paste("response.cols = ", name.response, sep=""), quote=FALSE)
      print("", quote=FALSE)
 
-     #############################################################
-     # Print structure of analysis by bliniding of real response #
-     #############################################################
+     ############################################################
+     # Print structure of analysis by blinding of real response #
+     ############################################################
      indataXX <- indata
      indataXX[,response.cols] <- 0
      if(family[[1]]=="binomial"){
@@ -219,8 +207,6 @@ verbose=    TRUE)
      deviance.matrix <- matrix(1:dimx1, nrow=dimx1, ncol=4, byrow=FALSE)              # step 1
 
      zlist.inner <- list(result=result,devmat=deviance.matrix,weights=NULL)           # step 1
-#Hmisc::prn(zlist.inner)
-#stop("inner")
      rows.in.model <- vector("list",dimx1)
      residuals <- matrix(0,nrow=dimx1,ncol=dimx1)
      param.est <- matrix(0,nrow=p, ncol=dimx1)
@@ -239,7 +225,7 @@ verbose=    TRUE)
      ################################################################################
      if(is.null(skip.step1)){
 
-          print("ENTERING STEP 1", quote=FALSE)
+          print("ENTERING STEP 1", quote=FALSE)                                                                          # Step 1
 
           for(i in 1:initial.sample){
                if(!yesfactor){
@@ -333,7 +319,7 @@ verbose=    TRUE)
           lenskip <- length(skip.step1)
           rows.in.model[[lenskip]] <- skip.step1
           mstart <- lenskip + 1
-     }
+     }   #   if not skip step 1
      #
      ##################################################################
      # Step 2 of the procedure follows.                               #
@@ -359,6 +345,9 @@ verbose=    TRUE)
      glmstudresids <- NULL                                  # after studentization 
      glmHat <- vector("list", dimx1)                        # will store Hat matrices for leverage, Cook, and (last one) studentization of errors
      #
+     ###################################################################################################
+     # The next section increments the number of observations while collecting entermediate statistics #
+     ###################################################################################################
      for(i in mstart:(dimx1+1)){                                                  # mstart is the step after the original p obs entered
           rim <- rows.in.model[[i-1]]                                             # picks up rows for previous step
           Zlatest <- Z[rim,]
@@ -380,7 +369,7 @@ verbose=    TRUE)
           else{
                stop("family name not recognized")
           }
-                                               if(diagnose) Hmisc::prn(getthisglm)
+                                                                if(diagnose) Hmisc::prn(getthisglm)
           ############################
           # Form weighted hat matrix #
           ############################
@@ -392,7 +381,11 @@ verbose=    TRUE)
           } 
           matrixW <- matrixW[1:(lengthW*lengthW)]
           matrixW <- matrix(matrixW,lengthW,lengthW)            # weights in a diagonal matrix  
+#print("_glm OK to 10")
           transtemp <- t(xtemp)
+#prn(xtemp)
+#print("_glm OK to 10")
+
           cross <- transtemp %*% matrixW %*% xtemp
           crossinv <- solve(cross)                              # inverts a matrix
 
@@ -418,7 +411,7 @@ verbose=    TRUE)
           medaugx <- matrix(1:dimx1, nrow=dimx1, ncol=2, byrow=FALSE)                 # initialize medaugx
           medaugx[,2] <- 0 
           if(i > p) s.2[i-1] <- sum(model.resids * model.resids)/(i-p)
-                                            if(diagnose) {Hmisc::prn(model.resids); Hmisc::prn(s.2[i-1])}
+                                                                            if(diagnose) {Hmisc::prn(model.resids); Hmisc::prn(s.2[i-1])}
           # Deviances #
           glmdeviance[i-1] <- getthisglm$deviance
           if(estimate.phi){
@@ -544,8 +537,7 @@ verbose=    TRUE)
                ADdevres[[i-1]] <- uudev 
           }
      }            # i in mstart ...                                                    END OF STEP 2
-     ##############################################################################################################################
-
+     #
      ###############################################
      # Reformat deviance residuals as a data frame #
      ###############################################
@@ -590,27 +582,27 @@ verbose=    TRUE)
      param.est.current <- param.est[-1,]
      param.est.prev <- param.est[-nms,]
      param.diff <- param.est.prev - param.est.current
-                         if(diagnose){
-                             Hmisc::prn(param.est)
-                             Hmisc::prn(param.est.prev)
-                             Hmisc::prn(param.est.current)
-                             Hmisc::prn(param.diff)
-                             Hmisc::prn(xtemp.list)     
-                         }
+                                                             if(diagnose){
+                                                                  Hmisc::prn(param.est)
+                                                                  Hmisc::prn(param.est.prev)
+                                                                  Hmisc::prn(param.est.current)
+                                                                  Hmisc::prn(param.diff)
+                                                                  Hmisc::prn(xtemp.list)     
+                                                             }
      getw <- getthisglm$weights
      for(i in mstart:dimx1){
          aa <- param.diff[i-1,]
          aa <- as.numeric(aa[,-1])
          aa <- matrix(aa,nrow=1)
          bb <- xtemp.list[[i]]
-                       if(diagnose){
-                             Hmisc::prn(aa)
-                             Hmisc::prn(bb)
-                       }
+                                                            if(diagnose){
+                                                                 Hmisc::prn(aa)
+                                                                 Hmisc::prn(bb)
+                                                            }
          lastHat <- glmHat[[dimx1]]
          lastHat <- lastHat * my.identity(dimx1)    # select diagonal elements
          www <- aa %*% t(bb)
-                       if(diagnose){Hmisc::prn(www)}
+                                                             if(diagnose){Hmisc::prn(www)}
          modCook[i] <- (www %*% t(www))/(p*s.2[i])
      }       #    i
      #

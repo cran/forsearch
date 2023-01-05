@@ -22,7 +22,7 @@ function (thislm, data, ycol, thisi)
      dimx1 <- dim(data)[1]
 #prn(dimx1)
      preds <- stats::predict(thislm, data, pred.var=1)                                 #   predict
-     errors <- data[,ycol] - preds
+     errors <- data[, ycol] - preds
      errors2 <- errors * errors
 #prn(errors2)
      medaugx <- matrix(1:dimx1, nrow=dimx1, ncol=2, byrow=FALSE)

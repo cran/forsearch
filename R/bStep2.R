@@ -1,6 +1,6 @@
 #' @export
 bStep2 <-
-function (fixed, nOuter, mnf, mstart, nobs, fbg, n.f, s.o, ras, b.d, verbose=FALSE) 
+function (fixed, nOuter, mnf, mstart, nobs, yobs, fbg, n.f, s.o, ras, b.d, verbose=FALSE) 
 {
 #                                                             bStep2
 #
@@ -24,6 +24,8 @@ function (fixed, nOuter, mnf, mstart, nobs, fbg, n.f, s.o, ras, b.d, verbose=FAL
           print(MC)
           print("", quote = FALSE)
      }
+#prn(yobs)
+#stop("bStep2     yobs")
      nufixdatOuter <- nOuter
      maxnfixdat<- mnf
      fixdat.by.group <- fbg
@@ -41,6 +43,7 @@ function (fixed, nOuter, mnf, mstart, nobs, fbg, n.f, s.o, ras, b.d, verbose=FAL
      Score <- rep(largescore,nufixdatOuter * maxnfixdat)    # initialized as 10^10. Below, no value indicated by 10^8 
      RScore <-round(Score,4)
      HoldScore <- data.frame(DD, KK, Score,RScore)
+#print("bStep 2      OK to 10")
      for(kk in 1:nufixdatOuter){                                    # run across the rows
           for(dd in (mstart+1):maxnfixdat){                                # run down the columns
                if(dd <= n.fixdat[kk]){
@@ -48,13 +51,15 @@ function (fixed, nOuter, mnf, mstart, nobs, fbg, n.f, s.o, ras, b.d, verbose=FAL
                     ras <- rim.all.subgroups[[kk]][[dd-1]]
                     fixdatsub <- fixdatkk[ras,]
                     lm.inner2 <- stats::lm(fixed, data=fixdatsub, singular.ok=TRUE)                         #   lm
-                    justarim <- aStep2(thislm=lm.inner2, data=fixdatkk, ycol=2, dd)
+                    justarim <- aStep2(thislm=lm.inner2, data=fixdatkk, ycol=yobs, dd)
                     rim.all.subgroups[[kk]][[dd]] <- justarim[[1]]
                     index <- (HoldScore[1]==dd) & (HoldScore[2]==kk)
                     HoldScore[index,3] <- justarim[[2]]
                }      #   if dd <=#
           }           #   dd
      }                #   kk
+#prn(HoldScore)
+#stop("bStep2       HS")
      # Add dummy rows at the bottom of HoldScore #
      HSadd <- HoldScore[HoldScore[,1]==1,]
      HSadd[,1] <- maxnfixdat + 1
@@ -108,21 +113,26 @@ function (fixed, nOuter, mnf, mstart, nobs, fbg, n.f, s.o, ras, b.d, verbose=FAL
           Subscore <- rep(0,nufixdatOuter)
           candidates <- data.frame(SubgroupID, Subscore)
           for(kk in 1:nufixdatOuter){
+#prn(c(dd,kk))
                BBdummy <- BB[[dd-1]][[kk]]
+#prn(BBdummy)
                BB[[dd]][[kk]] <- BBdummy
                Subgroup.counter[kk] <- length(BB[[dd]][[kk]])                   # temporary count
                ###################################################
                # fill in the scores for candidates and sort them #
                ###################################################
                indHS <- (HoldScore[,1]==Subgroup.counter[kk] + 1) & (HoldScore[,2]==kk)
-               if(!any(indHS)){
+#prn(indHS)
+              if(!any(indHS)){
                     print(paste("No viable candidates in (dd, kk) = ",   paste(dd,kk,sep=", "), sep=""), quote=FALSE)
                }
                else{
                     candidates[kk,2] <- HoldScore[indHS,3]
                }   # any indHS
           }     #   kk
+ 
           candidates <- candidates[order(candidates[,2]),]
+#prn(candidates)
           selec <- candidates[1,1] 
           # How many observations in the subgroup counter? #
           picknext <- Subgroup.counter[selec] + 1                                 # equivalent to dd

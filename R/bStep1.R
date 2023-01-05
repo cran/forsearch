@@ -1,6 +1,6 @@
 #' @export
 bStep1 <-
-function(fixed, yf, mnf, nOuter, s.o, nopl, nobs, i.s, fbg, b.d, verbose=FALSE)
+function(fixed, yf, mnf, nOuter, yobs, s.o, nopl, nobs, i.s, fbg, b.d, verbose=TRUE)
 {
 #                                                             bStep1
 #
@@ -33,6 +33,7 @@ function(fixed, yf, mnf, nOuter, s.o, nopl, nobs, i.s, fbg, b.d, verbose=FALSE)
      fixdat.by.group <- fbg
      begin.diagnose <- b.d 
      spacer <- rep(" ", 20)
+     #
      ####################################################################
      # Set up variables to hold partial results. This is augmenting set #
      ####################################################################
@@ -52,7 +53,7 @@ function(fixed, yf, mnf, nOuter, s.o, nopl, nobs, i.s, fbg, b.d, verbose=FALSE)
           fixdatkk <- fixdat.by.group[[kk]]
           lm.inner <- stats::lm(fixed, data=fixdatkk, singular.ok=TRUE)              # first level of rim.all.subgroups to be filled        lm
           rim <- aStep1(yesfactor, data=fixdatkk, inner.rank=lm.inner$rank, initial.sample=inner.initial.sample, 
-                  formula=fixed, ycol=2, nopl=n.obs.per.level)                                                               #    aStep 1
+                  formula=fixed, ycol=yobs, nopl=n.obs.per.level)                                                               #    aStep 1
           current.obs.by.group[[kk]] <- rim
      }     #   kk
      mstart <- lm.inner$rank
@@ -74,14 +75,12 @@ function(fixed, yf, mnf, nOuter, s.o, nopl, nobs, i.s, fbg, b.d, verbose=FALSE)
      # 
 
      out <- list(mstart=mstart, rim=rim.all.subgroups)
-
      if(verbose) {
           print("", quote = FALSE)
           print("Finished running bStep1", quote = FALSE)
           print("", quote = FALSE)
-          print(date(), quote = FALSE)
+          print(date(), quote=FALSE)
           print("", quote = FALSE)
      }
-
      return(out)
 }

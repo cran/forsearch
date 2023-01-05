@@ -32,11 +32,8 @@ function (yesfactor, data, inner.rank, initial.sample, formula, ycol, nopl)
      obsindex <- matrix(data[,1], nrow=dimdata.1, ncol=dimdata.1)             # column of original row number and randomized row number
      zlist <- vector("list", initial.sample)
      result <- matrix(0, nrow=dimdata.1, ncol=2)
-#prn(yesfactor)
      if(yesfactor){
           ss77 <- variablelist(datadf=data, verbose=FALSE)                   #   variablelist and picksome
-#prn(ss77)
-#stop("ss77")
           pickm <- picksome(subsetlist=ss77, nobs=dimdata.1, initial.sample, n.obs.per.level=nopl, rank=inner.rank)
           dimpickm <- dim(pickm)[2]
      }           # yesfactor TRUE
@@ -57,25 +54,14 @@ function (yesfactor, data, inner.rank, initial.sample, formula, ycol, nopl)
      else{
           obsindex <- zlist[[i]][1:inner.rank,1]
      }      
-#prn(zlist)
-#stop("zlist")
-#prn(obsindex)
-
      for(i in 1:initial.sample){
-#prn(i)
-#prn(data)
-#prn(obsindex)
           smalldata <- data[obsindex,]
           #################################################################
           # Run linear model on inner group and predict to entire dataset #
           #################################################################
-#print("OK in aStep1 lm")
-#prn(formula)
-#prn(smalldata)
           lmsmall <- stats::lm(formula, smalldata, singular.ok=TRUE)                                       #    lm
           predsmall <- stats::predict(lmsmall, data, type="response", pred.var=1)                          # predict
           errorsmall <- data[, ycol] - predsmall
-#prn(errorsmall)
           sserrorsmall <- errorsmall^2
           rowz <- zlist[[i]]
           augx <- matrix(rowz[,1], nrow=dimdata.1, ncol=1)
@@ -100,6 +86,5 @@ function (yesfactor, data, inner.rank, initial.sample, formula, ycol, nopl)
      # equals the minimm of the first column.  This is the rim we want.                    #
      #######################################################################################
      rim <- c(zliststar[1:inner.rank,1])
-#print("leaving aStep1")
      return(rim)
 }

@@ -43,14 +43,14 @@ function(fixed, data, random, formula, initial.sample=1000, n.obs.per.level=1, s
      #
      MC <- match.call()
      if(verbose) {
-          print("")
-          print("Running forsearch_lme")
-          print("")
-          print(date())
-          print("")
-          print("Call:")
-          print(MC)
-          print("")
+          print("", quote=FALSE)
+          print("Running forsearch_lme", quote=FALSE)
+          print("", quote=FALSE)
+          print(date(), quote=FALSE)
+          print("", quote=FALSE)
+          print("Call:", quote=FALSE)
+          print(MC, quote=FALSE)
+          print("", quote=FALSE)
      }
      options(warn=-1)
      on.exit(options(warn=0))
@@ -69,13 +69,18 @@ function(fixed, data, random, formula, initial.sample=1000, n.obs.per.level=1, s
      ####################################################
      varlist <- variablelist(data, verbose=FALSE)
      if(length(varlist)==dim(data)[1]){
-          print("")
-          print("There is no replication in this dataset. All observations are defined as a combination of factors.")
-          print("This function does not support such datasets.")
-          print("")
+          print("", quote=FALSE)
+          print("There is no replication in this dataset. All observations are defined as a combination of factors.", quote=FALSE)
+          print("This function does not support such datasets.", quote=FALSE)
+          print("", quote=FALSE)
           stop("Try eliminating one or more of the factors in the database and in the formulas of the call.")
      }
      #
+     ###############################################################
+     # Ensure that data is a grouped dataset with simple structure #
+     ###############################################################
+     data <- nlme::groupedData(formula, data)
+
      nobs <- dim(data)[1]
      gG <- nlme::getGroups(data)
      namesgG <- names(gG)
@@ -90,8 +95,14 @@ function(fixed, data, random, formula, initial.sample=1000, n.obs.per.level=1, s
      # Initialization of data frame and of indices of fixed and random effects  #
      # data might be a groupedData object; regroup as fixdat with known formula #
      ############################################################################
-     print("")
-     print("BEGINNING STEP 0")
+
+     #################################################################
+     # Ensure that fixdat is a grouped dataset with simple structure #
+     #################################################################
+     fixdat <- nlme::groupedData(formula, fixdat)
+
+     print("", quote=FALSE)
+     print("BEGINNING STEP 0", quote=FALSE)
 
      ############################################################################
      # Print a summary of the assumed analysis so that the user can be sure     #
@@ -114,12 +125,7 @@ function(fixed, data, random, formula, initial.sample=1000, n.obs.per.level=1, s
      else{
           indep.vars <-"NoIndepVars"
      }
-     ###########################################
-     # Ensure that fixdat is a grouped dataset #
-     ###########################################
-     fixdat <- nlme::groupedData(formula, fixdat)
-
-     obslist <- c("Observation", response.variable, indep.vars, "OuterSubgroup")
+     obslist <- c("Observation", response.variable, indep.vars, "OuterSubgroup")               # this is just a character vector
                                                               spacer <- rep(" ", 20)
                                                               if(begin.diagnose <= 0){print(c(spacer,"Section 0"), quote=FALSE);Hmisc::prn(obslist)}
 
@@ -127,13 +133,13 @@ function(fixed, data, random, formula, initial.sample=1000, n.obs.per.level=1, s
      crostab <- apply(crostab,2,any)
      varnums <- (1:length(crostab))[crostab]
      fixdat2 <- fixdat[,varnums]
-     print("")
-     print("Observations will be reordered based on the following data (partial listings):")
-     print("")
+     print("", quote=FALSE)
+     print("Observations will be grouped based on OuterSubgroup (partial listings):", quote=FALSE)
+     print("", quote=FALSE)
      print(utils::head(fixdat2))
-     print("")
+     print("", quote=FALSE)
      print(utils::tail(fixdat2))
-     print("")
+     print("", quote=FALSE)
      #
      ###########################################################
      # Check for factor status of each variable within dataset #
@@ -146,7 +152,12 @@ function(fixed, data, random, formula, initial.sample=1000, n.obs.per.level=1, s
           for(m in 1:dimdata) ufactor[m] <- is.factor(data[,indep.columns[m]])
           yesfactor <- any(ufactor)
      }
-     if(yesfactor){print("There are factors in the design")}else{print("There are no factors in the design")}
+     if(yesfactor){
+          print("There are factors in the design", quote=FALSE)
+     }
+     else{
+          print("There are no factors in the design", quote=FALSE)
+     }
      #
      #######################################################################################
      # Set up list to hold observations by group (fixdat.by.group).  This is permanent set #
@@ -200,29 +211,35 @@ function(fixed, data, random, formula, initial.sample=1000, n.obs.per.level=1, s
      # Perform Step 1 or insert initial observation numbers manually? #
      ##################################################################
      if(is.null(skip.step1)){
-          print("")
-          print("BEGINNING STEP 1")
-          print("")
-          zz <- bStep1(fixed=fixed, yf=yesfactor, mnf=maxnfixdat, nOuter=nufixdatOuter, 
+          print("", quote=FALSE)
+          print("BEGINNING STEP 1", quote=FALSE)
+          print("", quote=FALSE)
+          ################################################
+          # Determine column number of response variable #
+          ################################################
+          response.colnum <- names(fixdat.by.group[[1]])==response.variable
+          response.colnum <- (1:length(response.colnum))[response.colnum]
+
+          zz <- bStep1(fixed=fixed, yf=yesfactor, mnf=maxnfixdat, nOuter=nufixdatOuter, yobs=response.colnum, 
                      s.o=saved.obsnums, nopl=n.obs.per.level, nobs=nobs, i.s=initial.sample, 
                      fbg=fixdat.by.group, b.d=begin.diagnose,verbose=FALSE)                                   # bStep1
           mstart <- zz[[1]]
           rim.all.subgroups <- zz[[2]]
      }   # skip.step1 is NULL
      else{
-          print("")
-          print("SKIPPING STEP 1")
-          print("")
+          print("", quote=FALSE)
+          print("SKIPPING STEP 1", quote=FALSE)
+          print("", quote=FALSE)
           mstart <- dim(skip.step1)[2]
           for(i in 1:nufixdatOuter){
                rim.all.subgroups[[i]][[mstart]] <- skip.step1[i,]
           }
      }   # skip.step1 is not null
-          print("")
+          print("", quote=FALSE)
 
-     print("BEGINNING STEP 2")
-     print("")
-     rows.in.set <- bStep2(fixed=fixed, nOuter=nufixdatOuter, mnf=maxnfixdat, mstart=mstart, nobs=nobs, 
+     print("BEGINNING STEP 2", quote=FALSE)
+     print("", quote=FALSE)
+     rows.in.set <- bStep2(fixed=fixed, nOuter=nufixdatOuter, mnf=maxnfixdat, mstart=mstart, nobs=nobs, yobs=response.colnum,
                     fbg=fixdat.by.group, n.f=n.fixdat, s.o=saved.obsnums, 
                     ras=rim.all.subgroups, b.d=begin.diagnose, verbose=FALSE)                                   # bStep2
      #
@@ -235,13 +252,13 @@ function(fixed, data, random, formula, initial.sample=1000, n.obs.per.level=1, s
      ###############################################################
      # Show assumed analysis if call is for unblinded presentation #
      ###############################################################
-     print("")
+     print("", quote=FALSE)
      zholdlm <- nlme::lme(fixed=fixed, data=fixdat, random=random, control=newcontrol)                                  #    lme
      if(unblinded){
-          print("The assumed analysis for these data will be as follows:")
-          print("")
+          print("The assumed analysis for these data will be as follows:", quote=FALSE)
+          print("", quote=FALSE)
           print(zholdlm)
-          print("")
+          print("", quote=FALSE)
      }
      ##########################################################
      # Retrieve independent and dependent columns from fixdat #
@@ -277,7 +294,7 @@ function(fixed, data, random, formula, initial.sample=1000, n.obs.per.level=1, s
      modCook <- rep(0,nrowsdf1-1)
      hold.summary.stats <- matrix(0,nrow=nrowsdf1,3)        # unnamed columns: AIC, BIC, log likelihood
 
-     print("BEGINNING INTERMEDIATE RESULTS EXTRACTION")
+     print("BEGINNING INTERMEDIATE RESULTS EXTRACTION", quote=FALSE)
 
      for(dd in mstart:nobs){
           rim <- rows.in.set[[dd]]             # picks up row numbers for a set of observations
@@ -472,11 +489,11 @@ function(fixed, data, random, formula, initial.sample=1000, n.obs.per.level=1, s
            Call=                                MC )
     #
      if(verbose) {
-          print("")
-          print("Finished running forsearch_lme")
-          print("")
-          print(date())
-          print("")
+          print("", quote=FALSE)
+          print("Finished running forsearch_lme", quote=FALSE)
+          print("", quote=FALSE)
+          print(date(), quote=FALSE)
+          print("", quote=FALSE)
      }
 
      return(listout)

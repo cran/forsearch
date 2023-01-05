@@ -35,16 +35,17 @@ forsearch_lme(fixed, data, random, formula, initial.sample=1000, n.obs.per.level
   \item{XmsTol}{lme control parameter}
   \item{Xopt}{lme control parameter}
   \item{unblinded}{TRUE causes printing of presumed analysis structure}
-  \item{begin.diagnose}{Numeric indicator of place in coding to begin printing diagnostic
-         information. 0 prints all information, 100 prints none.}
+  \item{begin.diagnose}{Numeric indicator of place in coding to begin printing 
+         diagnostic information. 0 prints all information, 100 prints none.}
   \item{verbose}{TRUE causes function identifier to display before and after 
-   run}
+         run}
 }
-\details{data must be a grouped data object. Steps 1 and 2 are based on formula
-    argument and use of lm() function on each outer subgroup defined in formula. 
-    Intermediate data is extracted based on fixed and random arguments.
-    Step 2 is determined by the results of Step 1, which itself is random. So,
-    it is possible to reproduce the entire run by using the skip.step1 argument.}
+\details{data will be grouped within the function, regardless of initial 
+    condition. Steps 1 and 2 are based on formula argument and use of lm() 
+    function on each outer subgroup defined in formula. Intermediate data is 
+    extracted based on fixed and random arguments. Step 2 is determined by the 
+    results of Step 1, which itself is random. So, it is possible to reproduce 
+    the entire run by using the skip.step1 argument.}
 \value{LIST
    \item{Number of rows included in Step 1 }{Number of observations included in Step 1}
    \item{Rows by subgroup }{List of row numbers, by subgroup}
