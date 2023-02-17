@@ -2,7 +2,8 @@
 forsearch_glm <-
 function(
           initial.sample=1000,       cobs          ,           response.cols ,
-          indep.cols    ,            family        ,           data          ,  
+          indep.cols    ,            family        ,           formula=NULL, binomialrhs=NULL,
+          data          ,  
           n.obs.per.level=1,         estimate.phi= TRUE,       skip.step1=   NULL,   
           unblinded = TRUE,
 
@@ -32,6 +33,10 @@ function(
      my.identity <- function(n){
           matrix(rep(c(1, rep(0, n)), times = n)[1:(n * n)], nrow = n, ncol = n, byrow = T)
      }
+     ######################
+     # 2 Helper functions #
+     ######################
+
      ########################################################################################
      # Helper function for calculaton of deviance code for each observation based on family #
      ########################################################################################
@@ -87,13 +92,15 @@ function(
           return(out)
      }                                   # end of devianceCode function
      #
+
+                                                                         #############################
+                                                                         # MAIN FUNCTION STARTS HERE #
+                                                                         #############################
      options(warn = -1)
      on.exit(options(warn = 0))
      ##################################################################
      # Get parts of formula to enable subsetting                      #
      # Ensure that first independent variable is Observation          #
-     # Make x1 the matrix of independent variables without obs number #
-     # x1 will represent the formula for independent obs              #
      ##################################################################
      uu <- names(data)
      if(uu[1] != "Observation")stop("First column of data must be 'Observation'")
@@ -104,17 +111,15 @@ function(
           bin.wts <- apply(data[,response.cols],1,sum)
           proportion1 <- data[,response.cols[1]]
           proportion1 <- proportion1/bin.wts
-          indata <- data.frame(data,proportion1,bin.wts)                             # indata
-          bin.wts <- NULL                                                   # insist that these come from indata
-          rhsformula <- paste(uu[indep.cols],sep="",collapse=" + ")
-          genformula <- paste("proportion1",rhsformula,sep=" ~ ")                                                               # genformula
-     }      # binomial  
+          indata <- data.frame(data,proportion1,bin.wts)                             # indata has proportion1 and bin.wts
+          bin.wts <- NULL                                                            # insist that these come from indata
+          genformula <- formula(paste("proportion1", binomialrhs, sep=" ~ ")) 
+    }      # binomial  
      else{
           name.response <- uu[response.cols]
           inresponse <- data[,response.cols]
           indata <- data
-          genformula <- paste(uu[indep.cols],sep="", collapse=" + ")
-          genformula <- paste(name.response, genformula,sep=" ~ ")
+          genformula <- formula
      }     # not binomial
 
      print("The formula applied in this analysis was:", quote=FALSE)
@@ -370,6 +375,7 @@ function(
                stop("family name not recognized")
           }
                                                                 if(diagnose) Hmisc::prn(getthisglm)
+
           ############################
           # Form weighted hat matrix #
           ############################
@@ -381,17 +387,22 @@ function(
           } 
           matrixW <- matrixW[1:(lengthW*lengthW)]
           matrixW <- matrix(matrixW,lengthW,lengthW)            # weights in a diagonal matrix  
-#print("_glm OK to 10")
           transtemp <- t(xtemp)
-#prn(xtemp)
-#print("_glm OK to 10")
-
           cross <- transtemp %*% matrixW %*% xtemp
+          uueigen <- unlist(eigen(cross)[1])
+          if(any(uueigen < 10^(-12))){
+               print(uueigen - 10^(-12))
+               print("", quote=FALSE)
+               print("The X'X matrix of the model is singular. Increase the value", quote=FALSE)
+               print("of n.obs.per.level until all eigenvalues (below) are > 10^-12 .", quote=FALSE)
+               print("", quote=FALSE)
+               print(uueigen)
+               print("", quote=FALSE)
+               stop(" ")
+          }
           crossinv <- solve(cross)                              # inverts a matrix
-
           hat <- xtemp %*% crossinv %*% transtemp      
           sqrtW <- sqrt(matrixW)
-
           glmHat[[i-1]] <- sqrtW %*% hat %*% sqrtW        
           #
           ###################################################################
@@ -413,6 +424,8 @@ function(
           if(i > p) s.2[i-1] <- sum(model.resids * model.resids)/(i-p)
                                                                             if(diagnose) {Hmisc::prn(model.resids); Hmisc::prn(s.2[i-1])}
           # Deviances #
+#print("_glm OK to 40")
+
           glmdeviance[i-1] <- getthisglm$deviance
           if(estimate.phi){
                glmphi[i-1] <- glmdeviance[i-1]/(length(rim)-p)
@@ -434,6 +447,8 @@ function(
           ############
           # Leverage #
           ############
+#print("_glm OK to 50")
+
           thisleverage <- 1
           if(is.matrix(x1)){
                for(j in 1:(i-1)){
@@ -450,6 +465,8 @@ function(
           }        #   x1 is matrix
                                              if(diagnose) Hmisc::prn(leverage)
           #
+#print("_glm OK to 60")
+
           #####################################################################
           # Determine next set of observations to include in set              #
           # Calculate the deviance for each observation using the current     #

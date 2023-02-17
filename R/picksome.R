@@ -34,8 +34,8 @@ function(subsetlist, nobs, initial.sample, n.obs.per.level, rank, verbose=FALSE)
      out <- array(rep(0,initial.sample*lennamesSL*n.obs.per.level), dim=c(initial.sample, lennamesSL, n.obs.per.level))
      for(i in 1:initial.sample){
           for(j in 1:lennamesSL){   
-               ufromSL <- subsetlist[[j]][,1]         # observations in this level
-               nufromSL <- length(ufromSL)            # maximum number of available observations in level
+               ufromSL <- subsetlist[[j]][,1]                                                # observations in this level
+               nufromSL <- length(ufromSL)                                                   # maximum number of available observations in level
                if(nufromSL < n.obs.per.level) stop("Too many observations requested per level")
                out[i,j,] <- sample(ufromSL, n.obs.per.level, replace=TRUE)                   # sample
           }            #  j
@@ -51,7 +51,7 @@ function(subsetlist, nobs, initial.sample, n.obs.per.level, rank, verbose=FALSE)
           for(i in 1:initial.sample){
                allobs <- 1:nobs
                possibles <- allobs[-1*out1[i,]]
-               poss <- sample(possibles, initial.sample, replace=TRUE)
+               poss <- sample(possibles, p, replace=FALSE)
                out2[i,] <- poss[1:p]
           }
           out <- cbind(out1, out2)

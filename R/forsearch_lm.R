@@ -113,15 +113,15 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
      medaugx <- matrix(1, nrow=initial.sample, ncol=2)                       #  median of augx
      for(i in 1:initial.sample){
           zlist[[i]] <- result
-          zlist[[i]][,1] <- sample(1:dimx1,dimx1)                        #    sample permutation
+          zlist[[i]][,1] <- sample(x=1:dimx1, size=dimx1)                        #    sample permutation
           if(yesfactor)zlist[[i]][1:dimpickm,1] <- pickm[i,]
      }      #   i
-                                            if(diagnose)Hmisc::prn(zlist)    
+                                            if(diagnose){print("forsearch_lm");Hmisc::prn(zlist)}    
      if(is.null(skip.step1)){
           print("ENTERING STEP 1", quote=FALSE)
           inner.rank <- lmAlldata$rank
           mstart <- inner.rank + 1
-          firstrim <- aStep1(yesfactor, data, inner.rank=lmAlldata$rank, initial.sample, formula, ycol, nopl=n.obs.per.level)
+          firstrim <- aStep1(yesfactor, data, inner.rank=lmAlldata$rank, initial.sample, formula, ycol, nopl=n.obs.per.level)    #aStep1
           rows.in.model[[p]] <- firstrim
      }         # is.null skip.step1
      else{
@@ -140,6 +140,7 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
           if(is.matrix(locatemin)) locatemin <- locatemin[1,]
           zliststar <- zlist[[locatemin[3]]]
                                            if(diagnose){
+                                              print("forsearch_lm")
                                               Hmisc::prn(medaugx)
                                               Hmisc::prn(minmed)
                                               Hmisc::prn(locatemin)
@@ -162,7 +163,9 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
      for(i in mstart:(dimx1+1)){                  # mstart is the step after the original p obs entered
           rim <- rows.in.model[[i-1]]             # picks up rows for previous step
           Zlatest <- Z[rim,]
-                                       if(diagnose){Hmisc::prn(i); Hmisc::prn(Zlatest)}
+                                       if(diagnose){Zlatest <- Zlatest[order(Zlatest[,1]),]
+                                                    Hmisc::prn(i); Hmisc::prn(Zlatest)
+                                                   }
           if(is.data.frame(x1))xtemp <- x1[rim,]
           else xtemp <- data.frame(x1[rim])
           subdata <- data[rim,]
@@ -196,19 +199,23 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
           thisleverage <- 1
           x1 <- data[,-c(1,ycol)]
           xtemp <- getthislmx
-          crossinv <- solve(t(xtemp) %*% xtemp)
-          for(j in 1:(i-1)){
-              Zlatest2 <- data.frame(Zlatest)
-              if(dim(xtemp)[2]==1){
-                   thisleverage <- c(c(matrix(xtemp[j],nrow=1) %*% crossinv %*% matrix(xtemp[j],ncol=1)))
-                   thisleverage <- c(i-1,Zlatest2[j,1],thisleverage)
-              }else{
-                   thisleverage <- c(c(matrix(xtemp[j,],nrow=1) %*% crossinv %*% matrix(xtemp[j,],ncol=1)))
-                   thisleverage <- c(i-1,Zlatest2[j,1],thisleverage)
-              }
-              leverage <- rbind(leverage,thisleverage)
+                      if(diagnose){print("forsearch_lm");Hmisc::prn(xtemp)}
+          uuu <- prod(eigen(t(xtemp) %*% xtemp)[[1]])
+          if(uuu > .Machine$double.eps){
+               crossinv <- solve(t(xtemp) %*% xtemp)
+               for(j in 1:(i-1)){
+                   Zlatest2 <- data.frame(Zlatest)
+                   if(dim(xtemp)[2]==1){
+                       thisleverage <- c(c(matrix(xtemp[j],nrow=1) %*% crossinv %*% matrix(xtemp[j],ncol=1)))
+                        thisleverage <- c(i-1,Zlatest2[j,1],thisleverage)
+                   }else{
+                        thisleverage <- c(c(matrix(xtemp[j,],nrow=1) %*% crossinv %*% matrix(xtemp[j,],ncol=1)))
+                        thisleverage <- c(i-1,Zlatest2[j,1],thisleverage)
+                   }
+                   leverage <- rbind(leverage,thisleverage)
                }   # j 1:i
                                              if(diagnose) Hmisc::prn(leverage)
+          }    # if uuu
           #
           #####################################################################
           # Calculate the error for each observation using this model betahat #

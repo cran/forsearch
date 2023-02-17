@@ -1,13 +1,23 @@
 
-12/28/2022 forsearch version 3.0.1 
-==================================
+2/14/2023 forsearch version 3.1.0 
+=================================
+     Major changes:
+None
+     Moderate changes:
+Added guidance to prevent linearly dependent X'X matrices in forsearch_glm
+Added capability of forsearch_glm to handle ANOVA and ANCOVA models
+
+     Minor changes and bug fixes:
+Correct coding error in picksome function
+
+1/4/2023 forsearch version 3.0.1 
+================================
      Major changes:
 None
      Moderate changes:
 None
      Minor changes and bug fixes:
-Fixed response column identifier in forsearch_lme, aStep1, aStep2,
-   bStep1 and bStep2
+Fixed response column identifier in forsearch_lme, aStep1, aStep2, bStep1 and bStep2
 Fixed need for handling NaN is certain data for forsearch_glm   
 Clarified help for forsearch_glm for two response column numbers 
 

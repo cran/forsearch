@@ -16,7 +16,7 @@ Plot output from forsearch_glm to show change in AIC statistics as the number
    \item{maintitle}{Main title of plot}
    \item{subtitle}{Subtitle of plot}
    \item{caption}{Content of caption}
-   \item{wmf}{File name of stored plot; omit ’.wmf’}
+   \item{wmf}{File name of stored plot; omit ".wmf"}
    \item{Cairo}{TRUE causes use of Cairo graphics}
    \item{printgraph}{TRUE causes graph to print to file and closes device}
    \item{addline}{add a line to the graph; abbreviation allowed}

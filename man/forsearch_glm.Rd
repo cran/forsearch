@@ -9,7 +9,8 @@ observations in the set are best fitting at that stage. A preliminary step (Step
 contains code for pre-processing of the data.
 }
 \usage{
-forsearch_glm(initial.sample=1000, cobs, response.cols, indep.cols, family,  data, 
+forsearch_glm(initial.sample=1000, cobs, response.cols, indep.cols, family,  
+  formula = NULL, binomialrhs = NULL, data, 
   n.obs.per.level = 1, estimate.phi = TRUE, skip.step1 = NULL, unblinded = TRUE, 
   diagnose = FALSE, verbose = TRUE)
 }
@@ -21,6 +22,10 @@ forsearch_glm(initial.sample=1000, cobs, response.cols, indep.cols, family,  dat
   \item{response.cols}{Vector of column numbers (2) of responses and nonresponses}
   \item{indep.cols}{Column number(s) of independent variables}
   \item{family}{Error distribution and link}
+  \item{formula}{Formula relating response to independent variables. Required
+       except for family=binomial}
+  \item{binomialrhs}{Right-hand side of formula, as text object. Required for 
+       family=binomial}
   \item{data}{Name of database}
   \item{n.obs.per.level}{Number of observations per level of (possibly crossed) 
            factor levels}
@@ -89,16 +94,16 @@ Deaths<-c(7,1,1,1,5,2,4,2,1,1,2,5,35,1,4,1,2,1,1,3,1,3,13,2,1,1,1
 train <- data.frame(Observation,Year,RollingStock,Traffic,Deaths)
 train<-train[1:25,]
 train.out <- forsearch_glm(initial.sample=100, cobs=4, response.cols=5, indep.cols=2:4, 
-   family=poisson("log"),  data=train,  n.obs.per.level = 1, 
-   estimate.phi = TRUE, skip.step1 = NULL, unblinded = TRUE) 
+   family=poisson("log"), formula=Deaths~Year+RollingStock+Traffic,data=train, 
+   n.obs.per.level = 1,estimate.phi = TRUE, skip.step1 = NULL, unblinded = TRUE) 
 \dontrun{
 # Recode RollingStock as categorical variable. Note change in n.obs.per.level
 #      argument
 train2 <- train
 train2[,3] <- as.factor(train2[,3])
 train2.out <- forsearch_glm(initial.sample=100, cobs=4, response.cols=5, indep.cols=2:4, 
-   family=poisson("log"),  data=train2,  n.obs.per.level = 2, 
-   estimate.phi = TRUE, skip.step1 = NULL, unblinded = TRUE) 
+   family=poisson("log"), formula=Deaths~Year+RollingStock+Traffic, data=train2,
+   n.obs.per.level = 2,estimate.phi = TRUE, skip.step1 = NULL, unblinded = TRUE) 
 }
 }
 \keyword{ datagen }

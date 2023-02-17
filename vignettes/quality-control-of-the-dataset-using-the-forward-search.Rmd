@@ -45,23 +45,6 @@ Diagnostics involves identifying inconsistent observations, determining their im
 
 I believe that statisticians, especially those that work with studies and data every day, will have a bigger role in the quality control and scientific integrity of studies in the years to come.  The forsearch R extension will be a useful tool in this area.
 
-
-```{r, echo = FALSE}
-Observation <- 1:17
-Boiling <- c(194.5, 194.3, 197.9, 198.4, 199.4, 199.9, 200.9, 201.1, 201.4, 201.3, 203.6, 204.6, 209.5, 208.6, 210.7, 211.9, 212.2)
-LogPressure <- c(131.79, 131.79, 135.02, 135.55, 136.46, 136.83, 137.82, 138.00, 138.06, 138.05, 140.04, 142.44, 145.47, 144.34, 146.30, 147.54, 147.80)
-```
-
-```{r}
- 
-plot(Boiling,LogPressure)
-
-
-```
-
-
-```                                        To Be Continued
-
 ## References
 
 Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New York, 2000.
