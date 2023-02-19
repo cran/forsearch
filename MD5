@@ -1,11 +1,11 @@
-d1e38a4d5e7eaf2e2ec06fcca5d2923b *DESCRIPTION
+7147fcc8acbbfdb758ccc4ef7229e993 *DESCRIPTION
 22af0164d68ae413b29dac3c8cb05ee5 *NAMESPACE
-8b0df220c405763d529c19ca8b58fe09 *NEWS.md
+d584321c79f72001c34fce73a5c157a8 *NEWS.md
 2f4dea361be1a03050a77469c1d17bbf *R/aStep1.R
 4d3df41bed3547ec7cf40027d7e4cdb3 *R/aStep2.R
 0ce966b322df3fa3c73af4e1e186c70f *R/bStep1.R
 37e252486de99b2cd318d3ee40c45857 *R/bStep2.R
-a50be1b4998fed9903b1273d8b2bb6f2 *R/forsearch_glm.R
+ce2c82bad34c69db90ddfa436151f74f *R/forsearch_glm.R
 d8c064ac632cf51c715bcfff4ec2b1a1 *R/forsearch_lm.R
 7d3b47155b2ccc707ee656c2da61c2fb *R/forsearch_lme.R
 b2b3b0c2e6ff9fa5bc233364ef57f941 *R/identifyCoeffs.R
@@ -30,7 +30,7 @@ cfaff0975c83e1ed64369970666ab015 *R/showmegl.R
 67fc01d87b306283fe36e9b88ffa1900 *R/showmelme.R
 5537db1485f19d47898b9d2e129db920 *R/variablelist.R
 19dec09dd806c40f39c26f3a80e5c3cc *README.md
-8c887d68cb71959c0eb6d0e7ea1c0cad *build/partial.rdb
+cafd61505ee98dffb937d39979c14b77 *build/partial.rdb
 e064e1cacb0d2b3087c0399f791fcb96 *build/vignette.rds
 e242e943ba18e424383b2a0f0eb0234a *inst/doc/quality-control-of-the-dataset-using-the-forward-search.R
 870cd42195205ebea823abf45cf4bf35 *inst/doc/quality-control-of-the-dataset-using-the-forward-search.Rmd
@@ -52,7 +52,7 @@ ffe73ade71b5850163a3b011dfdf6767 *inst/extdata/micem1.R
 4ec70e977d0382e76697162248c14e75 *man/bStep1.Rd
 38054e8130cc12df972efe6d88babde9 *man/bStep2.rd
 b86b114eb3faf36914263dd2bb990d93 *man/forsearch-package.Rd
-95dcfa2b489a11094c1802079c8ea3f0 *man/forsearch_glm.Rd
+f115a5ef3faf4ab17eef63732f9306de *man/forsearch_glm.Rd
 ae841296a7ccd98ad35071a54dcc7323 *man/forsearch_lm.Rd
 b713c570f320a964e50a4e83dfb4cd92 *man/forsearch_lme.Rd
 20c2e15734c467fce24a76863222a1c0 *man/identifyCoeffs.Rd

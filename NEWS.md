@@ -1,5 +1,5 @@
 
-2/14/2023 forsearch version 3.1.0 
+2/17/2023 forsearch version 3.2.0 
 =================================
      Major changes:
 None

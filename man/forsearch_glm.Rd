@@ -24,7 +24,7 @@ forsearch_glm(initial.sample=1000, cobs, response.cols, indep.cols, family,
   \item{family}{Error distribution and link}
   \item{formula}{Formula relating response to independent variables. Required
        except for family=binomial}
-  \item{binomialrhs}{Right-hand side of formula, as text object. Required for 
+  \item{binomialrhs}{Quoted character.Right-hand side of formula. Required for 
        family=binomial}
   \item{data}{Name of database}
   \item{n.obs.per.level}{Number of observations per level of (possibly crossed) 

@@ -424,8 +424,6 @@ function(
           if(i > p) s.2[i-1] <- sum(model.resids * model.resids)/(i-p)
                                                                             if(diagnose) {Hmisc::prn(model.resids); Hmisc::prn(s.2[i-1])}
           # Deviances #
-#print("_glm OK to 40")
-
           glmdeviance[i-1] <- getthisglm$deviance
           if(estimate.phi){
                glmphi[i-1] <- glmdeviance[i-1]/(length(rim)-p)
@@ -447,8 +445,6 @@ function(
           ############
           # Leverage #
           ############
-#print("_glm OK to 50")
-
           thisleverage <- 1
           if(is.matrix(x1)){
                for(j in 1:(i-1)){
@@ -465,8 +461,6 @@ function(
           }        #   x1 is matrix
                                              if(diagnose) Hmisc::prn(leverage)
           #
-#print("_glm OK to 60")
-
           #####################################################################
           # Determine next set of observations to include in set              #
           # Calculate the deviance for each observation using the current     #
