@@ -1,6 +1,6 @@
-7147fcc8acbbfdb758ccc4ef7229e993 *DESCRIPTION
-22af0164d68ae413b29dac3c8cb05ee5 *NAMESPACE
-d584321c79f72001c34fce73a5c157a8 *NEWS.md
+ce37576d5f8e8ee21a7751daf77632f4 *DESCRIPTION
+4365a1b845810c84c0817911a897f458 *NAMESPACE
+6043153f170cb79bf53f0495736aa0ee *NEWS.md
 2f4dea361be1a03050a77469c1d17bbf *R/aStep1.R
 4d3df41bed3547ec7cf40027d7e4cdb3 *R/aStep2.R
 0ce966b322df3fa3c73af4e1e186c70f *R/bStep1.R
@@ -25,12 +25,10 @@ ce267d9a7a58c257dda733c878f13a55 *R/plotdiag.params.random.R
 0d8909df17d454d866689d059546b56b *R/plotdiag.s2.R
 3f2a9dbfc40060633cef42f15b708fa9 *R/plotdiag.tstats.R
 33e3d8f6bfd1709301abc203dfa64159 *R/search.history.R
-8e32d221f7c086e797d65760558bd4e3 *R/showme.R
-cfaff0975c83e1ed64369970666ab015 *R/showmegl.R
-67fc01d87b306283fe36e9b88ffa1900 *R/showmelme.R
+d0e0072087f3a0c0d1208cb832d8bb69 *R/showme.R
 5537db1485f19d47898b9d2e129db920 *R/variablelist.R
 19dec09dd806c40f39c26f3a80e5c3cc *README.md
-cafd61505ee98dffb937d39979c14b77 *build/partial.rdb
+a9593a00fdc44f804a2b319433561f5a *build/partial.rdb
 e064e1cacb0d2b3087c0399f791fcb96 *build/vignette.rds
 e242e943ba18e424383b2a0f0eb0234a *inst/doc/quality-control-of-the-dataset-using-the-forward-search.R
 870cd42195205ebea823abf45cf4bf35 *inst/doc/quality-control-of-the-dataset-using-the-forward-search.Rmd
@@ -72,8 +70,6 @@ c9dd1e6835dbd6ba7b1764eff66c0402 *man/plotdiag.phihatx.rd
 25b087eba83dd1fe592f1780c8d78f1e *man/plotdiag.s2.rd
 9e8ea8b538aa8de262615ee00f8e148b *man/plotdiag.tstats.rd
 ec9d2f447d978f605d0986b856d35274 *man/search.history.rd
-8741edee7691df43e4f7c78615c4492e *man/showme.rd
-50c7e736055b5e3b567399de80c501ed *man/showmegl.rd
-1b06d71e44bd60e599017d6cf1213511 *man/showmelme.rd
+f586f0184a8bafdc0e5d78813ab06aaa *man/showme.rd
 ac0da2fe5ec952c1e930fa644772780b *man/variablelist.Rd
 870cd42195205ebea823abf45cf4bf35 *vignettes/quality-control-of-the-dataset-using-the-forward-search.Rmd

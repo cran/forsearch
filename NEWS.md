@@ -1,3 +1,14 @@
+3/7//2023 forsearch version 3.3.0 
+=================================
+     Major changes:
+None
+
+     Moderate changes:
+Combined showme, showmegl, and showmelme into showme function     
+
+     Minor changes and bug fixes:
+Correct display of ANOVA structure in forsearch_glm for family=Gamma
+
 
 2/17/2023 forsearch version 3.2.0 
 =================================

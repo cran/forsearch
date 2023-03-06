@@ -1,7 +1,7 @@
 Package: forsearch
 Title: Diagnostic Analysis Using Forward Search Procedure for Various
         Models
-Version: 3.2.0
+Version: 3.3.0
 Authors@R: person("William","Fairweather",
         email = "wrf343@flowervalleyconsulting.com", role = c("aut", "cre"))
 Description: Identifies potential data outliers and their impact on estimates and analyses. Uses the forward search approach of Atkinson and Riani, "Robust Diagnostic Regression Analysis",          2000,<ISBN: o-387-95017-6> to prepare descriptive statistics of a dataset that is to be analyzed by stats::lm(), stats::glm(), or nlme::lme().  Includes graphics functions to                display the descriptive statistics.
@@ -15,8 +15,8 @@ Imports: Hmisc(>= 4.7-0), Cairo(>= 1.6-0), formula.tools(>= 1.7.0),
 Suggests: rmarkdown, knitr
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2023-02-17 16:32:42 UTC; NO
+Packaged: 2023-03-06 18:17:31 UTC; NO
 Author: William Fairweather [aut, cre]
 Maintainer: William Fairweather <wrf343@flowervalleyconsulting.com>
 Repository: CRAN
-Date/Publication: 2023-02-19 13:10:02 UTC
+Date/Publication: 2023-03-06 18:50:02 UTC
