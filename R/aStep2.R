@@ -19,6 +19,7 @@ function (thislm, data, ycol, thisi)
      # Calculate the error for each observation using the current subset #
      # Select next subset.                                               #
      #####################################################################
+#prn(data)
      dimx1 <- dim(data)[1]
 #prn(dimx1)
      preds <- stats::predict(thislm, data, pred.var=1)                                 #   predict

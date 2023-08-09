@@ -37,7 +37,7 @@ File name of stored plot; omit ".wmf"
 If TRUE, displays code to help diagnose main function errors
 }
   \item{verbose}{
-If TRUE, indicates beginning and end of function
+If TRUE, indicates beginning and end of function 
 }
 }
 \value{

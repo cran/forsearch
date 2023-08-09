@@ -34,6 +34,27 @@ function(datadf, verbose=TRUE)
           }
      }
      Subsetsdf <- data.frame(datadf[,1], SubsetCode) 
+
+     ###########################################################################################
+     # Message regarding removal of observations when it is the only example of a factor level #
+     ###########################################################################################
+     tableSub <- table(SubsetCode)
+     dntableSub <- dimnames(tableSub)$SubsetCode
+     ncells <- length(tableSub)
+     anyonlyone <- any(tableSub==1)
+     if(anyonlyone){
+          message("There is as least one instance where a level of the possibly crossed factors contains only 1 observation.")
+          message("It may be necessary to remove any such observations before forsearch analysis.")
+          message("The observations and their factor codes are:")
+          for(i in 1:ncells){
+               if(tableSub[[i]]==1){
+                    singleobs <- Subsetsdf[Subsetsdf$SubsetCode==dntableSub[i],]
+                    Hmisc::prn(singleobs)
+               }     # if
+          }     # for
+#prn(Subsetsdf[order(SubsetCode),])
+#stop("all")
+     }     # anyonlyone
      uSubsetCode <- sort(unique(SubsetCode))
      nSC <- length(uSubsetCode)
      Subsetlist <- vector("list", nSC)

@@ -32,7 +32,7 @@ aStep1(yesfactor, data, inner.rank, initial.sample, formula, ycol, nopl)
 }
 \value{
 Produces set of observation numbers for Step 1. Accounts for presence of factors
-    in the dataset
+    in the dataset 
 }
 \author{William R. Fairweather
 }

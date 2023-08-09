@@ -16,8 +16,26 @@ function(x, verbose=TRUE)
           print("", quote = FALSE)
      }
      uu <- as.character(x$Call[[1]])
+
+     if(substr(uu,1,13)=="forsearch_cph"){
+          print("This is a forsearch_cph output file", quote=FALSE)
+          print("", quote = FALSE)
+          Hmisc::prn(names(x))
+          print(search.history(x)[[1]])
+          Hmisc::prn(x$"Number of model parameters")
+
+          Hmisc::prn(x$"Fixed parameter estimates")
+
+          Hmisc::prn(utils::head(x$Leverage))
+          Hmisc::prn(utils::tail(x$Leverage))
+
+          Hmisc::prn(x$"Wald Test")
+          Hmisc::prn(x$LogLikelihood)    
+          Hmisc::prn(x$"Likelihood ratio test")
+     }        # cph
+     # 
      if(substr(uu,1,13)=="forsearch_glm"){
-          print("This is a glm output file", quote=FALSE)
+          print("This is a forsearch_glm output file", quote=FALSE)
           print("", quote = FALSE)
           Hmisc::prn(names(x))
           print(search.history(x)[[1]])
@@ -51,7 +69,7 @@ function(x, verbose=TRUE)
      #
      if(substr(uu,1,12)=="forsearch_lm"){
           if(substr(uu,13,13)=="e"){
-               print("This is an lme output file", quote=FALSE)
+               print("This is an forsearch_lme output file", quote=FALSE)
                print("", quote = FALSE)
 
                Hmisc::prn(names(x))
@@ -92,7 +110,7 @@ function(x, verbose=TRUE)
                Hmisc::prn(utils::tail(x$"Fit statistics"))
           }        #    lme
           else{
-               print("This is an lm output file", quote=FALSE)
+               print("This is a forsearch_lm output file", quote=FALSE)
                print("", quote = FALSE)
                Hmisc::prn(names(x))
                print(search.history(x)[[1]])

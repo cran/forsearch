@@ -99,7 +99,7 @@ train.out <- forsearch_glm(initial.sample=100, cobs=4, response.cols=5, indep.co
 \dontrun{
 # Recode RollingStock as categorical variable. Note change in n.obs.per.level
 #      argument
-train2 <- train
+train2 <- train 
 train2[,3] <- as.factor(train2[,3])
 train2.out <- forsearch_glm(initial.sample=100, cobs=4, response.cols=5, indep.cols=2:4, 
    family=poisson("log"), formula=Deaths~Year+RollingStock+Traffic, data=train2,

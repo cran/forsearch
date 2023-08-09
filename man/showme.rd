@@ -16,7 +16,7 @@ output in an abbreviated format. Primarily for programmer use.
 }
 \value{Abbreviated printout of output of forsearch_lm function
 }
-\author{William R. Fairweather
+\author{William R. Fairweather 
 }
 \examples{
 \testonly{

@@ -41,7 +41,7 @@ Unfortunately, it is virtually impossible to enumerate all the different ways th
 
 To complicate matters further, regulatory agencies and others worry that data quality control is only undertaken after some unexpected, commercially adverse findings are discovered in the study.  Eliminating observations at this point has the appearance of sampling to a foregone conclusion or eliminating adverse results.
 
-Diagnostics involves identifying inconsistent observations, determining their impact on the primary analyses of the study, and justifying their disposition:  total acceptance of the observataion, modification of value or classification prior to acceptance, or removal. In the name of proper scientific integrity, disposition of outliers must be well documented.
+Diagnostics involves identifying inconsistent observations, determining their impact on the primary analyses of the study, and justifying their disposition:  total acceptance of the observation, modification of value or classification prior to acceptance, or removal. In the name of proper scientific integrity, disposition of outliers must be well documented.
 
 I believe that statisticians, especially those that work with studies and data every day, will have a bigger role in the quality control and scientific integrity of studies in the years to come.  The forsearch R extension will be a useful tool in this area.
 

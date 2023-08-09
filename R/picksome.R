@@ -16,6 +16,7 @@ function(subsetlist, nobs, initial.sample, n.obs.per.level, rank, verbose=FALSE)
      #              verbose
      #
      MC <- match.call()
+#print("In picksome")
      if(verbose) {
           print("", quote = FALSE)
           print("Running picksome", quote = FALSE)
@@ -35,9 +36,10 @@ function(subsetlist, nobs, initial.sample, n.obs.per.level, rank, verbose=FALSE)
      for(i in 1:initial.sample){
           for(j in 1:lennamesSL){   
                ufromSL <- subsetlist[[j]][,1]                                                # observations in this level
+
                nufromSL <- length(ufromSL)                                                   # maximum number of available observations in level
                if(nufromSL < n.obs.per.level) stop("Too many observations requested per level")
-               out[i,j,] <- sample(ufromSL, n.obs.per.level, replace=TRUE)                   # sample
+               out[i,j,] <- sample(ufromSL, n.obs.per.level, replace=FALSE)                   # sample
           }            #  j
      }     # i
      out1 <- matrix(c(out),nrow=initial.sample)
@@ -45,8 +47,8 @@ function(subsetlist, nobs, initial.sample, n.obs.per.level, rank, verbose=FALSE)
      ##############################################################################################
      # Add observations from total set of observations not yet included in each row of matrix out #
      ##############################################################################################
-     p <- rank - lennamesSL * n.obs.per.level
-     if(p > 0){
+     p <- rank - lennamesSL * n.obs.per.level     # difference between rank of lm H matrix and number of observations obtained by product
+     if(p > 0){              # needs augmentation 
           out2 <- matrix(0, nrow=initial.sample, ncol = p)
           for(i in 1:initial.sample){
                allobs <- 1:nobs

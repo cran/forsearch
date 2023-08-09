@@ -7,13 +7,13 @@ output: html_document
 <center>FORSEARCH </center>
 <b> </b>           
 
-   There are a large number of computer programs that apply a statistical method to a database.  The user assumes that the data follow a model and knows that the method is appropriate for that model. There are far fewer programs that check whether all the observations follow that model or, if some do not clearly follow it, what impact these outliers have on the estimation of unknown parameters of the model, both fixed and random.  The forsearch package evaluates the compliance of each observation to a model that could be analyzed with the lm() function or the glm() function of the stats package or the lme() function of the nlme package. 
+   There are a large number of computer programs that apply a statistical method to a database.  The user assumes that the data follow a model and knows that the method is appropriate for that model. There are far fewer programs that check whether all the observations follow that model or, if some do not clearly follow it, what impact these outliers have on the estimation of unknown parameters of the model, both fixed and random.  The forsearch package evaluates the compliance of each observation to a model that could be analyzed with the lm() function or the glm() function of the stats package, the lme() function of the nlme package, or the coxph() function of the survival package. 
 
    One approach to this goal would be to start with the complete analysis and to remove each observation in turn and reanalyze, looking for large changes in the estimates.  Then remove pairs of observations and repeat the process.  Clearly, the number of pairs, triplets, foursomes, etc quickly becomes too large to manage.  The forsearch approach is to begin with a minimal number of observations, and to increase the number by one until all observations are included.  For example, to estimate p parameters of a linear regression model, only p observations are needed to permit the mathematics to run to completion.  Naturally, no estimate of variation is possible, but this is not needed at this stage.  Atkinson and Riani (2000) refer to this as Step 1. 
 
 In Step 2, the number of observations in the set is increased by 1 until all observations are included.  The first set of observations is chosen in such a way that there is little chance that it includes an outlier.  Subsequent sets are defined by adding the observation that least disturbs the estimates. This process causes the most outlying observation(s) to be added at the end of Step 2. In some stages of Step 2, one or more of the observations already in the set would be dropped out to make way for a better fitting set, but the set would still be incremented in size by 1.
 
-In forsearch, Step 1 is accomplished by sampling all the observations to determine which ones should be chosen for the initial set. The size of this sample is set by the user (initial.sample) in forsearch_lm(), forsearch_glm(), and forsearch_lme().  For forsearch_lme, observations in each innermost subset are selected in order to prevent irrelevant jumps in the resulting graphics.
+In forsearch, Step 1 is accomplished by sampling all the observations to determine which ones should be chosen for the initial set. The size of this sample is set by the user (initial.sample) in forsearch_lm(), forsearch_glm(), forsearch_lme() and forsearch_cph().  For forsearch_lme, observations in each innermost subset are selected in order to prevent irrelevant jumps in the resulting graphics.
 
 During Step 2, the output of each run of a forsearch function is saved.  For example, fixed parameter estimates and the estimate of underlying variation are saved. For lme(), the other variance estimates are also saved. Other functions of the forsearch package are used to plot the changes in these statistics over the stages of Step 2. Outliers create characteristic plots.  The different plots indicate where the outlier(s) have an impact on the subsequent formal analysis of the data and where they do not. 
 
@@ -21,7 +21,7 @@ The plot functions can be configured to use Cairo graphics, if desired, and to e
 
 If the observations that best fit the model are known (for example, from previous runs of a forsearch function, they can be manually entered in a call to these functions, thereby skipping Step 1 and saving some execution time. 
 
-We address data that would be analyzed as a linear fixed effects model, a linear mixed effects model, or a generalized linear model.  For the latter, acceptable families are binomial, gamma, and Poisson.  There are no limitations on the link functions of these families.
+We address data that would be analyzed as a linear fixed effects model, a linear mixed effects model, a censored data model, or a generalized linear model.  For the latter, acceptable families are binomial, gamma, and Poisson.  There are no limitations on the link functions of these families.
 
 Some of the plotting functions can be used on any forsearch object and some are specific to the function used to generate the object (See the table below).
 
@@ -154,24 +154,27 @@ The third example is a set of 67 records of British train accidents (Atkinson an
 
 
 ```
-The table below summarizes the use of plotdiag.xxx functions on forsearch_lm, _lme 
-and _glm object databases:
+The table below summarizes the use of plotdiag.xxx functions on forsearch_lm, _lme, 
+ _glm, and _cph object databases:
 
 ```
-------------------- | -------------------------------- | --- | --- | ---
-xxx	                | plots forsearch output named     | lm  | lme | glm  
-------------------- | -------------------------------- | --- | --- | ---  
+------------------- | -------------------------------- | --- | --- | ---  | ---
+xxx	                | plots forsearch output named     | lm  | lme | glm  | cph
+------------------- | -------------------------------- | --- | --- | ---  | ---
 AICX                | AIC			                   |     |     |  X  
 Cook	            | Modified Cook distance	       |  X  |  X  |  
 deviance.residuals	| Deviance residuals and augments  | 	 |     |  X  
 deviances	        | Residual deviance, Null deviance |	 |	   |  X  
-leverage	        | Leverage	                       |  X  |  X  |  X  
-params.fixed	    | Fixed parameter estimates	       |  X  |  X  |  X  
+fit3                | Fit statistics                   |     |  X  |
+leverage	        | Leverage	                       |  X  |  X  |  X   |  X
+loglik	            | Log Likelihood	               |     |     |      |  X
+lrt                 | Likelihood ratio test            |     |     |      |  X
+params.fixed	    | Fixed parameter estimates	       |  X  |  X  |  X   |  X
 phihatx	            | PhiHat			               |     |     |  X  
 residuals	        | Standardized residuals	       |  X  |  X  |  
 s2	                | s^2	                           |  X  |	   |  
 tstats	            | t statistics	                   |  X  |  X  |  X  
-fit3                | Fit statistics                   |     |  X  |
+Wald                | Wald Test                        |     |     |      |  X
 ```
 
 

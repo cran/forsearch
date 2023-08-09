@@ -1,5 +1,5 @@
 #' @export
-plotdiag.s2 <-
+plotdiag.lrt <-
 function(forn,  
      maintitle= "Put main title here", 
      subtitle= "Put subtitle here" , 
@@ -10,12 +10,12 @@ function(forn,
      addline=c("none","loess","straight"),
      diagnose=FALSE, verbose=TRUE)
 {
-     #                          plotdiag.s2
+     #                          plotdiag.lrt
      #
      MC <- match.call()
      if(verbose) {
           print("", quote = FALSE)
-          print("Running plotdiag.s2", quote = FALSE)
+          print("Running plotdiag.lrt", quote = FALSE)
           print("", quote = FALSE)
           print(date(), quote = FALSE)
           print("", quote = FALSE)
@@ -23,7 +23,7 @@ function(forn,
           print(MC)
           print("", quote = FALSE)
      }
-     if(length(addline)>1) addline<- "none" 
+     if(length(addline)>1)  addline <- "none"
      #################
      # Plot function #
      #################
@@ -41,16 +41,16 @@ function(forn,
           temp <- stats::lm(formula=YVAR ~ XVAR,data=dfplot)
           FIT <- temp$fitted.values
           out <- ggplot2::ggplot(data=dfplot,ggplot2::aes(XVAR,YVAR)) + ggplot2::geom_point()
-          if(substring(addline,1,1)=="l"){
+          if(substring(addline,1)=="l"){
                  out <- out + ggplot2::geom_smooth()
           }
-          if(substring(addline,1,1)=="s"){
+          if(substring(addline,1)=="s"){
                 dfplot <- data.frame(dfplot,FIT)
                 out <- out + ggplot2::geom_line(ggplot2::aes(XVAR,FIT)) 
           }
           #    Add titles, axis labels, and caption. 
                horlabel <- "Subset size m"
-               vertlabel <- "s^2"
+               vertlabel <- "Likelihood ratio Test"
           out <- out + ggplot2::ggtitle(mtitle2,subtitle=stitle2) + ggplot2::xlab(horlabel) + ggplot2::ylab(vertlabel) + ggplot2::labs(caption=cap)
                  if(diagnose)Hmisc::prn(as.character(out))   
           ############################
@@ -84,20 +84,9 @@ function(forn,
      # Preparation for plotting #
      ############################
      prepstuff <- function(rightforn,gg){
-          df1 <- rightforn$"s^2"
-          df2 <- df1
-          ndf2 <- length(df2)
-          column1 <- 1:ndf2
-          for(ir in 1:ndf2){
-               if(df2[1]==0){
-                    df2 <- df2[-1]
-                    column1 <- column1[-1]
-               }
-               else break
-          }    #  ir
-                        if(diagnose) Hmisc::prn(df2)
-          nrows <- length(df1)
-          s2 <- data.frame(column1,df2)
+          s2 <- rightforn$"Likelihood ratio test"     # a data frame
+#prn(s2)
+#stop("s2")
           s2 <- s2[-1*c(1,2),]
           wmf2 <- paste(wmf,".wmf",sep="")    
           ##############################################
@@ -108,9 +97,7 @@ function(forn,
                stitle2=subtitle,
                cap=caption)
      }
-
      # End of preparation function #
-
 
 ##################################################   Main function    ##############################################
 
@@ -131,7 +118,7 @@ function(forn,
      #
      if(verbose) {
           print("", quote = FALSE)
-          print("Finished running plotdiag.s2", quote = FALSE)
+          print("Finished running plotdiag.lrt", quote = FALSE)
           print("", quote = FALSE)
           print(date(), quote = FALSE)
           print("", quote = FALSE)

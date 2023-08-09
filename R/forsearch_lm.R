@@ -139,15 +139,8 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
           locatemin <- medaugx[medaugx[,2]==minmed,]
           if(is.matrix(locatemin)) locatemin <- locatemin[1,]
           zliststar <- zlist[[locatemin[3]]]
-                                           if(diagnose){
-                                              print("forsearch_lm")
-                                              Hmisc::prn(medaugx)
-                                              Hmisc::prn(minmed)
-                                              Hmisc::prn(locatemin)
-                                              Hmisc::prn(locatemin)
-                                              Hmisc::prn(zliststar)
-                                              Hmisc::prn(zliststar[1:p,1])
-                                           }
+                                           if(diagnose){ print("forsearch_lm");Hmisc::prn(medaugx);Hmisc::prn(minmed);Hmisc::prn(locatemin);
+                                              Hmisc::prn(locatemin);Hmisc::prn(zliststar);Hmisc::prn(zliststar[1:p,1])    }
           mstart <- p + 1
           betaMMinus1 <- betahat
      }       # skipping step 1
@@ -163,9 +156,7 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
      for(i in mstart:(dimx1+1)){                  # mstart is the step after the original p obs entered
           rim <- rows.in.model[[i-1]]             # picks up rows for previous step
           Zlatest <- Z[rim,]
-                                       if(diagnose){Zlatest <- Zlatest[order(Zlatest[,1]),]
-                                                    Hmisc::prn(i); Hmisc::prn(Zlatest)
-                                                   }
+                                       if(diagnose){   Zlatest <- Zlatest[order(Zlatest[,1]),];Hmisc::prn(i); Hmisc::prn(Zlatest)     }
           if(is.data.frame(x1))xtemp <- x1[rim,]
           else xtemp <- data.frame(x1[rim])
           subdata <- data[rim,]
@@ -256,13 +247,8 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
      param.est.prev <- param.est[-nms,]
      param.est.current <- param.est[-1,]          # remove first and last rows
      param.diff <- param.est.prev - param.est.current
-                         if(diagnose){
-                             Hmisc::prn(param.est)
-                             Hmisc::prn(param.est.prev)
-                             Hmisc::prn(param.est.current)
-                             Hmisc::prn(param.diff)
-                             Hmisc::prn(xtemp.list)     
-                         }
+                         if(diagnose){ Hmisc::prn(param.est);Hmisc::prn(param.est.prev);Hmisc::prn(param.est.current);
+                             Hmisc::prn(param.diff);Hmisc::prn(xtemp.list)   }
      for(i in mstart:dimx1){
          aa <- param.diff[i-1,]         # select row i-1
          aa <- as.numeric(aa[,-1])      # remove col 1

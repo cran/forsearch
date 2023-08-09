@@ -10,12 +10,12 @@ function(forn,
      printgraph = TRUE,
      diagnose=FALSE, verbose=TRUE)
 {
-     #                          plot.diag.leverage
+     #                          plotdiag.leverage
      #
      MC <- match.call()
      if(verbose) {
           print("", quote = FALSE)
-          print("Running plot.diag.leverage", quote = FALSE)
+          print("Running plotdiag.leverage", quote = FALSE)
           print("", quote = FALSE)
           print(date(), quote = FALSE)
           print("", quote = FALSE)
@@ -146,7 +146,7 @@ function(forn,
      #
      if(verbose) {
           print("", quote = FALSE)
-          print("Finished running plot.diag.leverage", quote = FALSE)
+          print("Finished running plotdiag.leverage", quote = FALSE)
           print("", quote = FALSE)
           print(date(), quote = FALSE)
           print("", quote = FALSE)

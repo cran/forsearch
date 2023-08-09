@@ -1,10 +1,17 @@
 #' @export
 forsearch_glm <-
 function(
-          initial.sample=1000,       cobs          ,           response.cols ,
-          indep.cols    ,            family        ,           formula=NULL, binomialrhs=NULL,
-          data          ,  
-          n.obs.per.level=1,         estimate.phi= TRUE,       skip.step1=   NULL,   
+          initial.sample=1000, 
+          cobs, 
+          response.cols,
+          indep.cols,
+          family,
+          formula=NULL,
+          binomialrhs=NULL,
+          data,  
+          n.obs.per.level=1,
+          estimate.phi= TRUE, 
+          skip.step1=   NULL,   
           unblinded = TRUE,
 
          #weights=    NULL,         #subset=     NULL,         #na.action=  NULL,
@@ -133,7 +140,7 @@ function(
      # Print structure of analysis by blinding of real response #
      ############################################################
      indataXX <- indata
-     indataXX[,response.cols] <- 0
+     indataXX[,response.cols] <- 1
      if(family[[1]]=="binomial"){
           lmAlldata <- stats::glm(formula=genformula, family=family, data=indataXX, weights=bin.wts, singular.ok=TRUE, x=TRUE, y=TRUE)         # glm
      }
@@ -159,12 +166,14 @@ function(
      ######################################
      # Check for factor status of dataset #
      ######################################
+#print("_glm    OK to 20")
      dimdata <- dim(data)[2]
      ufactor <- rep(TRUE, dimdata)
      for(m in 1:dimdata) ufactor[m] <- is.factor(data[,m])
      yesfactor <- any(ufactor)     
      p <- rnk <- lmAlldata$rank
      nopl <- n.obs.per.level 
+#print("_glm    OK to 30")
      if(yesfactor){
           # there are factors in the dataset
           ssl <- variablelist(datadf <- data, verbose=FALSE)
@@ -179,6 +188,7 @@ function(
           lmAlldata <- stats::glm(formula=genformula, family=family, data=indata, weights=bin.wts, singular.ok=TRUE, x=TRUE, y=TRUE)         # glm
      }
      else if(family[[1]]=="Gamma"){
+#print("_glm    OK to 30")
           lmAlldata <- stats::glm(formula=genformula, family=family, data=indata, singular.ok=TRUE, x=TRUE, y=TRUE)         # glm
      }
      else if(family[[1]]=="poisson"){
@@ -199,6 +209,7 @@ function(
      # residuals contains model residual for each term at each stage of the fit #
      # The residuals for i-th observation are in i-th row                       #
      ############################################################################
+#print("_glm    OK to 100")
      p <- dim(lmAlldata$x)[2]
      randset <- 1:initial.sample
      dimx <- dim(data)

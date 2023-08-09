@@ -1,4 +1,3 @@
-#' @export
 aStep1 <-
 function (yesfactor, data, inner.rank, initial.sample, formula, ycol, nopl) 
 {

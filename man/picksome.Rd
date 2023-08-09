@@ -1,6 +1,6 @@
 \name{picksome}
 \alias{picksome}
-\title{Structured Sets of Random Samples of Observations 
+\title{Structured Setsof Random Samples of Observations 
 }
 \description{
 Restricts Step 1 of forward search procedures to ensure that every possible

@@ -1,14 +1,21 @@
-3/7//2023 forsearch version 3.3.0 
-=================================
+8/8/2023 forsearch version 4.0.0 
+====+============================
      Major changes:
-None
+Added function forsearch_cph for Cox proportional hazards
+Added function cStep2 for step 2 of Cox proportional hazard function
+Added functions plotdiag.Wald, plotdiag.lrt, and plotdiag.loglik
 
      Moderate changes:
-Combined showme, showmegl, and showmelme into showme function     
+Combined showme, showmegl, and showmelme into showme function  
+Added forsearch_cph to showme function
 
      Minor changes and bug fixes:
 Correct display of ANOVA structure in forsearch_glm for family=Gamma
-
+Correct indexing in aStep1
+Correct function ID in plotdiag.leverage
+Set default for addline in plotdiag.s2
+Added message in variablelist regarding single observations in some factor levels
+Correct coding error in picksome function
 
 2/17/2023 forsearch version 3.2.0 
 =================================

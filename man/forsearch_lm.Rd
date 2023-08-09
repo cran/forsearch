@@ -30,7 +30,7 @@
   \item{Standardized residuals }{Matrix of errors at each stage}
   \item{Number of model parameters }{Rank of model}
   \item{Sigma }{Estimate of random error at final stage; used to standardize all residuals}
-  \item{Fixed parameter estimates }{Matrix of parameter estimates at each stage}
+  \item{Fixed parameter estimates }{Vector of parameter estimates at each stage}
   \item{s^2 }{Estimate of random error at each stage}
   \item{Leverage }{Matrix of leverage of each observation at each stage}
   \item{Modified Cook distance }{Estimate of sum of squared changes in parameter estimates at each stage}
