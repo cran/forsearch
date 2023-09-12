@@ -12,7 +12,7 @@ plotdiag.deviances(forn, devtype, maintitle = "Put main title here",
 subtitle = "Put subtitle here", caption="Put caption here", 
 wmf = "Put_plot_file_title_here", 
 Cairo=TRUE, printgraph=TRUE,addline=c("none","loess","straight"), 
-diagnose = FALSE,verbose = TRUE)
+verbose = TRUE)
 }
 \arguments{
   \item{forn}{Name of output file from forsearch_glm}
@@ -24,7 +24,6 @@ diagnose = FALSE,verbose = TRUE)
   \item{Cairo}{TRUE causes use of Cairo graphics}
   \item{printgraph}{TRUE causes graph to print to file and closes device}
   \item{addline}{add a line to the graph; abbreviation allowed}
-  \item{diagnose}{If TRUE, displays code to help diagnose main function errors}
   \item{verbose}{If TRUE, indicates beginning and end of function}
 }
 \value{Process and plot deviances from forsearch_glm}
@@ -33,13 +32,13 @@ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New Yo
 }
 \author{William R. Fairweather
 }
-\examples{
-\testonly{
-info3 <- system.file("extdata","micem1.for.R",package="forsearch");
-info3 <- source(info3);
-info3 <- info3[[1]];
-plotdiag.deviances(info3, devtype="R", wmf="Deviance statistics: Residual", 
-Cairo=FALSE, printgraph=FALSE,addline="n")
-}
-}
+%\examples{
+%\testonly{
+%info3 <- system.file("extdata","micem1.for.R",package="forsearch");
+%info3 <- source(info3);
+%info3 <- info3[[1]];
+%plotdiag.deviances(info3, devtype="R", wmf="Deviance statistics: Residual", 
+%Cairo=FALSE, printgraph=FALSE,addline="n")
+%}
+%}
  \keyword{ hplot }

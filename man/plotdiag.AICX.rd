@@ -10,7 +10,7 @@ Plot output from forsearch_glm to show change in AIC statistics as the number
    subtitle = "Put subtitle here", caption="Put caption title here",
    wmf = "Put_plot_file_title_here",
    Cairo=TRUE, printgraph=TRUE,addline=c("none","loess","straight"),
-   diagnose = FALSE,verbose = TRUE)}
+   verbose = TRUE)}
 \arguments{
    \item{forn}{Name of output file from forsearch_glm}
    \item{maintitle}{Main title of plot}
@@ -20,26 +20,22 @@ Plot output from forsearch_glm to show change in AIC statistics as the number
    \item{Cairo}{TRUE causes use of Cairo graphics}
    \item{printgraph}{TRUE causes graph to print to file and closes device}
    \item{addline}{add a line to the graph; abbreviation allowed}
-   \item{diagnose}{If TRUE, displays code to help diagnose main function errors}
    \item{verbose}{If TRUE, indicates beginning and end of function}
 }
 \value{Process and plot AIC statistics from forsearch_glm}
 \author{William R. Fairweather}
-\examples{
-\testonly{
-info3 <- system.file("extdata", "train.for3.R", package="forsearch");
-%print(info3)
-info3 <- source(info3);
-%print(info3)
-info3 <- info3[[1]];
-%print(info3)
-plotdiag.AICX(info3, maintitle = "Put main title here",
-   subtitle = "Put subtitle here", caption="Put caption title here",
-   wmf = "Put_plot_file_title_here",
-   Cairo=FALSE, printgraph=FALSE,addline="n",
-   diagnose = FALSE,verbose = TRUE)
-}
-}
+%\examples{
+%\testonly{
+%info3 <- system.file("extdata", "train.for3.R", package="forsearch");
+%info3 <- source(info3);
+%info3 <- info3[[1]];
+%plotdiag.AICX(info3, maintitle = "Put main title here",
+%   subtitle = "Put subtitle here", caption="Put caption title here",
+%   wmf = "Put_plot_file_title_here",
+%   Cairo=FALSE, printgraph=FALSE,addline="n",
+%   diagnose = FALSE,verbose = TRUE)
+%}
+%}
 \references{
 Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, 
    New York, 2000.}

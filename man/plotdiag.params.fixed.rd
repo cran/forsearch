@@ -3,7 +3,7 @@
 \title{Plot Diagnostic Statistics of Fixed Coefficients 
 }
 \description{
-Plot output from forsearch_xxx to show change in random coefficients as the number of 
+Plot output from forsearch_xxx to show change in fixed coefficients as the number of 
 observations in the forward search procedure increases. Save plot in folder containing 
 working directory. 
 }
@@ -11,7 +11,7 @@ working directory.
 plotdiag.params.fixed(forn, coeff.codenums=NULL, maintitle = "Put main title here", 
 subtitle = "Put subtitle here", caption="Put caption here",wmf = "Put_stored_name_here", 
 Cairo=TRUE, printgraph=TRUE,legend = "Dummy legend name",  
-diagnose = FALSE,verbose = TRUE)
+verbose = TRUE)
 }
 \arguments{
   \item{forn}{Name of output file from forsearch_xxx
@@ -28,14 +28,12 @@ diagnose = FALSE,verbose = TRUE)
 }
   \item{wmf}{File name of stored plot; omit ".wmf"  
 }
-\item{Cairo}{TRUE causes use of Cairo graphics
+  \item{Cairo}{TRUE causes use of Cairo graphics
 }
   \item{printgraph}{TRUE causes graph to print to file and
           closes device
 }
   \item{legend}{Name of legend
-}
-  \item{diagnose}{If TRUE, displays code to help diagnose main function errors
 }
   \item{verbose}{If TRUE, indicates beginning and end of function
 }
@@ -47,13 +45,12 @@ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New Yo
 }
 \author{William R. Fairweather
 }
-\examples{
-\testonly{
-info3 <- system.file("extdata","MOf.R",package="forsearch");
-Machines.O.forlme <- source(info3)[[1]];
-plotdiag.params.fixed(Machines.O.forlme,coeff.codenums=NULL, wmf="Machines_Fixed_Coefficients",
-Cairo=FALSE,printgraph=FALSE
-)
-}
-}
+%\examples{
+%\testonly{
+%info3 <- system.file("extdata","MOf.R",package="forsearch");
+%Machines.O.forlme <- source(info3)[[1]];
+%plotdiag.params.fixed(Machines.O.forlme,coeff.codenums=NULL, wmf="Machines_Fixed_Coefficients",
+%Cairo=FALSE,printgraph=FALSE)
+%}
+%}
  \keyword{ hplot }

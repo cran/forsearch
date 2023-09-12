@@ -1,7 +1,7 @@
 \name{aStep1}
 \alias{aStep1}
-\title{
-Create Set of Observation Numbers in Step 1 for Linear Model Analysis
+\title{Create Set of Observation Numbers in Step 1 for Linear Model 
+Analysis
 }
 \description{
 Derives the first set of observation numbers for forsearch in linear models

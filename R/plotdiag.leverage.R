@@ -8,7 +8,7 @@ function(forn,
      wmf = "Put_graph_title_here", 
      Cairo=TRUE,
      printgraph = TRUE,
-     diagnose=FALSE, verbose=TRUE)
+     verbose=TRUE)
 {
      #                          plotdiag.leverage
      #
@@ -32,7 +32,7 @@ function(forn,
           mtitle, stitle, cap, 
           horlabel, vertlabel, 
           filewidth, fileheight,  
-          diagnose, verbose)
+          verbose)
      {
 
      XVAR <- data[,xcol]
@@ -41,7 +41,7 @@ function(forn,
      SD <- data$SD
      N <- data$N
      dfplot <- data.frame(COV2,XVAR,YVAR,SD,N)
-                if(diagnose)Hmisc::prn(dfplot)
+#                if(diagnose)Hmisc::prn(dfplot)
      upper <- dfplot$YVAR + dfplot$SD
      lower <- dfplot$YVAR - dfplot$SD
      dfplot <- data.frame(dfplot,upper,lower)
@@ -50,7 +50,7 @@ function(forn,
       out <- out + ggplot2::geom_line() + ggplot2::geom_errorbar(ggplot2::aes(x=XVAR,ymin=lower,ymax=upper),width=0.2)+ ggplot2::theme(legend.position="none")
 
       highs <- highslows[1]
-                                      if(diagnose) Hmisc::prn(df3)
+#                                      if(diagnose) Hmisc::prn(df3)
       if(highs>0){        
            dim2 <- max(XVAR)
            for(ihigh in 1:highs){
@@ -62,7 +62,7 @@ function(forn,
       #    Add titles, axis labels, and caption. #
       ############################################
       out <- out + ggplot2::ggtitle(mtitle,subtitle=stitle) + ggplot2::xlab(horlabel) + ggplot2::ylab(vertlabel) + ggplot2::labs(caption=cap)
-                   if(diagnose)    Hmisc::prn(as.character(out))
+#                   if(diagnose)    Hmisc::prn(as.character(out))
       #
       #############################
       # Print and save the graph. #
@@ -98,8 +98,8 @@ function(forn,
           SD <- 0
           N <- 1
           df2 <- data.frame(df1, SD, N)
-                            if(diagnose) Hmisc::prn(df2)
-                            if(diagnose) temphist <- search.history(rightforn)
+#                            if(diagnose) Hmisc::prn(df2)
+#                            if(diagnose) temphist <- search.history(rightforn)
           df2order <- df2[order(df2$m),]
           maxm <- max(df2[,1])
           df3 <- df2[df2[,1]==maxm,,]
@@ -121,7 +121,7 @@ function(forn,
                      horlabel="Subset size m",
                      vertlabel="Leverage",
                      cap=caption, filewidth=5,fileheight=5,
-                     diagnose=diagnose,verbose=verbose)
+                     verbose=verbose)
      }
      # End of preparation function #
 

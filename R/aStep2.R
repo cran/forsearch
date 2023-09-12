@@ -1,4 +1,3 @@
-#' @export
 aStep2 <-
 function (thislm, data, ycol, thisi) 
 {

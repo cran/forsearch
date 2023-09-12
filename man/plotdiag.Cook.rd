@@ -11,22 +11,18 @@ folder containing working directory.
 plotdiag.Cook(forn, maintitle = "Put main title here", subtitle = "Put subtitle here", 
 caption = "Put caption here", wmf = "Put_plot_file_title_here", 
 Cairo=TRUE,printgraph=TRUE, addline = c("none","loess","straight"), 
-diagnose = FALSE, verbose = TRUE)
+verbose = TRUE)
 }
 \arguments{
-  \item{forn}{
-Name of forward search output file
+  \item{forn}{Name of forward search output file
 }
-  \item{maintitle}{
-Main title of plot
+  \item{maintitle}{Main title of plot
 }
-  \item{subtitle}{
-Subtitle of plot
+  \item{subtitle}{Subtitle of plot
 }
   \item{caption}{Content of caption
 }
-  \item{wmf}{
-File name of stored plot; omit ".wmf"  
+  \item{wmf}{File name of stored plot; omit ".wmf"  
 }
 \item{Cairo}{TRUE causes use of Cairo graphics
 }
@@ -35,11 +31,7 @@ File name of stored plot; omit ".wmf"
 }
    \item{addline}{add a line to the graph; abbreviation allowed
 }
-  \item{diagnose}{
-If TRUE, displays code to help diagnose main function errors
-}
-  \item{verbose}{
-If TRUE, indicates beginning and end of function
+  \item{verbose}{If TRUE, indicates beginning and end of function
 }
 }
 \value{
@@ -50,13 +42,13 @@ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New Yo
 }
 \author{William R. Fairweather
 }
-\examples{
-\testonly{
-info3 <- system.file("extdata","Alfalfa.O.forlme.R",package="forsearch");
-Alfalfa.O.forlme <- source(info3);
-Alfalfa.O.forlme <- Alfalfa.O.forlme[[1]];
-plotdiag.Cook(Alfalfa.O.forlme, wmf="Alfalfa_Cook", Cairo=FALSE,
-printgraph=FALSE,addline="n")
-}
-}
+%\examples{
+%\testonly{
+%info3 <- system.file("extdata","Alfalfa.O.forlme.R",package="forsearch");
+%Alfalfa.O.forlme <- source(info3);
+%Alfalfa.O.forlme <- Alfalfa.O.forlme[[1]];
+%plotdiag.Cook(Alfalfa.O.forlme, wmf="Alfalfa_Cook", Cairo=FALSE,
+%printgraph=FALSE,addline="n")
+%}
+%}
  \keyword{ hplot }

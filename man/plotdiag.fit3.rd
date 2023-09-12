@@ -10,9 +10,9 @@ containing working directory.
 }
 \usage{
 plotdiag.fit3(forn, maintitle = "Put main title here", subtitle = "Put subtitle here", 
-    caption = "Put caption here", wmf = "Put_stored_name_here", 
-    Cairo=TRUE,printgraph=TRUE, legend="Dummy legend name",
-    diagnose = FALSE, verbose = TRUE)
+caption = "Put caption here", wmf = "Put_stored_name_here", 
+Cairo=TRUE,printgraph=TRUE, legend="Dummy legend name",
+verbose = TRUE)
 }
 \arguments{
   \item{forn}{
@@ -24,11 +24,9 @@ Main title of plot
   \item{subtitle}{
 Subtitle of plot
 }
-  \item{caption}{
-Content of caption
+  \item{caption}{Content of caption
 }
-  \item{wmf}{
-File name of stored plot; omit ".wmf"  
+  \item{wmf}{File name of stored plot; omit ".wmf"  
 }
   \item{Cairo}{TRUE causes use of Cairo graphics
 }
@@ -37,11 +35,7 @@ File name of stored plot; omit ".wmf"
 }
   \item{legend}{Legend name
 }
-  \item{diagnose}{
-If TRUE, displays code to help diagnose main function errors
-}
-  \item{verbose}{
-If TRUE, indicates beginning and end of function
+  \item{verbose}{If TRUE, indicates beginning and end of function
 }
 }
 \value{
@@ -53,13 +47,13 @@ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New Yo
 }
 \author{William R. Fairweather
 }
-\examples{
-\testonly{
-info3 <- system.file("extdata","Alfalfa.O.forlme2.R",package="forsearch");
-crossdata.for1 <- source(info3);
-crossdata.for1 <-crossdata.for1[[1]];
-plotdiag.fit3(forn=crossdata.for1, wmf="Alfalfadata_fit3",Cairo=FALSE,
-    printgraph=FALSE)
-}
-}
+%\examples{
+%\testonly{
+%info3 <- system.file("extdata","Alfalfa.O.forlme2.R",package="forsearch");
+%crossdata.for1 <- source(info3);
+%crossdata.for1 <-crossdata.for1[[1]];
+%plotdiag.fit3(forn=crossdata.for1, wmf="Alfalfadata_fit3",Cairo=FALSE,
+%    printgraph=FALSE)
+%}
+%}
  \keyword{ hplot }

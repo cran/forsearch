@@ -1,7 +1,7 @@
 #' @export
 forsearch_cph <-
-function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per.level=2, skip.step1=NULL,
-    ties, redunCorr=0.9, unblinded=TRUE, begin.diagnose= 100, verbose=TRUE)
+function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
+    ties = c("efron", "breslow", "exact"), unblinded=TRUE, begin.diagnose= 100, verbose=TRUE)
 {
      #                                           forsearch_cph    
      #
@@ -16,7 +16,6 @@ function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per
      #          n.obs.per.level    Number of observations per level of (possibly crossed) factor levels
      #          skip.step1         NULL or a list, each element of which is a vector of integers for observations from 1 subgroup to be included in Step 1
      #          ties               Character string specifying the method for handling ties in event time.  See survival::coxph() for definitions.
-     #          redunCorr          Level of correlation required before declare variables are redundant
      #          unblinded          TRUE permits printing of ultimate coxph analysis, as specified above
      #          begin.diagnose     Numeric. Indicates where in code to begin printing diagnostics. 0 prints all; 100 prints none.
      #          verbose            Logical. TRUE causes printing of function ID before and after running.
@@ -34,11 +33,11 @@ function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per
           print(MC, quote=FALSE)
           print("", quote=FALSE)
      }
-     spacer <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                   "     # used for begin.diagnose prints
+     spacer <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX      forsearch_cph             "     # used for begin.diagnose prints
      options(warn=-1)
      on.exit(options(warn=0))
      #
-# STEP 0}
+# STEP 0
      print("", quote=FALSE)
      print("BEGINNING STEP 0", quote=FALSE)
      print("", quote=FALSE)
@@ -103,12 +102,13 @@ function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per
      on.exit(options(warn = 0))
      randevent <- round(100*stats::runif(length(event.time)),0)
      nulldata <- data.frame(x, event=randevent, status)
-     xform <- paste("Surv(time=randevent, event=status, type='right')", formula.rhs, sep=" ~ ")                                      # Surv
+     xform <- paste("survival::Surv(time=randevent, event=status, type='right')", formula.rhs, sep=" ~ ")                                      # Surv
      formulatest <- stats::as.formula(xform)
 
                                                if(begin.diagnose <=3){ print(paste(spacer,"Section 3",sep=" "),quote=FALSE);Hmisc::prn(randevent);Hmisc::prn(status);
                                                  Hmisc::prn(formulatest);Hmisc::prn(utils::head(nulldata));Hmisc::prn(utils::tail(nulldata))   }
 
+     # coxph is run without a preliminary test of variable redundancy
      coxrandAlldata <- survival::coxph(formula=formulatest, data=nulldata, singular.ok=TRUE, x=TRUE, y=TRUE)                          # coxph 
      ncols <- dim(nulldata)[2]
      print("", quote = FALSE)
@@ -141,6 +141,7 @@ function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per
                                                if(begin.diagnose <=5){ print(paste(spacer,"Section 5",sep=" "),quote=FALSE);Hmisc::prn(alldata);Hmisc::prn(yesfactor)  }
      ################################################
      # run coxph just to get number of coefficients #
+     # without preliminary test of redundancy       #
      ################################################
      coxAlldata <- survival::coxph(formula=formulaStep2, data=alldata, singular.ok=TRUE, x=TRUE, y=TRUE)                          # coxph 
 
@@ -256,21 +257,6 @@ function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per
      # test for redundant variables before running coxph #
      #####################################################
      thisdata <- alldata[redun.rim,]
-     checkform <- paste("~",formula.rhs, sep=" ")
-     checkform <- stats::as.formula(checkform)
-                                               if(begin.diagnose <=17) {print(paste(spacer,"Section 17",sep=" "),quote=FALSE);Hmisc::prn(thisdata);Hmisc::prn(checkform)    }
-     redun.out <- Hmisc::redun(checkform, thisdata,r2=redunCorr)
-     redun.out4 <- redun.out[[4]][1]
-     gotone <- match(redun.out4, formula.elements, nomatch = -99)
-     if(gotone > -99) 
-     {
-          print("", quote=FALSE)
-          Hmisc::prn(redun.out)
-          print("", quote=FALSE)
-          print("Redundant variables in the model will cause part of coxph to fail, specifically coxph.wtest", quote=FALSE)
-          print("Try increasing n.obs.per.level", quote=FALSE)
-          print("If this fails, try removing one or more of the redundant variables.", quote=FALSE)
-     }     # if gotone 
      #
 # Step 2
      #############################################
@@ -289,12 +275,14 @@ function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per
           tempdata <- alldata[rim,]
           innertempdata <- length(formula.elements)
           xtempdata <- tempdata[,1+(1:innertempdata)]
-          xform <- paste("Surv(time=event, event=status, type='right')", formula.rhs, sep=" ~ ")                                      # Surv
+          xform <- paste("survival::Surv(time=event, event=status, type='right')", formula.rhs, sep=" ~ ")                                      # Surv
           formulanewrim <- stats::as.formula(xform)
                                                if(begin.diagnose <=20) {print(paste(spacer,"Section 20",sep=" "),quote=FALSE);Hmisc::prn(i);Hmisc::prn(tempdata[,1])    }
           coxph.out07 <- survival::coxph(formula=formulanewrim, data=alldata, subset=tempdata[,1], 
-                ties="efron", singular.ok=TRUE, model=TRUE, x=TRUE, y=TRUE)
+                ties="efron", singular.ok=TRUE, model=TRUE, x=TRUE, y=TRUE)                                                                     # coxph
+
                                                if(begin.diagnose <=25) {print(paste(spacer,"Section 25",sep=" "),quote=FALSE);Hmisc::prn(i);Hmisc::prn(coxph.out07)    }
+
           param.est[,i] <- coxph.out07$coefficients
           WaldTest[i] <- coxph.out07$wald.test
           LLout <- coxph.out07$loglik
@@ -306,11 +294,12 @@ function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per
           ############
           # Leverage #
           ############
-          form.leverage <- paste("event", formula.rhs, sep=" ~ ")
-          getthislm <- stats::lm(form.leverage, Zlatest, singular.ok=TRUE, x=TRUE, y=TRUE)                                  #   lm
-          getthislmx <- getthislm$x
-          xtemp <- getthislmx
-          thisleverage <- 1
+#          form.leverage <- paste("event", formula.rhs, sep=" ~ ")
+#          getthislm <- stats::lm(form.leverage, Zlatest, singular.ok=TRUE, x=TRUE, y=TRUE)                                  #   lm
+#          getthislmx <- getthislm$x
+#          xtemp <- getthislmx
+#          thisleverage <- 1
+          xtemp <- coxph.out07$x
 
           ###########################################
           # Set limits on determinant of hat matrix #
@@ -320,8 +309,8 @@ function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per
           myM3 <- my.Machine.double.xmin <- 1.79e306       # 308
 
           uuu <- prod(eigen(t(xtemp) %*% xtemp)[[1]])
-                                               if(begin.diagnose <=35) {print(paste(spacer,"Section 35",sep=" "),quote=FALSE);Hmisc::prn(getthislm);
-                                                                       Hmisc::prn(getthislmx);Hmisc::prn(uuu)     }
+                                               if(begin.diagnose <=35) {print(paste(spacer,"Section 35",sep=" "),quote=FALSE);Hmisc::prn(xtemp);
+                                                                       Hmisc::prn(uuu)     }
           if(uuu > myM1 & uuu < myM3){
                crossinv <- solve(t(xtemp) %*% xtemp)
                                                if(begin.diagnose <=37) {print(paste(spacer,"Section 37",sep=" "),quote=FALSE);Hmisc::prn(xtemp);Hmisc::prn(crossinv)    }
@@ -337,20 +326,30 @@ function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per
                    leverage <- rbind(leverage,thisleverage)
                }   # j 1:i
           }    # if uuu
-          #
+                                               if(begin.diagnose <=40) {print(paste(spacer,"Section 40",sep=" "),quote=FALSE);Hmisc::prn(leverage)       }
+ 
+         #
           #####################################################################
           # Select next subset.                                               #
           #####################################################################
           df1 <- data.frame(x, event.time, status)
           if(i <= dimx1){
-                                               if(begin.diagnose <=50) {print(paste(spacer,"Section 50",sep=" "),quote=FALSE);Hmisc::prn(i);Hmisc::prn(utils::head(df1));
-                                                    Hmisc::prn(utils::tail(df1));Hmisc::prn(rim);Hmisc::prn(event.time);Hmisc::prn(status);Hmisc::prn(formula.rhs)   }
-                rows.in.model[[i]] <- cStep2(df1, rim, formula.rhs, r2=redunCorr)                          # cStep2  
-                                               if(begin.diagnose <=55) {print(paste(spacer,"Section 55",sep=" "),quote=FALSE);Hmisc::prn(i);Hmisc::prn(rows.in.model[[i]]);
+                                     if(begin.diagnose <=50) {print(paste(spacer,"Section 50",sep=" "),quote=FALSE);Hmisc::prn(i);Hmisc::prn(utils::head(df1));
+                                             Hmisc::prn(utils::tail(df1));Hmisc::prn(rim);Hmisc::prn(event.time);Hmisc::prn(status);Hmisc::prn(formula.rhs);
+                                          print("End of Section 50")   }
 
-                      Hmisc::prn(df1[rim,])    }
+               rows.in.model[[i]] <- cStep2(df1, rim, formula.rhs)                                                           # cStep2  
+
+
+#                                               if(begin.diagnose <=55) {print(paste(spacer,"Section 55",sep=" "),quote=FALSE);Hmisc::prn(i);Hmisc::prn(rows.in.model[[i]]);
+#                      Hmisc::prn(df1[rim,])    }
           }
      }            # i in mstart ...
+                                               if(begin.diagnose <=57) {print(paste(spacer,"Section 57",sep=" "),quote=FALSE);Hmisc::prn(utils::head(leverage));
+                                                   Hmisc::prn(utils::tail(leverage))    }
+
+
+
      #
      ###################
      # Clean up output #
@@ -382,6 +381,7 @@ function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per
 
      dimleverage <- dim(leverage)
      dimnames(leverage) <- list(rep("",dimleverage[1]),c("m","Observation","leverage"))
+                                               if(begin.diagnose <=70) {print(paste(spacer,"Section 70",sep=" "),quote=FALSE);Hmisc::prn(dimnames(leverage))    }
      # 
 
      listout <- list(

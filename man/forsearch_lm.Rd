@@ -8,7 +8,7 @@
    observations in the set are best fitting at that stage.
 }
 \usage{forsearch_lm(formula, data, initial.sample=1000, n.obs.per.level = 1,
-                   skip.step1 = NULL, unblinded = TRUE, diagnose = FALSE,
+                   skip.step1 = NULL, unblinded = TRUE, begin.diagnose = 100,
                    verbose = TRUE)
 }
 \arguments{
@@ -20,7 +20,8 @@
   \item{skip.step1}{NULL or a vector of integers for observations to be included
    in Step 1}
   \item{unblinded}{TRUE causes printing of presumed analysis structure}
-  \item{diagnose}{TRUE causes printing of intermediate steps of function}
+  \item{begin.diagnose}{Numeric. Indicates where in code to begin printing diagnostics.
+                0 prints all; 100 prints none}
   \item{verbose}{TRUE causes function identifier to display before and after run}
 }
 \details{Step 2 is determined by the results of Step 1, which itself is random. So,
@@ -48,8 +49,9 @@ x1 <- runif(16)
 x2 <- runif(16)
 x3 <- runif(16)
 lmtest1 <- data.frame(Observation,y,x1,x2,x3)
-forsearch_lm(formula=y~x1+x2+x3, data=lmtest1, initial.sample=100,diagnose=FALSE)
+forsearch_lm(formula=y~x1+x2+x3, data=lmtest1, initial.sample=100,begin.diagnose=100)
 \dontrun{
+
 # Analysis of variance 
 Observation <- 1:30
 y <- runif(30)
@@ -57,7 +59,7 @@ AN1 <- as.factor(c(rep("A1",5),rep("A2",5),rep("A3",5)))
 AN1 <- c(AN1,AN1)
 AN2 <- as.factor(c(rep("B1",15),rep("B2",15)))
 lmtest2 <- data.frame(Observation,y,AN1,AN2)
-forsearch_lm(formula=y~AN1*AN2, data=lmtest2, initial.sample=100,diagnose=TRUE)
+forsearch_lm(formula=y~AN1*AN2, data=lmtest2, initial.sample=100,begin.diagnose=100)
 
 # Analysis of covariance
 Observation <- 1:60
@@ -67,7 +69,7 @@ AN1 <- c(AN1,AN1)
 AN2 <- as.factor(c(rep("B1",30),rep("B2",30)))
 COV <- runif(60)
 lmtest3 <- data.frame(Observation,y,AN1,AN2,COV)
-forsearch_lm(formula=y~AN1*AN2+COV, data=lmtest3, initial.sample=100,diagnose=FALSE)
+forsearch_lm(formula=y~AN1*AN2+COV, data=lmtest3, initial.sample=100,begin.diagnose=100)
 }
 }
 \keyword{  datagen  }

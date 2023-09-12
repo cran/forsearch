@@ -10,8 +10,7 @@
 \usage{identifyCoeffs(fixed, data, random, 
     XmaxIter = 1000, XmsMaxIter = 1000, 
     Xtolerance = 0.01, XniterEM = 1000, XmsMaxEval = 400, XmsTol = 1e-05, 
-    Xopt = "optim",
-    diagnose = FALSE, verbose = TRUE)
+    Xopt = "optim", verbose = TRUE)
 }
 \arguments{
   \item{fixed}{2-sided formula for fixed effects}
@@ -24,7 +23,6 @@
   \item{XmsMaxEval}{lme control parameter}
   \item{XmsTol}{lme control parameter}
   \item{Xopt}{lme control parameter}
-  \item{diagnose}{If TRUE, displays code to help diagnose main function errors}
   \item{verbose}{If TRUE, indicates beginning and end of function}
 }
 \details{Plotting functions cannot plot more than a few coefficients on one graph. 
@@ -39,12 +37,10 @@ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New Yo
 \author{William R. Fairweather
 }
 \examples{
-\testonly{
 info3 <- system.file("extdata","Machines.O.R",package="forsearch");
 info3 <- source(info3);
-info3 <- info3[[1]];
+info3 <- info3[[1]]; 
 identifyCoeffs(fixed=score~1, data=info3, random= ~1 | Worker)
-}
 }
  \keyword{ manip }
 

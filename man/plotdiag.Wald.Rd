@@ -9,14 +9,14 @@ folder containing working directory.
 }
 \usage{
 plotdiag.Wald(forn,  
-     maintitle= "Put main title here", 
-     subtitle= "Put subtitle here" , 
-     caption="Put caption here",
-     wmf = "Put_graph_filename_here", 
-     Cairo=TRUE,
-     printgraph = TRUE,
-     addline=c("none","loess","straight"),
-     diagnose=FALSE, verbose=TRUE)
+maintitle= "Put main title here", 
+subtitle= "Put subtitle here" , 
+caption="Put caption here",
+wmf = "Put_graph_filename_here", 
+Cairo=TRUE,
+printgraph = TRUE,
+addline=c("none","loess","straight"),
+verbose=TRUE)
 }
 \arguments{
   \item{forn}{Name of output file from forsearch_cph}
@@ -28,7 +28,6 @@ plotdiag.Wald(forn,
   \item{printgraph}{TRUE causes graph to print to file and
           closes device}
   \item{addline}{Add a line to the graph; abbreviation allowed. Default none}
-  \item{diagnose}{If TRUE, displays code to help diagnose main function errors}
   \item{verbose}{If TRUE, indicates beginning and end of function}
 }
 \value{{Process and plot Wald Test statistics from forsearch_cph}

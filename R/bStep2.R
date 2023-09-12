@@ -1,4 +1,3 @@
-#' @export
 bStep2 <-
 function (fixed, nOuter, mnf, mstart, nobs, yobs, fbg, n.f, s.o, ras, b.d, verbose=FALSE) 
 {

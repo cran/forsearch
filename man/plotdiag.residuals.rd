@@ -10,7 +10,7 @@ plot in folder containing working directory.
 \usage{
 plotdiag.residuals(forn, squared = FALSE, hilos = c(1, 0), maintitle, subtitle, 
 caption, wmf, Cairo=TRUE,printgraph=TRUE,
-legend = "Dummy legend name", diagnose = FALSE, verbose = TRUE)
+legend = "Dummy legend name", verbose = TRUE)
 }
 \arguments{
   \item{forn}{Name of forward search output file
@@ -35,8 +35,6 @@ legend = "Dummy legend name", diagnose = FALSE, verbose = TRUE)
 }
   \item{legend}{Legend title
 }
-  \item{diagnose}{If TRUE, displays code to help diagnose main function errors
-}
   \item{verbose}{If TRUE, indicates beginning and end of function
 }
 }
@@ -49,13 +47,13 @@ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New Yo
 }
 \author{William R. Fairweather
 }
-\examples{
-\testonly{
-info3 <- system.file("extdata","MOf.R",package="forsearch");
-Machines.O.forlme <- source(info3);
-Machines.O.forlme <- Machines.O.forlme[[1]];
-plotdiag.residuals(Machines.O.forlme, hilos=c(1,1),wmf="Machines Residuals",Cairo=FALSE,
-printgraph=FALSE)
-}
-}
+%\examples{
+%\testonly{
+%info3 <- system.file("extdata","MOf.R",package="forsearch");
+%Machines.O.forlme <- source(info3);
+%Machines.O.forlme <- Machines.O.forlme[[1]];
+%plotdiag.residuals(Machines.O.forlme, hilos=c(1,1),wmf="Machines Residuals",Cairo=FALSE,
+%printgraph=FALSE)
+%}
+%}
  \keyword{ hplot }

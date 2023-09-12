@@ -8,11 +8,10 @@ understood matrix of the observation numbers that are newly entered into the mod
 were temporarily removed from the model over the course of the search.
 }
 \usage{
-search.history(list1, diagnose = FALSE, verbose = TRUE)
+search.history(list1, verbose = TRUE)
 }
 \arguments{
    \item{list1}{Name of a forsearch_xxx output file}
-   \item{diagnose}{If TRUE, displays code to help diagnose main function errors}
    \item{verbose}{If TRUE, indicates beginning and end of function}
 }
 \value{Printout of matrix showing evolution of observations to enter or leave 
@@ -20,13 +19,9 @@ search.history(list1, diagnose = FALSE, verbose = TRUE)
 \author{William R. Fairweather
 }
 \examples{
-\testonly{
 info3 <- system.file("extdata", "crossdata.for1.R", package="forsearch");
-print(info3);
 info3 <- source(info3);
-print(info3);
 info3 <- info3[[1]];
-search.history(list1=info3, diagnose=FALSE, verbose=TRUE)
-}
+search.history(list1=info3, verbose=TRUE)
 }
 \keyword{ manip }

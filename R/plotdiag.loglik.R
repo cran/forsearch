@@ -7,7 +7,7 @@ function(forn,
      wmf="Put_stored_name_here", 
      Cairo=TRUE,
      printgraph=TRUE,
-     diagnose=FALSE, verbose=TRUE)
+     verbose=TRUE)
 {
      #                          plotdiag.loglik
      #
@@ -33,17 +33,17 @@ function(forn,
                      vertlabel,
                      cap,
                      filewidth=5, fileheight=5,
-                     diagnose,verbose)
+                     verbose)
      {
 
           XVAR <- data[,xcol]
           YVAR <- data[,ycol]
           COV1 <- data[,cov1col]
           dfplot <- data.frame(XVAR,YVAR,COV1)
-                      if(diagnose)Hmisc::prn(dfplot)
+#                      if(diagnose)Hmisc::prn(dfplot)
           FACET <- data[,facetcol]
           dfplot <- data.frame(dfplot,FACET)
-                     if(diagnose)Hmisc::prn(dfplot)
+#                     if(diagnose)Hmisc::prn(dfplot)
           out <- ggplot2::ggplot(data=dfplot,ggplot2::aes(XVAR,YVAR,COV1)) + ggplot2::geom_point(ggplot2::aes(shape = COV1))
           out$labels$shape <- " "
           if(!is.null(facetcol)){
@@ -103,7 +103,7 @@ function(forn,
                col2 <- df3
                col3 <- "1"                       # default for only 1 coefficient
                betacoeffs <- as.data.frame(tibble::tibble(col1,col2,col3))
-                                  if(diagnose) Hmisc::prn(betacoeffs)
+#                                  if(diagnose) Hmisc::prn(betacoeffs)
 
                wmf2 <- paste(wmf,".wmf",sep="")    
                ##############################################
@@ -115,7 +115,7 @@ function(forn,
                      horlabel="Subset size m",
                      vertlabel="loglik",
                      cap=caption,
-                     diagnose=diagnose,verbose=verbose)
+                     verbose=verbose)
 
           }
           else{
@@ -129,7 +129,7 @@ function(forn,
                     col3 <- c(col3,rep(namesdf3[i],times=nrows))
                }    #  i
                betacoeffs <- as.data.frame(tibble::tibble(col1,col2,col3))
-                                  if(diagnose) Hmisc::prn(betacoeffs)
+#                                  if(diagnose) Hmisc::prn(betacoeffs)
                wmf2 <- paste(wmf,".wmf",sep="")    
                ##############################################
                # Call for plot using support function above #
@@ -141,7 +141,7 @@ function(forn,
                      horlabel="Subset size m",
                      vertlabel="loglik",
                      cap=caption,
-                     diagnose=diagnose,verbose=verbose)
+                     verbose=verbose)
 
           }    # else for is null cols
      }

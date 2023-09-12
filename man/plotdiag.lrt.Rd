@@ -16,7 +16,7 @@ plotdiag.lrt(forn,
      Cairo=TRUE,
      printgraph = TRUE,
      addline=c("none","loess","straight"),
-     diagnose=FALSE, verbose=TRUE)
+     verbose=TRUE)
 }
 \arguments{
   \item{forn}{Name of output file from forsearch_cph}
@@ -28,7 +28,6 @@ plotdiag.lrt(forn,
   \item{printgraph}{TRUE causes graph to print to file and
           closes device}
   \item{addline}{Add a line to the graph; abbreviation allowed. Default none}
-  \item{diagnose}{If TRUE, displays code to help diagnose main function errors}
   \item{verbose}{If TRUE, indicates beginning and end of function}
 }
 \value{Process and plot likelihood ratio test statistics from forsearch_cph

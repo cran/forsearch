@@ -1,6 +1,6 @@
 #' @export
 forsearch_lm <-
-function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL, unblinded=TRUE, diagnose=FALSE, verbose=TRUE)
+function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL, unblinded=TRUE, begin.diagnose=100, verbose=TRUE)
 {
      #                          forsearch_lm
      #
@@ -15,6 +15,8 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
           print(MC)
           print("", quote = FALSE)
      }
+     spacer <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                   "     # used for begin.diagnose prints
+
      ##################################################################
      # Ensure that first independent variable is Observation          #
      # Make x1 the matrix of independent variables without obs number #
@@ -116,7 +118,7 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
           zlist[[i]][,1] <- sample(x=1:dimx1, size=dimx1)                        #    sample permutation
           if(yesfactor)zlist[[i]][1:dimpickm,1] <- pickm[i,]
      }      #   i
-                                            if(diagnose){print("forsearch_lm");Hmisc::prn(zlist)}    
+                                 if(begin.diagnose <= 5){Hmisc::prn(paste(spacer,"Section 5",sep=" "));Hmisc::prn(zlist);       }
      if(is.null(skip.step1)){
           print("ENTERING STEP 1", quote=FALSE)
           inner.rank <- lmAlldata$rank
@@ -139,8 +141,8 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
           locatemin <- medaugx[medaugx[,2]==minmed,]
           if(is.matrix(locatemin)) locatemin <- locatemin[1,]
           zliststar <- zlist[[locatemin[3]]]
-                                           if(diagnose){ print("forsearch_lm");Hmisc::prn(medaugx);Hmisc::prn(minmed);Hmisc::prn(locatemin);
-                                              Hmisc::prn(locatemin);Hmisc::prn(zliststar);Hmisc::prn(zliststar[1:p,1])    }
+                                 if(begin.diagnose <= 6){Hmisc::prn(paste(spacer,"Section 6",sep=" "));Hmisc::prn(medaugx);Hmisc::prn(minmed);
+                                      Hmisc::prn(locatemin);Hmisc::prn(zliststar);Hmisc::prn(zliststar[1:p,1])       }
           mstart <- p + 1
           betaMMinus1 <- betahat
      }       # skipping step 1
@@ -156,7 +158,10 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
      for(i in mstart:(dimx1+1)){                  # mstart is the step after the original p obs entered
           rim <- rows.in.model[[i-1]]             # picks up rows for previous step
           Zlatest <- Z[rim,]
-                                       if(diagnose){   Zlatest <- Zlatest[order(Zlatest[,1]),];Hmisc::prn(i); Hmisc::prn(Zlatest)     }
+
+                                 if(begin.diagnose <= 15){Hmisc::prn(paste(spacer,"Section 15",sep=" "));Zlatest<- Zlatest[order(Zlatest[,1]),];
+                                            Hmisc::prn(i);Hmisc::prn(Zlatest)       }
+
           if(is.data.frame(x1))xtemp <- x1[rim,]
           else xtemp <- data.frame(x1[rim])
           subdata <- data[rim,]
@@ -190,7 +195,9 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
           thisleverage <- 1
           x1 <- data[,-c(1,ycol)]
           xtemp <- getthislmx
-                      if(diagnose){print("forsearch_lm");Hmisc::prn(xtemp)}
+
+                                 if(begin.diagnose <= 20){Hmisc::prn(paste(spacer,"Section 20",sep=" "));Hmisc::prn(xtemp)       }
+
           uuu <- prod(eigen(t(xtemp) %*% xtemp)[[1]])
           if(uuu > .Machine$double.eps){
                crossinv <- solve(t(xtemp) %*% xtemp)
@@ -205,7 +212,9 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
                    }
                    leverage <- rbind(leverage,thisleverage)
                }   # j 1:i
-                                             if(diagnose) Hmisc::prn(leverage)
+
+                                 if(begin.diagnose <= 25){Hmisc::prn(paste(spacer,"Section 25",sep=" "));Hmisc::prn(leverage)       }
+
           }    # if uuu
           #
           #####################################################################
@@ -247,19 +256,20 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
      param.est.prev <- param.est[-nms,]
      param.est.current <- param.est[-1,]          # remove first and last rows
      param.diff <- param.est.prev - param.est.current
-                         if(diagnose){ Hmisc::prn(param.est);Hmisc::prn(param.est.prev);Hmisc::prn(param.est.current);
-                             Hmisc::prn(param.diff);Hmisc::prn(xtemp.list)   }
+
+                                 if(begin.diagnose <= 35){Hmisc::prn(paste(spacer,"Section 35",sep=" "));Hmisc::prn(param.est.prev);
+                                       Hmisc::prn(param.est.current);Hmisc::prn(param.diff);Hmisc::prn(xtemp.list)   }
+
      for(i in mstart:dimx1){
          aa <- param.diff[i-1,]         # select row i-1
          aa <- as.numeric(aa[,-1])      # remove col 1
          aa <- matrix(aa,nrow=1)        # turn this into a matrix with 1 row
          bb <- xtemp.list[[i]]
-                       if(diagnose){
-                             Hmisc::prn(aa)
-                             Hmisc::prn(bb)
-                       }
+                                 if(begin.diagnose <= 45){Hmisc::prn(paste(spacer,"Section 45",sep=" "));Hmisc::prn(aa);Hmisc::prn(bb)     }
          www <- aa %*% t(bb)
-                       if(diagnose){Hmisc::prn(www)}
+
+                                 if(begin.diagnose <= 55){Hmisc::prn(paste(spacer,"Section 55",sep=" "));Hmisc::prn(www)       }
+
          modCook[i] <- (www %*% t(www))/(p*s.2[i])
      }       #    i
      #

@@ -6,15 +6,13 @@
  Runs the defined linear (lm) model. Displays the resulting coefficients. 
     Attaches codes for identifying them to the plotting functions of this package.
 }
-\usage{identifyFixedCoeffs(formula, data, diagnose = FALSE, verbose = TRUE)
+\usage{identifyFixedCoeffs(formula, data, verbose = TRUE)
 }
 \arguments{
   \item{formula}{2-sided formula for fixed effects}
   \item{data}{Name of file (to be) run by forsearch_lm}
-  \item{diagnose}{If TRUE, displays code to help diagnose main function errors}
   \item{verbose}{If TRUE, indicates beginning and end of function}
 }
-
 \details{
 Plotting functions cannot plot more than a few coefficients on one graph. This function 
 prepares an index of the coefficients so that the user can more easily identify which ones 
@@ -28,11 +26,9 @@ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New Yo
 \author{William R. Fairweather
 }
 \examples{
-\testonly{
 info3 <- system.file("extdata", "crossdata.R", package="forsearch");
 crossdata <- source(info3);
 crossdata <- crossdata[[1]];
 identifyFixedCoeffs(formula=y~x1*x2, data=crossdata)
-}
 }
  \keyword{ manip }

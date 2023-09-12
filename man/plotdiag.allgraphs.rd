@@ -25,16 +25,13 @@ Prints search history and creates graphical files in current subdirectory
 }
 \author{William R. Fairweather
 }
-\examples{
-\dontrun{
-info3 <- system.file("extdata", "train.for3.R", package="forsearch");
-%print(info3)
-info3 <- source(info3);
-%print(info3)
-info3 <- info3[[1]];
-%print(info3)
-plotdiag.allgraphs(object=info3, mt=" ", st=" ", cpt=" ", cc=NULL, ccrand = NULL
-   Cairo=FALSE)
-}
-}
+%\examples{
+%\dontrun{
+%info3 <- system.file("extdata", "train.for3.R", package="forsearch");
+%info3 <- source(info3);
+%info3 <- info3[[1]];
+%plotdiag.allgraphs(object=info3, mt=" ", st=" ", cpt=" ", cc=NULL, ccrand = NULL
+%   Cairo=FALSE)
+%}
+%}
  \keyword{ hplot }

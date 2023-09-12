@@ -11,7 +11,7 @@ Plot output from forsearch_lm or forsearch_lme to show change in t statistics as
 plotdiag.tstats(forn, coeff.codenums=NULL, maintitle = "Put main title here", 
 subtitle = "Put subtitle here", caption="Put caption here", wmf = "Put_stored_name_here", 
 Cairo=TRUE, printgraph=TRUE,legend = "Dummy legend name",  
-diagnose = FALSE,verbose = TRUE)
+verbose = TRUE)
 }
 \arguments{
   \item{forn}{Name of output file from forsearch_lm or forsearch_lme
@@ -35,8 +35,6 @@ diagnose = FALSE,verbose = TRUE)
 }
   \item{legend}{Name of legend
 }
-  \item{diagnose}{If TRUE, displays code to help diagnose main function errors
-}
   \item{verbose}{If TRUE, indicates beginning and end of function
 }
 }
@@ -48,13 +46,12 @@ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New Yo
 }
 \author{William R. Fairweather
 }
-\examples{
-\testonly{
-info3 <- system.file("extdata","MOf.R",package="forsearch");
-Machines.O.forlme <- source(info3)[[1]];
-plotdiag.tstats(Machines.O.forlme,coeff.codenums=NULL, wmf="Machines_t_statistics",
-Cairo=FALSE,printgraph=FALSE
-)
-}
-}
+%\examples{
+%\testonly{
+%info3 <- system.file("extdata","MOf.R",package="forsearch");
+%Machines.O.forlme <- source(info3)[[1]];
+%plotdiag.tstats(Machines.O.forlme,coeff.codenums=NULL, wmf="Machines_t_statistics",
+%Cairo=FALSE,printgraph=FALSE)
+%}
+%}
  \keyword{ hplot }

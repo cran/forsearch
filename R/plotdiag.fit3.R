@@ -8,7 +8,7 @@ function(forn,
      Cairo=TRUE,
      printgraph=TRUE,
      legend="Dummy legend name",
-     diagnose=FALSE, verbose=TRUE)
+     verbose=TRUE)
 {
      #                          plotdiag.fit3
      #
@@ -35,17 +35,17 @@ function(forn,
                      cap,
                      filewidth=5, fileheight=5,
                      legendname,
-                     diagnose,verbose)
+                     verbose)
      {
 
           XVAR <- data[,xcol]
           YVAR <- data[,ycol]
           COV1 <- data[,cov1col]
           dfplot <- data.frame(XVAR,YVAR,COV1)
-                      if(diagnose)Hmisc::prn(dfplot)
+#                      if(diagnose)Hmisc::prn(dfplot)
           FACET <- data[,facetcol]
           dfplot <- data.frame(dfplot,FACET)
-                     if(diagnose)Hmisc::prn(dfplot)
+#                     if(diagnose)Hmisc::prn(dfplot)
           out <- ggplot2::ggplot(data=dfplot,ggplot2::aes(XVAR,YVAR,COV1)) + ggplot2::geom_point(ggplot2::aes(shape = COV1))
           out$labels$shape <- legendname
 
@@ -103,7 +103,7 @@ function(forn,
                      vertlabel="Statistic value",
                      cap=caption,
                      legendname=legend,
-                     diagnose=diagnose,verbose=verbose)
+                     verbose=verbose)
 
      }
      # End of preparation function #

@@ -10,7 +10,7 @@ function(forn,
      Cairo=TRUE,
      printgraph = TRUE,
      legend="Dummy legend name",
-     diagnose=FALSE, verbose=TRUE)
+     verbose=TRUE)
 {
      #                          plotdiag.residuals
      #
@@ -34,7 +34,7 @@ function(forn,
           facetcol=NULL, facetdir, 
           mtitle, stitle, cap, horlabel, vertlabel, 
           filewidth=5, fileheight=5, legendname, 
-          highslows, diagnose, verbose)
+          highslows, verbose)
      {
      XVAR <- data[,xcol]
      YVAR <- data[,ycol]
@@ -43,13 +43,13 @@ function(forn,
      SD <- data$SD
      N <- data$N
      dfplot <- data.frame(COV2,XVAR,YVAR,SD,N)
-                if(diagnose)Hmisc::prn(dfplot)
+#                if(diagnose)Hmisc::prn(dfplot)
      if(!is.null(facetcol)){
          FACET <- data[,facetcol]
          dfplot <- data.frame(dfplot,FACET)
-                    if(diagnose)Hmisc::prn(dfplot)
+#                   if(diagnose)Hmisc::prn(dfplot)
      }
-                if(diagnose)Hmisc::prn(dfplot)
+#                if(diagnose)Hmisc::prn(dfplot)
      if(SE){
             upper <- dfplot$YVAR + dfplot$SD/sqrt(dfplot$N)
             lower <- dfplot$YVAR - dfplot$SD/sqrt(dfplot$N)
@@ -88,7 +88,7 @@ function(forn,
       ############################################
       out <- out + ggplot2::ggtitle(mtitle,subtitle=stitle) + ggplot2::xlab(horlabel) + ggplot2::ylab(vertlabel) + ggplot2::labs(caption=cap,legend=legendname)
       out <- out + ggplot2::labs(color=legendname)
-                   if(diagnose)    Hmisc::prn(as.character(out))
+#                   if(diagnose)    Hmisc::prn(as.character(out))
       #
       #############################
       # Print and save the graph. #
@@ -157,7 +157,7 @@ function(forn,
           SD <- 0
           N <- 1
           df2 <- as.data.frame(tibble::tibble(COV2, XVAR, resids, SD, N))
-                                     if(diagnose)Hmisc::prn(df2)
+#                                     if(diagnose)Hmisc::prn(df2)
           wmf2 <- paste(wmf,".wmf",sep="")    
           if(grouped){
                wmf2 <- paste(wmf," Subgroup ",gg,".wmf",sep="")    
@@ -173,7 +173,7 @@ function(forn,
                      vertlabel=vl,
                      cap=caption,
                      legendname=legend,
-                     diagnose=diagnose,verbose=verbose)
+                     verbose=verbose)
      }
 
 

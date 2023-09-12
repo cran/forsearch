@@ -1,4 +1,3 @@
-#' @export
 showme <-
 function(x, verbose=TRUE)
 {

@@ -10,9 +10,8 @@ contains code for pre-processing of the data.
 }
 \usage{
 forsearch_glm(initial.sample=1000, cobs, response.cols, indep.cols, family,  
-  formula = NULL, binomialrhs = NULL, data, 
-  n.obs.per.level = 1, estimate.phi = TRUE, skip.step1 = NULL, unblinded = TRUE, 
-  diagnose = FALSE, verbose = TRUE)
+formula=NULL, binomialrhs=NULL, data, n.obs.per.level = 1, estimate.phi = TRUE, 
+skip.step1=NULL, unblinded=TRUE, begin.diagnose=100, verbose=TRUE)
 }
 \arguments{
   \item{initial.sample}{Number of random sets of observations in Step 1 of forward 
@@ -32,7 +31,8 @@ forsearch_glm(initial.sample=1000, cobs, response.cols, indep.cols, family,
   \item{estimate.phi}{TRUE causes phi to be estimated; FALSE causes phi to be set = 1}
   \item{skip.step1}{NULL, or vector of observation numbers to include at end of Step 1}
   \item{unblinded}{TRUE allows print of formula of analysis function}
-  \item{diagnose}{TRUE causes printing of intermediate steps of function}
+  \item{begin.diagnose}{Numeric. Indicates where in code to begin printing diagnostics.
+                0 prints all; 100 prints none}
   \item{verbose}{TRUE causes function identifier to display before and after run}
 }
 \value{LIST
@@ -61,12 +61,6 @@ forsearch_glm(initial.sample=1000, cobs, response.cols, indep.cols, family,
 # Train deaths (Atkinson and Riani, 2000)
 
 Observation<-1:67
-
-%Month<-c(9,8,3,1,10,6,7,1,8,4,3,3,12,11,10,9,9,4,3,12,12
-%,10,7,2,12,2,12,12,12,11
-%,3,10,4,2,12,12,9,11,1,10,8,6,1,10,6,12,8,4,9,6,12,10
-%,7,2,5,12,5,5,4,3
-%,1,9,11,9,7,3,2)
 
 Year<-c(97,96,96,95,94,94,91,91,90,89,89,89,88,88,87,86,86,86,86,84,84,84
 ,84,84,83,83,82,81,81,80
@@ -97,6 +91,7 @@ train.out <- forsearch_glm(initial.sample=100, cobs=4, response.cols=5, indep.co
    family=poisson("log"), formula=Deaths~Year+RollingStock+Traffic,data=train, 
    n.obs.per.level = 1,estimate.phi = TRUE, skip.step1 = NULL, unblinded = TRUE) 
 \dontrun{
+
 # Recode RollingStock as categorical variable. Note change in n.obs.per.level
 #      argument
 train2 <- train 

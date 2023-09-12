@@ -1,6 +1,6 @@
 \name{aStep2}
 \alias{aStep2}
-\title{Update Observation Number in Step 2
+\title{Update Observation Set in Step 2
 }
 \description{
 Derives the next set of observation numbers for forsearch in linear models

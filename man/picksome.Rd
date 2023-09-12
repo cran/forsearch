@@ -39,18 +39,4 @@ Matrix, each row of which identifies observations in each set of random sample
 }
 \author{William R. Fairweather
 }
-\examples{
-V1 <- rep(c(3,7,9,11),times=4);
-V2 <- V1+3;
-V3 <- V1+90;
-V1 <- as.factor(V1);
-V2 <- as.factor(V2);
-V3 <- as.factor(V3);
-Observation <- 1:16;
-testdf <- data.frame(Observation, V1,V2,V3);
-%print(testdf);
-testoutdf <- variablelist(testdf);
-picksome(testoutdf,nobs=16,initial.sample=11,n.obs.per.level=1,rank=4,
-   verbose=FALSE)
-}
 \keyword{ manip }

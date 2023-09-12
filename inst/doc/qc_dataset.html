@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="William R. Fairweather" />
+
+<meta name="date" content="2023-09-12" />
+
+<title>Quality Control of the Dataset Using the Forward Search</title>
+
+<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<link rel="stylesheet" href="data:text/css,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" type="text/css" />
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Quality Control of the Dataset Using the Forward Search</h1>
+<h4 class="author">William R. Fairweather</h4>
+<h4 class="date">2023-09-12</h4>
+
+
+
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(forsearch)</span></code></pre></div>
+<pre><code>## Introduction
+
+Years ago, statisticians were primarily concerned with development of statistical methods for the analysis of various kinds of data.  They developed the probability distributions and attributes of new estimates, tests of hypothesis, and predictive methodologies.  They then applied these methods to the data that was presented to them by subject matter specialists, fitting the methods to the data as well as they could.
+ 
+Some of the studies were not created only for scientific or engineering audiences, but also had the attention of regulatory authorities.  It became more and more important that the analytical methods be shown to fit the data.  Soon, the statisticians were asked to help design the studies in such a way that available analytical methods could be more appropriately used on their data.   
+
+Study protocols went from being nice-to-have guidelines to being serious plans for the conduct of the study.  Greater and greater detail was inserted into them.  Statistical analysis plans (SAPs) were soon required to accompany the protocol and to be synchronized with it to a greater and greater degree.
+
+In 2014, Francis Collins and Lawrence Tabak, the Director of the National Institutes of Health and his principal deputy, published a report (reference below) that addressed their concern that the system for ensuring the reproducibility of scientific research was failing.  Their principal concern was that statistical results on some preclinical studies could not be reproduced by subsequent investigators in the area.  They assured their readers that they found very few cases where lack of reproducibility was caused by misconduct, but rather by existing practices and procedures, lack of laboratory staff training in statistical concepts and methods, failure to report critical aspects of experimental design, etc.  
+
+Scientific progress relies on the premise that it is objective, not subjective, that another competent investigator should be able to reproduce the results of the study by simply reproducing the stated methods, using the same study materials.  I will leave it to you to read their paper and those that reinforced or contradicted their prescriptions for corrective action.
+
+This concern about study reproducibility is not limited to preclinical studies.  It also applies to clinical trials and other large, expensive studies with substantial societal impact.  If a second study does not fully support the first study, which one should we believe?
+
+One drawback to the NIH approach is that it relies on the follow-up study to divulge the problem.  This might be months or years after the original study and after a great deal of money has been spent going down the wrong path.  Also, the original study might be a large engineering study or a complicated clinical trial that may itself take many months or years to complete.  Staff changes are bound to occur.  Supplies used in the beginning of the study may not be identical to supplies used at the end of the study.  Study sites may come or go.  In other words, the data analysis could be just fine, appropriate for the study as defined in the protocol and the statistical analysis plan.  Perhaps it is simply the nature of the study that inappropriate or inconsistent data has been introduced.  The protocol is supposed to describe the universe to which the study (and the data) applies.  But how accurate is that description considering the actual data?  
+
+Quality control of the data is the correctness of the data after it is first collected.  Proper, easily interpreted data entry devices and software to get the data correctly into a format for data analysis.  Proper storage of all of the data to prevent deliberate or inadvertent changes.  These are pretty obvious, but not uniformly available to all investigators, even today.
+
+Scientific integrity is the adherence of the study conduct to the protocol and the completeness of the protocol with regard to its scope.  A study of 14- to 19-year-olds, should not admit a 13-year-old who will be 14 before the end of the study, no matter how compelling her medical case.  But once she is in, her data is part of the study.
+
+Unfortunately, it is virtually impossible to enumerate all the different ways that data quality control and scientific integrity of the study can be compromised.  What we are describing here is a software tool that is available now and that can help point out in real time possible discrepancies in the first study with regard to data quality or scientific integrity.  This tool can and should be used prior to the statistical analysis of the first study.
+
+To complicate matters further, regulatory agencies and others worry that data quality control is only undertaken after some unexpected, commercially adverse findings are discovered in the study.  Eliminating observations at this point has the appearance of sampling to a foregone conclusion or eliminating adverse results.
+
+Diagnostics involves identifying inconsistent observations, determining their impact on the primary analyses of the study, and justifying their disposition:  total acceptance of the observataion, modification of value or classification prior to acceptance, or removal. In the name of proper scientific integrity, disposition of outliers must be well documented.
+
+I believe that statisticians, especially those that work with studies and data every day, will have a bigger role in the quality control and scientific integrity of studies in the years to come.  The forsearch R extension will be a useful tool in this area.
+
+
+
+
+
+```r
+ 
+plot(Boiling,LogPressure)</code></pre>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>``` To Be Continued</p>
+<div id="references" class="section level2">
+<h2>References</h2>
+<p>Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New York, 2000. Pinheiro JC and DM Bates. Mixed-Effects Models in S and S-Plus, Springer, New York, 2000. Collins, FS and LA Tabak (2014). Policy: NIH plans to enhance reproducibility, Nature, 505, p612–613.</p>
+<p>```</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

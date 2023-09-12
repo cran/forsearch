@@ -15,7 +15,7 @@ plotdiag.loglik(forn,
      wmf = "Put_stored_name_here", 
      Cairo=TRUE,
      printgraph = TRUE,
-     diagnose=FALSE, verbose=TRUE)
+     verbose=TRUE)
 }
 \arguments{
   \item{forn}{Name of output file from forsearch_cph}
@@ -26,7 +26,6 @@ plotdiag.loglik(forn,
   \item{Cairo}{TRUE causes use of Cairo graphics}
   \item{printgraph}{TRUE causes graph to print to file and
           closes device}
-  \item{diagnose}{If TRUE, displays code to help diagnose main function errors}
   \item{verbose}{If TRUE, indicates beginning and end of function}
 }
 \value{{Process and plot Wald Test statistics from forsearch_cph}

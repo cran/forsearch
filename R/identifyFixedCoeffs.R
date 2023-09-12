@@ -1,6 +1,6 @@
 #' @export
 identifyFixedCoeffs <-
-function(formula, data, diagnose=FALSE, verbose=TRUE)
+function(formula, data, verbose=TRUE)
 {
      #                                                       identifyFixedCoeffs
      #
@@ -9,8 +9,6 @@ function(formula, data, diagnose=FALSE, verbose=TRUE)
      #
      # INPUT    formula             2-sided formula for fixed effects
      #          data                Name of grouped or ungrouped data file
-     #
-     #          diagnose            Logical. TRUE causes printing of diagnostic content
      #          verbose             Logical. TRUE causes printing of program ID before and after running.
      #
      MC <- match.call()

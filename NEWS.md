@@ -1,3 +1,17 @@
+9/12/2003 forsearch version 4.1.0 
+====+============================
+     Major changes:
+None
+
+     Moderate changes:
+None
+
+     Minor changes and bug fixes:
+Replaced argument diagnose=T/F with begin.diagnose numeric indicator
+Removed argument diagnose and diagnostic code in several small functions  
+Added examples in all forsearch_xxx functions
+Cleaned up documentation wording
+
 8/8/2023 forsearch version 4.0.0 
 ====+============================
      Major changes:

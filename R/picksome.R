@@ -1,4 +1,3 @@
-#' @export
 picksome <-
 function(subsetlist, nobs, initial.sample, n.obs.per.level, rank, verbose=FALSE)
 {

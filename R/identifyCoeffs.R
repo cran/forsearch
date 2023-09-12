@@ -9,8 +9,7 @@ function(fixed, data, random,
     XmsMaxEval=400,
     XmsTol=.00001, 
     Xopt='optim',
-
-diagnose=FALSE, verbose=TRUE)
+    verbose=TRUE)
 {
      #                                                       identifyCoeffs
      #
@@ -24,7 +23,6 @@ diagnose=FALSE, verbose=TRUE)
      #          Xmaxiter, XmsMaxIter, Xtolerance, XniterEM, XmsMaxEval, XmsTol, Xopt 
      #                             control variates for lme function
      #
-     #          diagnose            Logical. TRUE causes printing of diagnostic content
      #          verbose             Logical. TRUE causes printing of program ID before and after running.
      #
      MC <- match.call()

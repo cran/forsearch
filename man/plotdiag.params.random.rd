@@ -8,12 +8,10 @@ as the number of observations in the forward search procedure increases. Save pl
 folder containing working directory. 
 }
 \usage{
-plotdiag.params.random(forn, coeff.codenums=NULL, 
-asfacets=FALSE, facetdir=c("h","v"),
+plotdiag.params.random(forn, coeff.codenums=NULL, asfacets=FALSE, facetdir=c("h","v"), 
 maintitle = "Put maintitle here", subtitle = "Put subtitle here", 
-caption = "Put caption here",wmf = "Put_stored_name_here",
-Cairo=TRUE,printgraph = TRUE,
-legend = "Dummy legend name", diagnose = FALSE, verbose = TRUE)
+caption = "Put caption here", wmf = "Put_stored_name_here", Cairo=TRUE,
+printgraph = TRUE, legend = "Dummy legend name", verbose = TRUE)
 }
 \arguments{
   \item{forn}{Name of output file from forsearch_lme
@@ -37,8 +35,6 @@ legend = "Dummy legend name", diagnose = FALSE, verbose = TRUE)
 }
   \item{legend}{Name of legend
 }
-  \item{diagnose}{If TRUE, displays code to help diagnose main function errors
-}
   \item{verbose}{If TRUE, indicates beginning and end of function
 }
 }
@@ -49,14 +45,13 @@ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New Yo
 }
 \author{William R. Fairweather
 }
-\examples{
-\testonly{
-info3 <- system.file("extdata","Machines.O.forlme2.R",package="forsearch");
-Machines.O.forlme2 <- source(info3);
-Machines.O.forlme2 <- Machines.O.forlme2[[1]];
-%print(Machines.O.forlme2$"Random parameter estimates")
-plotdiag.params.random(Machines.O.forlme2,asfacets=FALSE, 
-wmf="Machines_Random_Coefficients",Cairo=FALSE,printgraph=FALSE)
-}
-}
+%\examples{
+%\testonly{
+%info3 <- system.file("extdata","Machines.O.forlme2.R",package="forsearch");
+%Machines.O.forlme2 <- source(info3);
+%Machines.O.forlme2 <- Machines.O.forlme2[[1]];
+%plotdiag.params.random(Machines.O.forlme2,asfacets=FALSE, 
+%wmf="Machines_Random_Coefficients",Cairo=FALSE,printgraph=FALSE)
+%}
+%}
  \keyword{ hplot }

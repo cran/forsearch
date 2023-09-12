@@ -1,6 +1,5 @@
-#' @export
 cStep2 <-
-function(df1, rim, formula.elements, r2){
+function(df1, rim, formula.elements){
      #
      #                                      cStep2
      #
@@ -13,7 +12,6 @@ function(df1, rim, formula.elements, r2){
      #               running coxph on each subset that is made up of df1.rim and one of the other rows of df1. There is a vector containing a logical indicator 
      #               of whether this set of observations has no redundancies. This matrix is initialized by setting the 3rd
      #               column to -9. The vector is initialized to TRUE. 
-     #      r2       Argument for Hmisc::redun. Higher values more difficult to declare redundancy.
 
      # OUTLINE OF ROUTINE TO DEFINE STEP 2
 
@@ -37,7 +35,7 @@ function(df1, rim, formula.elements, r2){
 
      df1.id <- matrix(0,nrow=dimx1,ncol=3)
      df1.id[,1] <- df1$Observation
-     df1.id[rim,2] <- 1                    # set defaults
+     df1.id[rim,2] <- 1                    # set defaults  Those in rim have second column = 1
      df1.id[,3] <- -9
 
                                                if(beg.diag.3 <=10 ){ print(paste(spacehere,"Section 10",sep=" "),quote=FALSE);Hmisc::prn(df1.rim)    }
@@ -45,9 +43,8 @@ function(df1, rim, formula.elements, r2){
 
      coxph.out05 <- NULL
      for(uk in 1:(dimx1-1)){
-          if(df1.id[uk,2] == 0){                               # just changed from !=
+          if(df1.id[uk,2] == 0){                               # not yet in rim
                tempdata <- rbind(df1.rim, df1[uk,])
-
 
                                                if(beg.diag.3 <=15 ){ print(paste(spacehere,"Section 15",sep=" "),quote=FALSE);Hmisc::prn(uk);
                                                      Hmisc::prn(df1.rim);Hmisc::prn(df1[uk,]);Hmisc::prn(utils::head(tempdata));Hmisc::prn(utils::tail(tempdata))   }
@@ -56,7 +53,8 @@ function(df1, rim, formula.elements, r2){
 
                xformc <- paste("survival::Surv(time=rim.time, event=rim.status, type='right')", formula.rhs.rim, sep=" ~  ")    # Surv
                formula.increment <- stats::as.formula(xformc)
-                                               if(beg.diag.3 <=20 ){ print(paste(spacehere,"Section 20",sep=" "),quote=FALSE);Hmisc::prn(formula.increment);
+ 
+                                              if(beg.diag.3 <=20 ){ print(paste(spacehere,"Section 20",sep=" "),quote=FALSE);Hmisc::prn(formula.increment);
                                                   Hmisc::prn(df1.rim);Hmisc::prn(tempdata[,1])   }
                #
                #####################################################
@@ -65,29 +63,18 @@ function(df1, rim, formula.elements, r2){
                thisdata <- df1[tempdata[,1],]
                checkform <- paste("~ ",formula.rhs.rim, sep=" ")
                checkform <- stats::as.formula(checkform)
-               redun.out <- Hmisc::redun(checkform, tempdata, r2=r2)
-               redun.out4 <- redun.out[[4]][1]
-               gotone <- match(redun.out4, formula.elements, nomatch = -99)
-               if(gotone > -99) 
-               {
-                    Redundant.free[uk] <- FALSE
-               }     # if gotone 
-
-               if(Redundant.free[uk]){
                     xformc <- paste("survival::Surv(time=event.time, event=status, type='right')", formula.rhs.rim, sep=" ~  ")    # Surv
                     formula.increment <- stats::as.formula(xformc)
                     coxph.out05 <- survival::coxph(formula=formula.increment, data=tempdata, 
                         ties = "efron", singular.ok = TRUE, model = TRUE, x = TRUE, y = TRUE )                               # coxph
                     resids <- stats::residuals(coxph.out05, type="martingale")
                     df1.id[uk,3] <- sum(resids^2)          
-               }    # Redundant.free
-               else stop("not redundant free in cStep2")
-
           }       # df1.id[uk,2] !=1
                                                if(beg.diag.3 <=30 ){ print(paste(spacehere,"Section 30",sep=" "),quote=FALSE);Hmisc::prn(resids);
                                                      Hmisc::prn(df1.id)   }
      }    # uk
-     index <- df1.id[,3] > 0 & Redundant.free
+     index <- df1.id[,3] > 0
+
                                                if(beg.diag.3 <=40 ){ print(paste(spacehere,"Section 40",sep=" "),quote=FALSE);Hmisc::prn(index)   }
      remaining <- df1.id[,2]
      remaining0 <- remaining[remaining==0]

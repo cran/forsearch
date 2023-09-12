@@ -1,6 +1,6 @@
 #' @export
 search.history <-
-function(list1, diagnose=FALSE, verbose=TRUE)
+function(list1, verbose=TRUE)
 {
      #                                 search.history
      #
@@ -20,7 +20,6 @@ function(list1, diagnose=FALSE, verbose=TRUE)
      ##################################################
      x1 <- list1$"Rows in stage"
      lenx1 <- length(x1)
-                  if(diagnose) {Hmisc::prn(x1); Hmisc::prn(lenx1)}
      IN <- OUT <- vector("list",lenx1) 
      lenIN <- rep(0,lenx1)
      #
@@ -31,7 +30,6 @@ function(list1, diagnose=FALSE, verbose=TRUE)
      if(!is.null(uu)) IN[[1]] <- uu
      for(i in 2:lenx1){
                         # uu is the current element; vv is the previous one
-                                     if(diagnose)  Hmisc::prn(i)
           uu <- x1[[i]]
           if(!is.null(uu)){                         #  keep going until find some IN entries
                vv <- x1[[i-1]]

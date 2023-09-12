@@ -11,7 +11,7 @@ directory.
 plotdiag.deviance.residuals(forn, squared = FALSE, augmented=TRUE, hilos = c(1, 0), 
 maintitle="Put main title here", subtitle="Put subtitle here", caption="Put caption here", 
 wmf= "Put_graph_title_here", Cairo=TRUE,printgraph=TRUE,
-legend = "Dummy legend name", diagnose = FALSE,verbose = TRUE)
+legend = "Dummy legend name", verbose = TRUE)
 }
 \arguments{
   \item{forn}{Name of forward search output file}
@@ -27,7 +27,6 @@ legend = "Dummy legend name", diagnose = FALSE,verbose = TRUE)
   \item{printgraph}{TRUE causes graph to print to file and
           closes device}
   \item{legend}{Legend title}
-  \item{diagnose}{If TRUE, displays code to help diagnose main function errors}
   \item{verbose}{If TRUE, indicates beginning and end of function}
 }
 \details{
@@ -43,13 +42,13 @@ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New Yo
 }
 \author{William R. Fairweather
 }
-\examples{
-\testonly{
-info3 <- system.file("extdata","micem1.for.R",package="forsearch");
-info3 <- source(info3);
-info3 <-info3[[1]];
-plotdiag.deviance.residuals(info3,hilos=c(1,1),wmf="Micem1_for_DR",Cairo=FALSE,
-printgraph=FALSE)
-}
-}
+%\examples{
+%\testonly{
+%info3 <- system.file("extdata","micem1.for.R",package="forsearch");
+%info3 <- source(info3);
+%info3 <-info3[[1]];
+%plotdiag.deviance.residuals(info3,hilos=c(1,1),wmf="Micem1_for_DR",Cairo=FALSE,
+%printgraph=FALSE)
+%}
+%}
  \keyword{ hplot }

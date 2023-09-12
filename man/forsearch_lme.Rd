@@ -41,7 +41,7 @@ forsearch_lme(fixed, data, random, formula, initial.sample=1000, n.obs.per.level
          run}
 }
 \details{data will be grouped within the function, regardless of initial 
-    condition. Steps 1 and 2 are based on formula argument and use of lm() 
+    layout. Steps 1 and 2 are based on formula argument and use of lm() 
     function on each outer subgroup defined in formula. Intermediate data is 
     extracted based on fixed and random arguments. Step 2 is determined by the 
     results of Step 1, which itself is random. So, it is possible to reproduce 
@@ -81,6 +81,7 @@ lmetest1 <- nlme::groupedData(formula = y ~ 1 | group, data = lmetest1)
 forsearch_lme(fixed=y~x1+x2+x3,data=lmetest1,random= ~ 1 | group, 
    formula = y ~ 1 | group, initial.sample=100)
 \dontrun{
+
 # Analysis of variance in grouped data
 Observation <- 1:60
 y <- runif(60)
@@ -92,7 +93,7 @@ group <- rep(c("G1","G2"),each=30)
 lmetest2 <- data.frame(Observation,y,AN1,AN2,group)
 lmetest2 <- nlme::groupedData(formula = y ~ 1 | group, data = lmetest2)
 forsearch_lme(fixed=y~AN1*AN2,data=lmetest2,random= ~1 | group,
-             formula= y ~ 1 | group,initial.sample=100)
+             formula= y ~ 1 | group,initial.sample=1000)
 
 # Analysis of covariance in grouped data
 
@@ -106,7 +107,7 @@ COV <- runif(120)
 lmetest3 <- data.frame(Observation,y,AN1,AN2,COV,group)
 lmetest3 <- nlme::groupedData(formula = y ~ 1 | group, data = lmetest3)
 forsearch_lme(fixed=y~AN1*AN2+COV,data=lmetest3,random= ~ 1 | group,
-        formula= y ~ 1 | group, initial.sample=100)
+        formula= y ~ 1 | group, initial.sample=1000)
 }
 }
 \keyword{ datagen }

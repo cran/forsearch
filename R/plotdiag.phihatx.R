@@ -8,7 +8,7 @@ function(forn,
      Cairo=TRUE,
      printgraph = TRUE,
      addline=c("none","loess","straight"),
-     diagnose=FALSE, verbose=TRUE)
+     verbose=TRUE)
 {
      #                          plotdiag.phihatx
      #
@@ -35,7 +35,7 @@ function(forn,
           XVAR <- data[,1]
           YVAR <- data[,2]
           dfplot <- as.data.frame(tibble::tibble(XVAR,YVAR))
-                     if(diagnose)Hmisc::prn(dfplot)
+#                     if(diagnose)Hmisc::prn(dfplot)
           temp <- stats::lm(formula=YVAR ~ XVAR,data=dfplot)
           FIT <- temp$fitted.values
           out <- ggplot2::ggplot(data=dfplot,ggplot2::aes(XVAR,YVAR)) + ggplot2::geom_point()
@@ -50,7 +50,7 @@ function(forn,
                horlabel <- "Subset size m"
                vertlabel <- "Phi Hat"
           out <- out + ggplot2::ggtitle(mtitle2, subtitle=stitle2) + ggplot2::xlab(horlabel) + ggplot2::ylab(vertlabel) + ggplot2::labs(caption=cap)
-                 if(diagnose)Hmisc::prn(as.character(out))   
+#                 if(diagnose)Hmisc::prn(as.character(out))   
           ############################
           # Print and save the graph #
           ############################
@@ -94,7 +94,7 @@ function(forn,
                }
                else break
           }    #  ir
-                        if(diagnose) Hmisc::prn(df2)
+#                        if(diagnose) Hmisc::prn(df2)
           nrows <- length(df1)
           s2 <- data.frame(column1,df2)
           s2 <- s2[-1*c(1,2),]

@@ -1,4 +1,3 @@
-#' @export
 variablelist <-
 function(datadf, verbose=TRUE)
 {
@@ -22,13 +21,13 @@ function(datadf, verbose=TRUE)
           print("", quote = FALSE)
      }
      dimdata <- dim(datadf)
-     nrows <- dimdata[1]
-     ncols <- dimdata[2]
-     SubsetCode <- rep("_", nrows)
-     for(j in 2:ncols){
+     nnrows <- dimdata[1]
+     nncols <- dimdata[2]
+     SubsetCode <- rep("_", nnrows)
+     for(j in 2:nncols){
           nlevs <- levels(datadf[,j])
           if(!is.null(nlevs)){
-               for(i in 1:nrows){
+               for(i in 1:nnrows){
                     SubsetCode[i] <- paste(SubsetCode[i], datadf[i,j], sep="_") 
                }
           }
@@ -52,8 +51,6 @@ function(datadf, verbose=TRUE)
                     Hmisc::prn(singleobs)
                }     # if
           }     # for
-#prn(Subsetsdf[order(SubsetCode),])
-#stop("all")
      }     # anyonlyone
      uSubsetCode <- sort(unique(SubsetCode))
      nSC <- length(uSubsetCode)
