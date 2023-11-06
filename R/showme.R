@@ -1,3 +1,4 @@
+#' @export
 showme <-
 function(x, verbose=TRUE)
 {
@@ -24,6 +25,9 @@ function(x, verbose=TRUE)
           Hmisc::prn(x$"Number of model parameters")
 
           Hmisc::prn(x$"Fixed parameter estimates")
+
+          Hmisc::prn(utils::head(x$"Proportionality Test"))
+          Hmisc::prn(utils::tail(x$"Proportionality Test"))
 
           Hmisc::prn(utils::head(x$Leverage))
           Hmisc::prn(utils::tail(x$Leverage))
@@ -100,6 +104,10 @@ function(x, verbose=TRUE)
                Hmisc::prn(utils::tail(x$Leverage))
 
                print("", quote=FALSE)
+               print("p values from ANOVA of primary response", quote=FALSE)
+               Hmisc::prn(x$"ANOVA")
+
+               print("", quote=FALSE)
                Hmisc::prn(x$"Modified Cook distance")
                Hmisc::prn(x$"t statistics")
 
@@ -119,6 +127,7 @@ function(x, verbose=TRUE)
                Hmisc::prn(x$Sigma)
                Hmisc::prn(x$"Fixed parameter estimates")
                Hmisc::prn(x$"s^2")
+               Hmisc::prn(x$"ANOVA")
                Hmisc::prn(utils::head(x$Leverage))
                Hmisc::prn(utils::tail(x$Leverage))
                Hmisc::prn(x$"Modified Cook distance")

@@ -18,14 +18,17 @@ function (yesfactor, data, inner.rank, initial.sample, formula, ycol, nopl)
      #            nopl           n.obs.per.level
      #
      # NOTES
+     #     This function does not involve any OUTER factors such as grouping variables.
      #     Form inner groups available in data using variablelist.  rim will have nopl 
      #     observation from each of these inner groups plus enough randomly selected other 
      #     observations to make up a set of inner.rank observations, if any more are needed.
      #     If there are no inner groups, need to do the augmentation on the full dataset after
      #     taking inner.rank * nobs.per.level observations.
      #
-     beg.diag.2 <- 100                                                       # Set diagnostic start here
+     beg.diag.2 <- 1000                                                       # Set diagnostic start here
      spacehere <- "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%      aStep1           "    
+
+formula <- formula(formula)
 
      ##########################################################
      # Setup output and intermediate structures               #

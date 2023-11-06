@@ -162,6 +162,8 @@ The table below summarizes the use of plotdiag.xxx functions on forsearch_lm, _l
 xxx	                | plots forsearch output named     | lm  | lme | glm  | cph
 ------------------- | -------------------------------- | --- | --- | ---  | ---
 AICX                | AIC			                   |     |     |  X  
+ANOX2               | ANOVA                            |  X  |  X  |
+ANOX2               | Proportionality test             |     |     |      |  X
 Cook	            | Modified Cook distance	       |  X  |  X  |  
 deviance.residuals	| Deviance residuals and augments  | 	 |     |  X  
 deviances	        | Residual deviance, Null deviance |	 |	   |  X  

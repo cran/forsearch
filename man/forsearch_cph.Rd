@@ -18,8 +18,7 @@ begin.diagnose=100, verbose=TRUE)
        include event time or status.}
   \item{initial.sample}{Number of observations in Step 1 of forward search}
   \item{n.obs.per.level}{Number of observations per level of (possibly crossed) 
-           factor levels to include in Step 1, or minimum number of observations in 
-           Step 1}
+           factor levels to include in Step 1}
   \item{skip.step1}{NULL or a vector of integers for observations to be included
            in Step 1}
   \item{ties}{Method for handling ties in event time; = "efron", "breslow", or 

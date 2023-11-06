@@ -104,5 +104,6 @@ function(list1, verbose=TRUE)
           print(date(), quote = FALSE)
           print("", quote = FALSE)
      }
-     list(history=history, Call=MC)
+     outout <- list(history=history, Call=MC)
+     return(outout)
 }

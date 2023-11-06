@@ -21,6 +21,7 @@ function (thislm, data, ycol, thisi)
 #prn(data)
      dimx1 <- dim(data)[1]
 #prn(dimx1)
+#prn(thislm)
      preds <- stats::predict(thislm, data, pred.var=1)                                 #   predict
      errors <- data[, ycol] - preds
      errors2 <- errors * errors

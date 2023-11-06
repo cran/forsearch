@@ -10,8 +10,7 @@ folder containing working directory.
 \usage{
 plotdiag.Cook(forn, maintitle = "Put main title here", subtitle = "Put subtitle here", 
 caption = "Put caption here", wmf = "Put_plot_file_title_here", 
-Cairo=TRUE,printgraph=TRUE, addline = c("none","loess","straight"), 
-verbose = TRUE)
+Cairo=TRUE, printgraph=TRUE, addline = "none", verbose = TRUE)
 }
 \arguments{
   \item{forn}{Name of forward search output file
@@ -29,7 +28,8 @@ verbose = TRUE)
 \item{printgraph}{TRUE causes graph to print to file and
       closes device
 }
-   \item{addline}{add a line to the graph; abbreviation allowed
+   \item{addline}{Character variable to add a line to the graph; options: "none", "loess",
+         and "straight"; abbreviation allowed
 }
   \item{verbose}{If TRUE, indicates beginning and end of function
 }

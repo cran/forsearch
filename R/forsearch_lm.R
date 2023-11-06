@@ -125,6 +125,7 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
           mstart <- inner.rank + 1
           firstrim <- aStep1(yesfactor, data, inner.rank=lmAlldata$rank, initial.sample, formula, ycol, nopl=n.obs.per.level)    #aStep1
           rows.in.model[[p]] <- firstrim
+          SOON <- firstrim
      }         # is.null skip.step1
      else{
           print("SKIPPING STEP 1", quote=FALSE)
@@ -145,6 +146,7 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
                                       Hmisc::prn(locatemin);Hmisc::prn(zliststar);Hmisc::prn(zliststar[1:p,1])       }
           mstart <- p + 1
           betaMMinus1 <- betahat
+          SOON <- skip.step1
      }       # skipping step 1
      #
      #############################################
@@ -153,8 +155,21 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
      # First, get all stats for Step 1 subset.   #
      # Then calculate next subset at end of loop #
      #############################################
+
+     ########################################
+     # Get the number of terms in the ANOVA #
+     # and set up the holding matrix        #
+     ########################################
+     getthislm <- stats::lm(formula, data, singular.ok=TRUE, x=TRUE, y=TRUE)                                  #   lm
+     AVlm <- stats::anova(getthislm)
+     dnAVlm <- dimnames(AVlm)                               # level 1 is names of sources of variation, incl residuals
+     dnAVlmM1 <- dnAVlm[[1]]
+     dnAVlmM1 <- dnAVlmM1[-length(dnAVlmM1)]           # chop off last one 
+     anova.pvals <- matrix(0, nrow=length(dnAVlmM1), ncol=dimx1)
+
      print("ENTERING STEP 2", quote=FALSE)
      betahatset <- matrix(0,nrow=dimx1,ncol=p)
+
      for(i in mstart:(dimx1+1)){                  # mstart is the step after the original p obs entered
           rim <- rows.in.model[[i-1]]             # picks up rows for previous step
           Zlatest <- Z[rim,]
@@ -167,6 +182,12 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
           subdata <- data[rim,]
           getthislm <- stats::lm(formula, subdata, singular.ok=TRUE, x=TRUE, y=TRUE)                                  #   lm
           getthislmx <- getthislm$x
+          if(i > mstart & i <= dimx1){
+               AVlm <- stats::anova(getthislm)
+               AVlmps <- AVlm[,5]
+               AVlmps <- AVlmps[-length(AVlmps)]
+               anova.pvals[,i] <- AVlmps
+          } 
           xtemp.list[[i-1]] <- getthislmx                          # used in modified Cook
           betahat <- getthislm$coefficients                                                             #    correct????
           # Allowing singular results means we have to replace NAs with some value, here 0 
@@ -233,6 +254,9 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
           }        #  if i < dimx1
      }            # i in mstart ...
      #
+     ######################################
+     # Cleanup after all Step 2 completed #
+     ######################################
      dimleverage <- dim(leverage)
      dimnames(leverage) <- list(rep("",dimleverage[1]),c("m", "Observation", "leverage"))
      param.est <- as.data.frame(t(param.est))
@@ -240,6 +264,10 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
      m <- 1:dimx1
      param.est <- cbind(m,param.est)                                 #  here we add the m column
      # 
+     anova.pvals <- as.data.frame(t(anova.pvals))
+     names(anova.pvals) <- dnAVlmM1
+     anova.pvals <- cbind(m,anova.pvals)
+     #
      t.set <- as.data.frame(t(t.set))
      names(t.set) <- coeffnames
      t.set <- cbind(m,t.set)
@@ -274,6 +302,8 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
      }       #    i
      #
      listout <- list(
+
+          "Step 1 observation numbers"=        SOON,
           "Rows in stage"=                     rows.in.model,
           "Standardized residuals"=            residuals, 
           "Number of model parameters"=        p, 
@@ -281,6 +311,7 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
           "Fixed parameter estimates"=         param.est, 
           "s^2"=                               s.2, 
           "Leverage"=                          leverage, 
+          "ANOVA"=                             anova.pvals,
           "Modified Cook distance"=            modCook, 
           "t statistics"=                      t.set,
           "Call"=                              MC)

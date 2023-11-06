@@ -39,7 +39,7 @@ function (object, mt = " ", st = " ", cpt = " ", cc = NULL, ccrand = NULL, Cairo
           plotdiag.lrt(object, maintitle = mt, subtitle = st, caption = cpt, wmf="lrt", Cairo=Cairo) 
  
           plotdiag.loglik(object, maintitle = mt, subtitle = st, caption = cpt, wmf="loglik", Cairo=Cairo)  
-
+          plotdiag.ANOX2(object, anova.rows=NULL, ylab.extend="p",  maintitle = mt, subtitle = st, caption = cpt, wmf="prop", Cairo=Cairo)
 
           Hmisc::prn(names(object))
           print(search.history(object))
@@ -58,6 +58,8 @@ function (object, mt = " ", st = " ", cpt = " ", cc = NULL, ccrand = NULL, Cairo
           plotdiag.residuals(object, maintitle = mt, subtitle = st, caption = cpt, wmf="residuals", Cairo=Cairo)         
           plotdiag.s2(object, maintitle = mt, subtitle = st, caption = cpt, wmf="s2", Cairo=Cairo)
           plotdiag.tstats(object, maintitle = mt, subtitle = st, caption = cpt, wmf="tstats", Cairo=Cairo)  
+          plotdiag.ANOX2(object, anova.rows=NULL, ylab.extend="v",  maintitle = mt, subtitle = st, caption = cpt, wmf="anova", Cairo=Cairo)
+
 
           Hmisc::prn(names(object))
           print(search.history(object))
@@ -76,6 +78,8 @@ function (object, mt = " ", st = " ", cpt = " ", cc = NULL, ccrand = NULL, Cairo
           plotdiag.residuals(object, maintitle = mt, subtitle = st, caption = cpt, wmf="residuals", Cairo=Cairo)         
 #          plotdiag.s2(object, maintitle = mt, subtitle = st, caption = cpt, wmf="s2", Cairo=Cairo)
           plotdiag.tstats(object, maintitle = mt, subtitle = st, caption = cpt, wmf="tstats", Cairo=Cairo)  
+          plotdiag.ANOX2(object, anova.rows=NULL, ylab.extend="v",  maintitle = mt, subtitle = st, caption = cpt, wmf="anova", Cairo=Cairo)
+
 
           Hmisc::prn(names(object))
           print(search.history(object))

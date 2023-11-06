@@ -76,7 +76,7 @@ function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per
      ##########################################################
      namesx <- names(x)
      nnames <- length(namesx)
-     namesformula.x <- rep(NA,nnames) 
+     namesformula.x <- rep(NA,nnames)   
      for(j in 1:nnames){
           namesformula.x[j] <- charmatch(formula.elements[j], namesx, nomatch = -99)
      }  # for j
@@ -87,7 +87,7 @@ function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per
      ####################################################
      # Ensure that there is replication in the database #
      ####################################################
-     varlist <- variablelist(x, verbose=FALSE)
+     varlist <- variablelist(x, verbose=TRUE)
      if(length(varlist)==dim(x)[1]){
           print("",quote=FALSE)
           print("There is no replication in this dataset. All observations are defined as a combination of factors.", quote=FALSE)
@@ -128,6 +128,14 @@ function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per
      }
      y1 <- event.time
      #
+     ######################################################
+     # Run a paradigm test for parallelism on this output #
+     # to get structure and names                         #
+     ######################################################
+     cox.zph.h1 <- survival::cox.zph(coxrandAlldata)
+     dn.cox.zph.h1 <- dimnames(cox.zph.h1[[1]])               # get both sets of dimnames for first element of cox.zph.h1
+     proprtnlty <- matrix(0,nrow=length(dn.cox.zph.h1[[1]]), ncol=dim(x)[1])
+     #
      ######################################
      # Check for factor status of dataset #
      ######################################
@@ -145,8 +153,7 @@ function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per
      ################################################
      coxAlldata <- survival::coxph(formula=formulaStep2, data=alldata, singular.ok=TRUE, x=TRUE, y=TRUE)                          # coxph 
 
-     p <- rnk <- length(coeffnames)   # These values of p and rnk may result in failed Wald test; don't change value, but increment by 1 in their use below
-
+     p <- rnk <- length(coeffnames)   # These values of p and rnk may result in failed Wald test; don't change value, but increment by 2 in their use below
      nopl <- n.obs.per.level 
      if(yesfactor){
           # there are factors in the dataset
@@ -162,13 +169,15 @@ function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per
                if(sum(uu)==0)warncensor <- "Not NULL; issue warning"
           }
           if(!is.null(warncensor))print("Some subsets among the (crossed) factors have no uncensored observations and may be inestimable") 
-# Note use of rnk+1 below
-          pickm <- picksome(subsetlist=ss77, nobs=dim(x)[1], initial.sample = initial.sample, n.obs.per.level=nopl, rank=rnk+1, verbose = FALSE)    # picksome
+# Note use of rnk+2 below
+          pickm <- picksome(subsetlist=ss77, nobs=dim(x)[1], initial.sample = initial.sample, n.obs.per.level=nopl, rank=rnk+2, 
+                      verbose = FALSE)    # picksome
           dimpickm <- dim(pickm)[2]  
      }    # yesfactor
      #
      #################################################
      # Set up all output and intermediate structures #
+     # except that proprtnlty is definced above      #
      #################################################
      randset <- 1:initial.sample
      dimx <- dim(x)
@@ -194,6 +203,7 @@ function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per
                                                           Hmisc::prn(WaldTest);Hmisc::prn(utils::head(LL));Hmisc::prn(utils::tail(LL));Hmisc::prn(utils::head(leverage));
                                                           Hmisc::prn(utils::tail(leverage))    }
      #
+######################################################################################################################################################
 # Step 1
      #################################################################################
      # Step 1 of the procedure follows.                                              #
@@ -218,7 +228,7 @@ function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per
      if(is.null(skip.step1)){
           print("ENTERING STEP 1", quote=FALSE)
 # increment p here
-          inner.rank <- p + 1           #  ????
+          inner.rank <- p + 2           #  ????
 
           mstart <- inner.rank + 1                       # this is just a default
           formlm <-paste("event",formula.rhs,sep=" ~ ") 
@@ -228,7 +238,8 @@ function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per
           nnames <- length(namunCen)
           ycol <- c(1:nnames)[namunCen=="event"]
 #   increment p here
-          firstrim <- aStep1(yesfactor, uncensored, inner.rank=p+1, initial.sample, formula=formlm, ycol, nopl=n.obs.per.level)          #aStep1
+          firstrim <- aStep1(yesfactor, uncensored, inner.rank=p+2, 
+                      initial.sample, formula=formlm, ycol, nopl=n.obs.per.level)          #aStep1
      ############################################################################################################
      # firstrim is the first set of observations according to the "observation" number of the uncensored subset #
      # Delete uncensored$Observation and rename uncensored$OriginalObs back to Observation                      #
@@ -236,7 +247,8 @@ function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per
 #   increment p here
          pskip <- length(firstrim) 
          rows.in.model[[pskip]] <- firstrim
-          redun.rim <- firstrim
+         redun.rim <- firstrim
+         SOON <- firstrim
      }         # is.null skip.step1
      else{
           print("SKIPPING STEP 1", quote=FALSE)
@@ -245,19 +257,21 @@ function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per
                                                if(begin.diagnose <=14) {print(paste(spacer,"Section 14",sep=" "),quote=FALSE);Hmisc::prn(rows.in.model);
                                               Hmisc::prn(alldata[skip.step1,])    }
           redun.rim <- skip.step1
+          SOON <- skip.step1
      }       # skipping step 1
      mstart <- pskip + 1
      # 
      #  Place error diagnosis here to avoid looping the output #
                                                if(begin.diagnose <=15) {print(paste(spacer,"Section 15",sep=" "),quote=FALSE);Hmisc::prn(yesfactor);
-                                                   Hmisc::prn(utils::head(uncensored));Hmisc::prn(utils::tail(uncensored));Hmisc::prn(p+1);Hmisc::prn(initial.sample);
-                                                   Hmisc::prn(formlm);Hmisc::prn(ycol);Hmisc::prn(n.obs.per.level)    }
+                                                   Hmisc::prn(utils::head(uncensored));Hmisc::prn(utils::tail(uncensored));Hmisc::prn(p);Hmisc::prn(initial.sample);
+                                                   Hmisc::prn(SOON)    }
      #
      #####################################################
      # test for redundant variables before running coxph #
      #####################################################
      thisdata <- alldata[redun.rim,]
      #
+######################################################################################################################################################
 # Step 2
      #############################################
      # Step 2 of the procedure follows.          #
@@ -284,6 +298,8 @@ function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per
                                                if(begin.diagnose <=25) {print(paste(spacer,"Section 25",sep=" "),quote=FALSE);Hmisc::prn(i);Hmisc::prn(coxph.out07)    }
 
           param.est[,i] <- coxph.out07$coefficients
+          thiszph <- survival::cox.zph(coxph.out07)[[1]]
+          proprtnlty[,i] <- thiszph[,3]
           WaldTest[i] <- coxph.out07$wald.test
           LLout <- coxph.out07$loglik
           LL[i,] <- c(i,LLout) 
@@ -294,13 +310,7 @@ function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per
           ############
           # Leverage #
           ############
-#          form.leverage <- paste("event", formula.rhs, sep=" ~ ")
-#          getthislm <- stats::lm(form.leverage, Zlatest, singular.ok=TRUE, x=TRUE, y=TRUE)                                  #   lm
-#          getthislmx <- getthislm$x
-#          xtemp <- getthislmx
-#          thisleverage <- 1
           xtemp <- coxph.out07$x
-
           ###########################################
           # Set limits on determinant of hat matrix #
           ###########################################
@@ -361,6 +371,9 @@ function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per
      param.est <- cbind(m,param.est)                                 #  here we add the m column
      param.est <- param.est[-1,]                  # additional row removals below
 
+     proprtnlty <- as.data.frame(t(proprtnlty))
+     names(proprtnlty) <- dn.cox.zph.h1[[1]]           # already dimnames
+     proprtnlty <- cbind(m, proprtnlty)
 
      Wald <- WaldTest 
      WaldTest <- data.frame(m,Wald) 
@@ -381,15 +394,18 @@ function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per
 
      dimleverage <- dim(leverage)
      dimnames(leverage) <- list(rep("",dimleverage[1]),c("m","Observation","leverage"))
-                                               if(begin.diagnose <=70) {print(paste(spacer,"Section 70",sep=" "),quote=FALSE);Hmisc::prn(dimnames(leverage))    }
+
+                                               if(begin.diagnose <=70) {print(paste(spacer,"Section 70",sep=" "),quote=FALSE);Hmisc::prn(dimnames(leverage[[2]]))    }
      # 
 
      listout <- list(
+          "Step 1 observation numbers"=        SOON,
           "Rows in stage"=                     rows.in.model,
 #          "Standardized residuals"=            residuals, 
           "Number of model parameters"=        p, 
 #          "Sigma"=                             sigma, 
           "Fixed parameter estimates"=         param.est[-c(1:p),], 
+          "Proportionality Test"=              proprtnlty,
           "Wald Test"=                         WaldTest[-c(1:p),],
           "LogLikelihood"=                     LL,
           "Likelihood ratio test"=             LRT[-c(1:p),],
@@ -398,6 +414,7 @@ function(formula.elements, event.time, status, x, initial.sample=1000, n.obs.per
 #          "Modified Cook distance"=            modCook, 
 #          "t statistics"=                      t.set,
           "Call"=                              MC)
+
      if(verbose) {
           print("", quote = FALSE)
           print("Finished running forsearch_cph", quote = FALSE)

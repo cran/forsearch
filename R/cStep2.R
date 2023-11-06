@@ -57,9 +57,6 @@ function(df1, rim, formula.elements){
                                               if(beg.diag.3 <=20 ){ print(paste(spacehere,"Section 20",sep=" "),quote=FALSE);Hmisc::prn(formula.increment);
                                                   Hmisc::prn(df1.rim);Hmisc::prn(tempdata[,1])   }
                #
-               #####################################################
-               # test for redundant variables before running coxph #
-               #####################################################
                thisdata <- df1[tempdata[,1],]
                checkform <- paste("~ ",formula.rhs.rim, sep=" ")
                checkform <- stats::as.formula(checkform)

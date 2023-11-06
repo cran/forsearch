@@ -22,6 +22,7 @@ function(datadf, verbose=TRUE)
      }
      dimdata <- dim(datadf)
      nnrows <- dimdata[1]
+#prn(nnrows)
      nncols <- dimdata[2]
      SubsetCode <- rep("_", nnrows)
      for(j in 2:nncols){

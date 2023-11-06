@@ -335,11 +335,13 @@ function(
           lengotset <- length(chosen.set)
           rows.in.model[[lengotset]] <- chosen.set                          # obs chosen for Step 1
           mstart <- lengotset + 1
+          SOON <- chosen.set
      }       #   skip.step1 is NULL ?
      else{
           print("SKIPPING STEP 1", quote=FALSE)
           lenskip <- length(skip.step1)
           rows.in.model[[lenskip]] <- skip.step1
+          SOON <- skip.step1
           mstart <- lenskip + 1
      }   #   if not skip step 1
                                                   if(begin.diagnose <= 20){Hmisc::prn(paste(spacer,"Section 20",sep=" "));Hmisc::prn(mstart)       }
@@ -658,6 +660,7 @@ function(
      if(!estimate.phi)glmphi <- "Phi not estimated, instead set = 1"
 
      listout <- list(
+          "Step 1 observation numbers"=        SOON,
           "Rows in stage"=                     rows.in.model,
           "Family"=                            family,   
           "Number of model parameters"=        p, 
