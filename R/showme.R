@@ -22,7 +22,7 @@ function(x, verbose=TRUE)
           print("", quote = FALSE)
           Hmisc::prn(names(x))
           print(search.history(x)[[1]])
-          Hmisc::prn(x$"Number of model parameters")
+          Hmisc::prn(x$"Number of continuous model parameters")
 
           Hmisc::prn(x$"Fixed parameter estimates")
 
@@ -77,8 +77,7 @@ function(x, verbose=TRUE)
 
                Hmisc::prn(names(x))
                Hmisc::prn(x$Dims)
-               Hmisc::prn(x$"Number of rows included in Step 1")
-               Hmisc::prn(x$Subgroups)
+               Hmisc::prn(x$"Number of observations in Step 1")
                Hmisc::prn(x$"Rows by subgroup")
                print(search.history(x)[[1]])
                Hmisc::prn(x$Sigma)

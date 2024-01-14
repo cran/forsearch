@@ -1,101 +1,79 @@
 cStep2 <-
-function(df1, rim, formula.elements){
+function (f.e, finalm, dfa2, ms, rnk2, ss, b.d) 
+{
+     #                                            cStep2
      #
-     #                                      cStep2
+     # VALUE        An updated list of the rim during Step 2 NOT HAVING A LIST OF LISTS ANY MORE
+     #                 Second element of the primary list is saved lm output for subsequent extraction of statistics. 
+     #                 For each level of the factor subsets, select the rnk observations with the smallest squared errors
+     #                 Then pool the results and add enough of the remaining observations to bring the total to m+1.
      #
-     # INPUT
-     #       df1         Complete data frame. This data frame is never changed in order that the row number and Observation number coincide
-     #       rim         Vector of row numbers already in subset
-     #               df1.rim is the subset of df1 that is already defined 
-     #               df1.id is a 3-column matrix of N rows, containing the Observation number, an indicator of whether the element in the 1st column is in df1.id
-     #               (1=Yes, 0=No), and the sum of squared residuals that results from
-     #               running coxph on each subset that is made up of df1.rim and one of the other rows of df1. There is a vector containing a logical indicator 
-     #               of whether this set of observations has no redundancies. This matrix is initialized by setting the 3rd
-     #               column to -9. The vector is initialized to TRUE. 
-
-     # OUTLINE OF ROUTINE TO DEFINE STEP 2
-
-     # df1 is predefined
-     # subset df1 to df1.rim using rim
-     # define df1.id
-     # Iterate on rows of df1.id:
-     #    Define a test data frame as cbind(df1.rim, a row of df1). Skip rows with df1.id col2=1.
-     #    Calculate coxph and extract residuals using method
-     #    Square and sum. Enter result into appropriate row of df1.id, column 3
-     #    Eliminate rows of df1.id with col 3 < 0.
-     #    Sort df1.id by col 3.
-     # Add col 1 of sorted df1.id to rim.
+     # INPUT 
+     #       f.e               cont.form.rhs
+     #       fbl               fixdat.by.level  list of observations by factor level all status levels
+     #       finalm            See VALUE above. finalm argument is the same but only for Step 1 values
+     #       dfa2              Complete data frame being analyzed by forward search. Presence of Observation column has 
+     #                             no effect on output
+     #       ms                First subset to be defined
+     #       rnk2              Rank of X matrix. For factors, this is rank with factors removed; ie, rank for each factor subset.
+     #       ss                skip.step1
+     #       b.d               Number at whidh to begin diagnostic listings
      #
-     beg.diag.3 <- 100                                                       # Set diagnostic start here
-     spacehere <- "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%      cStep2           "    
+     spacer <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX        cStep2               "
 
-     formula.rhs.rim <- paste(formula.elements, collapse=" + ")
-     dimx1 <- dim(df1)[1]
-     df1.rim <- df1[rim,]   # subset to rim
+     nobs <- dim(dfa2)[1]
+     # Delete observations by factor subset from initial set of observations (from Step 1).
+     if(is.null(ss)){finalm[[ms-1]] <- finalm[[ms-1]][[1]]}
 
-     df1.id <- matrix(0,nrow=dimx1,ncol=3)
-     df1.id[,1] <- df1$Observation
-     df1.id[rim,2] <- 1                    # set defaults  Those in rim have second column = 1
-     df1.id[,3] <- -9
+                            if(b.d <=60 ){print("",quote=FALSE); print(paste(spacer,"Section 60",sep=" "),quote=FALSE);
+                                Hmisc::prn(f.e);Hmisc::prn(finalm);Hmisc::prn(utils::head(dfa2));Hmisc::prn(utils::tail(dfa2));Hmisc::prn(dim(dfa2));
+                                Hmisc::prn(ms);Hmisc::prn(rnk2)    }
 
-                                               if(beg.diag.3 <=10 ){ print(paste(spacehere,"Section 10",sep=" "),quote=FALSE);Hmisc::prn(df1.rim)    }
-     Redundant.free <- rep(TRUE,dimx1)     # initialize
 
-     coxph.out05 <- NULL
-     for(uk in 1:(dimx1-1)){
-          if(df1.id[uk,2] == 0){                               # not yet in rim
-               tempdata <- rbind(df1.rim, df1[uk,])
+     fooResult <- vector("list", nobs)
+     for(i in ms:(nobs-1)){
+          remainder <- NULL
+          diff2 <- -999
+          fixdat.mod <- data.frame(dfa2,diff2)
+          sbsts <- unique(fixdat.mod$holdISG)
+          nsubs <- length(sbsts) 
+          rim <- finalm[[i-1]]
+          thisdata <- fixdat.mod[rim,]
+          td.et <- thisdata$event.time
+          td.st <- thisdata$status
+          xform <- paste("survival::Surv(time=td.et, event=td.st)", f.e, sep=" ~ ")
+          xform <- stats::as.formula(xform)
 
-                                               if(beg.diag.3 <=15 ){ print(paste(spacehere,"Section 15",sep=" "),quote=FALSE);Hmisc::prn(uk);
-                                                     Hmisc::prn(df1.rim);Hmisc::prn(df1[uk,]);Hmisc::prn(utils::head(tempdata));Hmisc::prn(utils::tail(tempdata))   }
-               rim.time <- df1.rim$event.time
-               rim.status <- df1.rim$status
+                            if(b.d <=61 ){print("",quote=FALSE); print(paste(spacer,"Section 61",sep=" "),quote=FALSE);
+                                Hmisc::prn(xform);Hmisc::prn(thisdata)    }
 
-               xformc <- paste("survival::Surv(time=rim.time, event=rim.status, type='right')", formula.rhs.rim, sep=" ~  ")    # Surv
-               formula.increment <- stats::as.formula(xformc)
+          thiscph <- survival::coxph(formula=xform, data=thisdata, ties="efron", model=TRUE, singular.ok=TRUE, x=TRUE, y=TRUE)     # coxph
+          fooResult[[i]] <- thiscph
+
+          thispredict <- stats::predict(thiscph, fixdat.mod)
+          fixdat.mod$diff2 <- (fixdat.mod$event.time - thispredict)^2
+          fixdat.mod <- fixdat.mod[order(fixdat.mod$diff2),]
+          firstobs <- NULL
+
+                          if(b.d <=67 ){ print("",quote=FALSE);print(paste(spacer,"Section 67",sep=" "),quote=FALSE);
+                                   Hmisc::prn(thiscph);Hmisc::prn(thispredict);Hmisc::prn(fixdat.mod$diff2)   }    
  
-                                              if(beg.diag.3 <=20 ){ print(paste(spacehere,"Section 20",sep=" "),quote=FALSE);Hmisc::prn(formula.increment);
-                                                  Hmisc::prn(df1.rim);Hmisc::prn(tempdata[,1])   }
-               #
-               thisdata <- df1[tempdata[,1],]
-               checkform <- paste("~ ",formula.rhs.rim, sep=" ")
-               checkform <- stats::as.formula(checkform)
-                    xformc <- paste("survival::Surv(time=event.time, event=status, type='right')", formula.rhs.rim, sep=" ~  ")    # Surv
-                    formula.increment <- stats::as.formula(xformc)
-                    coxph.out05 <- survival::coxph(formula=formula.increment, data=tempdata, 
-                        ties = "efron", singular.ok = TRUE, model = TRUE, x = TRUE, y = TRUE )                               # coxph
-                    resids <- stats::residuals(coxph.out05, type="martingale")
-                    df1.id[uk,3] <- sum(resids^2)          
-          }       # df1.id[uk,2] !=1
-                                               if(beg.diag.3 <=30 ){ print(paste(spacehere,"Section 30",sep=" "),quote=FALSE);Hmisc::prn(resids);
-                                                     Hmisc::prn(df1.id)   }
-     }    # uk
-     index <- df1.id[,3] > 0
+          for(j in 1:nsubs){
+               candidates <- fixdat.mod[fixdat.mod$holdISG==sbsts[j],]
+               firstobs <- rbind(firstobs, candidates[1:rnk2,])
+               candidates <- candidates[-(1:rnk2),]
+               remainder <- rbind(remainder, candidates)
+          }     #   j
+          remainder <- remainder[order(remainder$diff2),]
+          needed <- i - rnk2*nsubs
+          needed.obs <- remainder$Observation[1:needed] 
+          finalm[[i]] <- c(firstobs$Observation, needed.obs)
+     }    #   i
 
-                                               if(beg.diag.3 <=40 ){ print(paste(spacehere,"Section 40",sep=" "),quote=FALSE);Hmisc::prn(index)   }
-     remaining <- df1.id[,2]
-     remaining0 <- remaining[remaining==0]
-     n0 <- length(remaining0)
-     if(n0==1){
-          lastone <- df1.id[df1.id[,2]==0,]
-          lastone <- as.data.frame(lastone)
-          rim <- c(rim, lastone[1,1])
-     }
-     else{
-          if(any(index)){
-               df1.id <- df1.id[index,]
-               # return rim, not in numerical order
-               if(is.matrix(df1.id)){
-                    df1.id <- df1.id[order(df1.id[,3]),]
-                    rim <- c(rim, df1.id[1,1])
-               }
-               else{
-                    rim <- c(rim, df1.id[1])
-               }
-          }    # any index
-     }    #  n0 ==1
-                                                 if(beg.diag.3 <=90 ){ print(paste(spacehere,"Section 90",sep=" "),quote=FALSE);Hmisc::prn(df1.id);
-                                                           Hmisc::prn(rim);print("leaving cStep2")   }
+                          if(b.d <=80 ){ print("",quote=FALSE);print(paste(spacer,"Section 80",sep=" "),quote=FALSE);
+                                   Hmisc::prn(finalm);Hmisc::prn(fooResult)   }    
+ 
+    outlist <- list(finalm, fooResult)
 
-     return(rim)
+    return(outlist)
 }

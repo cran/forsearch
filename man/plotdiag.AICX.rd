@@ -9,7 +9,7 @@ Plot output from forsearch_glm to show change in AIC statistics as the number
 \usage{plotdiag.AICX(forn, maintitle = "Put main title here",
    subtitle = "Put subtitle here", caption="Put caption title here",
    wmf = "Put_plot_file_title_here",
-   Cairo=TRUE, printgraph=TRUE,addline=c("none","loess","straight"),
+   Cairo=TRUE, printgraph=TRUE,addline="none",
    verbose = TRUE)}
 \arguments{
    \item{forn}{Name of output file from forsearch_glm}
@@ -19,7 +19,8 @@ Plot output from forsearch_glm to show change in AIC statistics as the number
    \item{wmf}{File name of stored plot; omit ".wmf"}
    \item{Cairo}{TRUE causes use of Cairo graphics}
    \item{printgraph}{TRUE causes graph to print to file and closes device}
-   \item{addline}{add a line to the graph; abbreviation allowed}
+   \item{addline}{add a line to the graph; "none", "loess", or "straight");
+              abbreviation allowed}
    \item{verbose}{If TRUE, indicates beginning and end of function}
 }
 \value{Process and plot AIC statistics from forsearch_glm}

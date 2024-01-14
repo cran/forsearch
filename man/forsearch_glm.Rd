@@ -9,15 +9,13 @@ observations in the set are best fitting at that stage. A preliminary step (Step
 contains code for pre-processing of the data.
 }
 \usage{
-forsearch_glm(initial.sample=1000, cobs, response.cols, indep.cols, family,  
-formula=NULL, binomialrhs=NULL, data, n.obs.per.level = 1, estimate.phi = TRUE, 
-skip.step1=NULL, unblinded=TRUE, begin.diagnose=100, verbose=TRUE)
+forsearch_glm(initial.sample=1000, response.cols, indep.cols, family,  
+   formula=NULL, binomialrhs=NULL, data, n.obs.per.level = 1, estimate.phi = TRUE, 
+   skip.step1=NULL, unblinded=TRUE, begin.diagnose=100, verbose=TRUE)
 }
 \arguments{
   \item{initial.sample}{Number of random sets of observations in Step 1 of forward 
   search}
-  \item{cobs}{Number of observations to include in each inner subgroup of Step 1. 
-       }
   \item{response.cols}{Vector of column numbers (2) of responses and nonresponses}
   \item{indep.cols}{Column number(s) of independent variables}
   \item{family}{Error distribution and link}
@@ -52,53 +50,36 @@ skip.step1=NULL, unblinded=TRUE, begin.diagnose=100, verbose=TRUE)
 \details{Step 2 is determined by the results of Step 1, which itself is random. 
      So, it is possible to reproduce the entire run by using the skip.step1 
      argument. Inner subgroups are produced by presence of categorical
-     variables.
+     variables. Current version assumes independent variables are all continuous.
 }
-\references{ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New York, 2000.
+\references{ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, 
+     Springer, New York, 2000.
 }
 \author{William R. Fairweather}
 \examples{
 # Train deaths (Atkinson and Riani, 2000)
-
 Observation<-1:67
-
-Year<-c(97,96,96,95,94,94,91,91,90,89,89,89,88,88,87,86,86,86,86,84,84,84
-,84,84,83,83,82,81,81,80
-,80,79,79,79,78,78,77,76,76,75,75,75,75,74,74,73,73,73,72,72,71,71,71
-,71,70,69,69,69,69,69
-,69,68,67,67,67,67,67)
-
-RollingStock<-c(2,2,3,2,1,1,1,1,2,3,1,1,1,2,1,2,1,3,2,2,1,2,2,3,1,2
-,1,1,2,3,1,1,1,1,1,1
-,1,3,3,2,3,1,2,3,1,1,1,3,3,1,3,3,1,1,1,2,1,1,2
-,1,1,1,1,1,1,1,1)
-
-Traffic<-c(0.436,0.424,0.424,0.426,0.419,0.419,0.439,0.439,0.431,0.436,0.436,0.436,
-0.443,0.443,0.397,0.414,0.414,0.414,0.414,0.389,0.389,0.389,0.389,0.389,0.401,
-0.401,0.372,0.417,0.417,0.43,0.43,0.426,0.426,0.426,0.43,0.43,0.425,0.426,0.426,
-0.436,0.436,0.436,0.436,0.452,0.452,0.433,0.433,0.433,0.431,0.431,0.444,0.444,
-0.444,0.444,0.452,0.447,0.447,0.447,0.447,0.447,0.447,0.449,0.459,0.459,0.459,
-0.459,0.459)
-
-Deaths<-c(7,1,1,1,5,2,4,2,1,1,2,5,35,1,4,1,2,1,1,3,1,3,13,2,1,1,1
-,4,1,2
-,1,5,7,1,1,3,2,1,2,1,2,6,1,1,1,10,5,1,1,6,3,1,2,1,2,1,1,6,2,2
-,4,2,49,1,7,5,9)
-
-train <- data.frame(Observation,Year,RollingStock,Traffic,Deaths)
-train<-train[1:25,]
-train.out <- forsearch_glm(initial.sample=100, cobs=4, response.cols=5, indep.cols=2:4, 
-   family=poisson("log"), formula=Deaths~Year+RollingStock+Traffic,data=train, 
-   n.obs.per.level = 1,estimate.phi = TRUE, skip.step1 = NULL, unblinded = TRUE) 
-\dontrun{
-
-# Recode RollingStock as categorical variable. Note change in n.obs.per.level
-#      argument
-train2 <- train 
-train2[,3] <- as.factor(train2[,3])
-train2.out <- forsearch_glm(initial.sample=100, cobs=4, response.cols=5, indep.cols=2:4, 
-   family=poisson("log"), formula=Deaths~Year+RollingStock+Traffic, data=train2,
-   n.obs.per.level = 2,estimate.phi = TRUE, skip.step1 = NULL, unblinded = TRUE) 
-}
+Month<-c(9,8,3,1,10,6,7,1,8,4,3,3,12,11,10,9,9,4,3,12,12,10,7,2,12,2,12,12,12,
+    11,3,10,4,2,12,12,9,11,1,10,8,6,1,10,6,12,8,4,9,6,12,10,7,2,5,12,5,5,4,3,1,
+    9,11,9,7,3,2)
+Year<-c(97,96,96,95,94,94,91,91,90,89,89,89,88,88,87,86,86,86,86,84,84,84,84,84,
+    83,83,82,81,81,80,80,79,79,79,78,78,77,76,76,75,75,75,75,74,74,73,73,73,72,
+    72,71,71,71,71,70,69,69,69,69,69,69,68,67,67,67,67,67)
+RollingStock<-c(2,2,3,2,1,1,1,1,2,3,1,1,1,2,1,2,1,3,2,2,1,2,2,3,1,2,1,1,2,3,1,
+    1,1,1,1,1,1,3,3,2,3,1,2,3,1,1,1,3,3,1,3,3,1,1,1,2,1,1,2,1,1,1,1,1,1,1,1)
+Traffic<-c(0.436,0.424,0.424,0.426,0.419,0.419,0.439,0.439,0.431,0.436,0.436,
+    0.436,0.443,0.443,0.397,0.414,0.414,0.414,0.414,0.389,0.389,0.389,0.389,
+    0.389,0.401,0.401,0.372,0.417,0.417,0.43,0.43,0.426,0.426,0.426,0.43,0.43,
+    0.425,0.426,0.426,0.436,0.436,0.436,0.436,0.452,0.452,0.433,0.433,0.433,
+    0.431,0.431,0.444,0.444,0.444,0.444,0.452,0.447,0.447,0.447,0.447,0.447,
+    0.447,0.449,0.459,0.459,0.459,0.459,0.459)
+Deaths<-c(7,1,1,1,5,2,4,2,1,1,2,5,35,1,4,1,2,1,1,3,1,3,13,2,1,1,1,4,1,2,1,5,7,
+    1,1,3,2,1,2,1,2,6,1,1,1,10,5,1,1,6,3,1,2,1,2,1,1,6,2,2,4,2,49,1,7,5,9)
+train2022 <- data.frame(Observation, Year, RollingStock, Traffic, Deaths)
+forsearch_glm(initial.sample = 100, response.cols = 5, 
+    indep.cols = 2:4, formula=Deaths~Year + RollingStock + Traffic,
+    family = poisson("log"), data = train2022, 
+    n.obs.per.level = 2, estimate.phi = TRUE, skip.step1 = NULL, 
+    unblinded = TRUE, begin.diagnose=100)
 }
 \keyword{ datagen }

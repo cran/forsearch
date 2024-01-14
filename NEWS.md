@@ -1,3 +1,23 @@
+1/13/2024 forsearch version 5.0.0 
+=================================
+* Major changes: 
+  + Completely revised flow of forsearch functions _lm, _lme and _cph
+       to better accommodate models containing independent variables 
+       as factors
+  
+* Moderate changes: 
+  + Added vignette describing strategy of the forsearch procedure
+  + Added ability to skip test of proportionality in forsearch_cph
+
+* Minor changes and bug fixes:
+  + Modified diagnostic printouts for forsearch_cph
+  + Removed option in variablelist and in picksome for identifying function
+  + Integrated diagnostic printouts of aStep1, aStep2 and bStep2 
+       with those of calling functions
+  + Added requirement that forsearch_cph have at least 1 factor variable
+  + Fixed bug preventing use of multiple observations in Step 1.
+  + Cleaned up examples 
+
 11/6/2023 forsearch version 4.2.0 
 ==================================
 * Major changes: None

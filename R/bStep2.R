@@ -1,120 +1,67 @@
 bStep2 <-
-function (fixed2, fulldata, random2, yf, nOuter, mstart, nobs, yobs, fbg, n.f, s.o, ras, b.d, ufixdat, LLL, verbose=FALSE) 
+function(f2, dfa2, randm2, ms, finalm, fbg, b.d, rnk2, ss, LLL) 
 {
-#                                                             bStep2
-#
-# VALUE		Sets of observation numbers after the first for use in forsearch_lme. Also an archive of lme runs on the current subset
-#
-#     yf <- yesfactor 
+     #                                            bStep2
+     #
+     # VALUE        An updated list of the rim during Step 2 NOT HAVING A LIST OF LISTS ANY MORE
+     #                 Second element of the primary list is saved lm output for subsequent extraction of statistics. 
+     #                 For each level of the factor subsets, select the rnk observations with the smallest squared errors
+     #                 Then pool the results and add enough of the remaining observations to bring the total to m+1.
+     #
+     # INPUT 
+     #
+     spacer <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX        bStep2               "
+     nobs <- dim(dfa2)[1]
 
-#     nOuter   <- nufixdatOuter       or nufixdatOuterInner
-#     fbg      <- fixdat.by.Outer     or fixdat.by.OuterInner
-#     s.o      <- saved.obsnums.Outer or saved.obsnums.OuterInner
-#     fixdat   <- ufixdatOuter        or ufixdatOuterInner
-#     
+                            if(b.d <=60 ){print("",quote=FALSE); print(paste(spacer,"Section 60",sep=" "),quote=FALSE);
+                                Hmisc::prn(finalm);Hmisc::prn(utils::head(dfa2));Hmisc::prn(utils::tail(dfa2));Hmisc::prn(dim(dfa2));
+                                Hmisc::prn(ms);Hmisc::prn(rnk2)    }
 
-#     n.fixdat <-          n.f    ?????
-#     ras <- rim.all.subgroups 
-#     b.d <- begin.diagnose 
-#     yobs <-  response.colnum 
 
-     MC <- match.call()
-     if(verbose) {
-          print("", quote = FALSE)
-          print("Running bStep2", quote = FALSE)
-          print("", quote = FALSE)
-          print(date(), quote = FALSE)
-          print("", quote = FALSE)
-          print("Call:", quote = FALSE)
-          print(MC)
-          print("", quote = FALSE)
-     }
-     begin.diagnose <- b.d
-     spacer <- "                                    bStep2   "
-     #################################################################################
-     # Result of this function is list fulldata with all levels filled in for Step 2 #
-     #################################################################################
-     tempSS <- 0
-     fulldata <- data.frame(fulldata,tempSS)
-                                                               if(begin.diagnose <= 35){print(paste(spacer,"Section 35"), quote=FALSE);Hmisc::prn(s.o);;Hmisc::prn(mstart);Hmisc::prn(nobs-1)}
+     fooResult <- vector("list", nobs)
+     for(i in ms:(nobs-1)){
+          remainder <- NULL
+          diff2 <- -999
+          fixdat.mod <- data.frame(dfa2,diff2)
+          sbsts <- unique(fixdat.mod$holdISG)
+          nsubs <- length(sbsts) 
+          rim <- finalm[[i-1]]
+          thisdata <- fixdat.mod[rim,]
 
-     for(pp in mstart:(nobs-1)){                                     # runs over levels of fulldata
-  
-                                                             if(begin.diagnose <= 36){print(paste(spacer, "Section 36     pp = ", pp), quote=FALSE)     }
+                            if(b.d <=61 ){print("",quote=FALSE); print(paste(spacer,"Section 61",sep=" "),quote=FALSE);
+                                Hmisc::prn(thisdata)    }
 
-          ###########################################################################################
-          # Calculate yhat using lme and predict to entire data base starting with pp observations. # 
-          ###########################################################################################
-          rim.all.subgroups <- ras[[pp-1]]
-          thisdata <- fulldata[rim.all.subgroups,]
-          thislme <- do.call(nlme::lme,list(fixed=fixed2, data=thisdata, random=random2))                       # lme
-          LLL[[pp]] <- thislme              # store the lme object for later extractions
-          fulldata$tempSS <- 0
-          yhat <- stats::predict(thislme, newdata=fulldata)  
-          diff <- fulldata[,yobs] - yhat
-          fulldata$tempSS <- diff^2
-          #
-                                                             if(begin.diagnose <= 38){print(paste(spacer, "Section 38     pp = ", pp), quote=FALSE)     }
 
-          ############################################################################################## 
-          # Group observations by OuterInner and select the one from each group with the lowest tempSS #
-          # Add each one to build.rim.initial                                                          # 
-          # Below, bigData will always be the same length because it is defined by removal of the top  #
-          #      of the grouped data.                                                                  #
-          ############################################################################################## 
-          fixdat.by.group2 <- vector("list", nOuter)                                        #  list
-          n.fixdat2 <- rep(0, nOuter)
-          build.rim.input <- NULL
-          if(yf){
-               for(ww in 1:nOuter){
-                    fixdat.by.group2[[ww]] <- fulldata[fulldata$OuterInner==ufixdat[ww],]
-                    n.fixdat2[ww] <- dim(fixdat.by.group2[[ww]])[1]
-               }    
-                                                             if(begin.diagnose <= 39.1){print(paste(spacer, "Section 39.1     pp = ", pp), quote=FALSE)     }
+          f3 <- as.character(f2)
+          f3form <- stats::as.formula(f3)
 
-          }    #  there are factors
-         else{
-               for(ww in 1:nOuter){
-                    fixdat.by.group2[[ww]] <- fulldata[fulldata$OuterSubgroup==ufixdat[ww],]
-                    n.fixdat2[ww] <- dim(fixdat.by.group2[[ww]])[1]
-               }        #  ww
-                                                             if(begin.diagnose <= 39.2){print(paste(spacer, "Section 39.2     pp = ", pp), quote=FALSE)     }
+          thislme <- do.call(what=nlme::lme, args=list(fixed=f3form, data=thisdata, random=randm2)  )                                      # lme
 
-          }    # there are no factors 
-          bigData <- NULL
-          for(ww in 1:nOuter){
-               theseObs <- fixdat.by.group2[[ww]]
-               theseObs <- theseObs[order(theseObs$tempSS),]                     # put them in order
-               fixdat.by.group2[[ww]] <- theseObs
-               build.rim.input <- c(build.rim.input, theseObs$Observation[1])        #   concatenates over the first observation of each OuterInner groups
-               fixdat.by.group2[[ww]] <- fixdat.by.group2[[ww]][-1,]              # remove the one added 
-               bigData <- rbind(bigData, fixdat.by.group2[[ww]])
-          }  # ww
-          #
-                                                             if(begin.diagnose <= 40){print(paste(spacer, "Section 40     pp = ", pp), quote=FALSE)     }
+          fooResult[[i]] <- thislme
 
-          ################################################################## 
-          # Pool the remainder of the observations and sort them by tempSS #
-          # Then add the next observation                                  #
-          ################################################################## 
-          bigData <- bigData[order(bigData$tempSS),]
-          indexNext <- pp - nOuter
-          nextObs <-  bigData$Observation[1:indexNext]
-          tempras <- c(build.rim.input, nextObs) 
-          tempras <- sort(tempras)
-          ras[[pp]] <- tempras
-                                                              if(begin.diagnose <= 41){print(paste(spacer,"Section 41"), quote=FALSE);Hmisc::prn(ras[[pp]])}
+          thispredict <- stats::predict(thislme, fixdat.mod)
+          fixdat.mod$diff2 <- (fixdat.mod$y - thispredict)^2
+          fixdat.mod <- fixdat.mod[order(fixdat.mod$diff2),]
+          firstobs <- NULL
 
-     }    #   pp
-     rasLLL <- list(ras, LLL)
-                                                               if(begin.diagnose <= 42){print(paste(spacer,"Section 42"), quote=FALSE);Hmisc::prn(rasLLL)}
+                          if(b.d <=67 ){ print("",quote=FALSE);print(paste(spacer,"Section 67",sep=" "),quote=FALSE);
+                                   Hmisc::prn(thislme);Hmisc::prn(thispredict);Hmisc::prn(fixdat.mod$diff2)   }    
+ 
+          for(j in 1:nsubs){
+               candidates <- fixdat.mod[fixdat.mod$holdISG==sbsts[j],]
+               firstobs <- rbind(firstobs, candidates[1:rnk2,])
+               candidates <- candidates[-(1:rnk2),]
+               remainder <- rbind(remainder, candidates)
+          }     #   j
+          remainder <- remainder[order(remainder$diff2),]
+          needed <- i - rnk2*nsubs
+          needed.obs <- remainder$Observation[1:needed] 
+          finalm[[i]] <- c(firstobs$Observation, needed.obs)
+     }    #   i
 
-     if(verbose) {
-          print("", quote = FALSE)
-          print("Finished running bStep2", quote = FALSE)
-          print("", quote = FALSE)
-          print(date(), quote = FALSE)
-          print("", quote = FALSE)
-     }
-     return(rasLLL)
+                          if(b.d <=80 ){ print("",quote=FALSE);print(paste(spacer,"Section 80",sep=" "),quote=FALSE);
+                                   Hmisc::prn(finalm);Hmisc::prn(fooResult)   }    
+ 
+    outlist <- list(finalm, fooResult)
+    return(outlist)
 }

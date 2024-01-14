@@ -2,29 +2,22 @@
 \alias{bStep2}
 \title{Update Observation Numbers in Step 2}
 \description{
-Derives the next set of observation numbers for forsearch in linear mixed effects models
+Derives the set of Step 2 observation numbers for forsearch in linear mixed 
+          effects models
 }
-\usage{
-bStep2(fixed2, fulldata, random2, yf, nOuter, mstart, nobs, yobs, fbg, n.f, s.o, ras, b.d, 
-          ufixdat, LLL, verbose)
+\usage{bStep2(f2, dfa2, randm2, ms, finalm, fbg, b.d, rnk2, ss, LLL)
 }
 \arguments{
-  \item{fixed2}{Fixed parameter formula}
-  \item{fulldata}{Complete data set}
-  \item{random2}{Random parameter formula}
-  \item{yf}{Indicator of presence of internal factors in model}
-  \item{nOuter}{Number of outer subgroups}
-  \item{mstart}{Number of observations in each outer subgroup}
-  \item{nobs}{Number of observations in entire database}
-  \item{yobs}{Column number of response variable}
-  \item{fbg}{List of observation numbers by outer subgroup}
-  \item{n.f}{Vector of number of observation in each outer subgroup}
-  \item{s.o}{Original observation numbers prior to renumbering in each outer subgroup}
-  \item{ras}{List of observation numbers in each outer subgroup}
+  \item{f2}{Fixed parameter formula}
+  \item{dfa2}{Complete data set with factor subset identification codes}
+  \item{randm2}{Random parameter formula}
+  \item{ms}{Number of observations beginning Step 2}
+  \item{finalm}{List of expanding subset observation numbers}
+  \item{fbg}{List of observation numbers by factor subgroup}
   \item{b.d}{Indicator of place in code to begin diagnostic printouts}
-  \item{ufixdat}{Unique outer or outer and inner grouping codes}
+  \item{rnk2}{Rank of linear regression with factor variables eliminated}
+  \item{ss}{NULL or vector of observation numbers used to skip step 1}
   \item{LLL}{Empty list of observation number sets}
-  \item{verbose}{TRUE causes printing of function ID at beginning and end of run}
 }
 \details{Support function, usually not called independently}
 \value{List of expanding number sets corresponding to observation numbers}

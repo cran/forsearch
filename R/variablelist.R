@@ -1,5 +1,5 @@
 variablelist <-
-function(datadf, verbose=TRUE)
+function(datadf, prank)
 {
      #                          variablelist
      #
@@ -7,22 +7,11 @@ function(datadf, verbose=TRUE)
      #               possible levels of the character variables
      #
      # INPUT          datadf     Data frame of independent variables in analysis
-     #                verbose
+     #                prank       Rank of X matrix continuous variables 
      #
-     MC <- match.call()
-     if(verbose) {
-          print("", quote = FALSE)
-          print("Running variablelist", quote = FALSE)
-          print("", quote = FALSE)
-          print(date(), quote = FALSE)
-          print("", quote = FALSE)
-          print("Call:", quote = FALSE)
-          print(MC)
-          print("", quote = FALSE)
-     }
-     dimdata <- dim(datadf)
+# prn(datadf)
+    dimdata <- dim(datadf)
      nnrows <- dimdata[1]
-#prn(nnrows)
      nncols <- dimdata[2]
      SubsetCode <- rep("_", nnrows)
      for(j in 2:nncols){
@@ -41,31 +30,25 @@ function(datadf, verbose=TRUE)
      tableSub <- table(SubsetCode)
      dntableSub <- dimnames(tableSub)$SubsetCode
      ncells <- length(tableSub)
-     anyonlyone <- any(tableSub==1)
-     if(anyonlyone){
-          message("There is as least one instance where a level of the possibly crossed factors contains only 1 observation.")
-          message("It may be necessary to remove any such observations before forsearch analysis.")
-          message("The observations and their factor codes are:")
-          for(i in 1:ncells){
-               if(tableSub[[i]]==1){
-                    singleobs <- Subsetsdf[Subsetsdf$SubsetCode==dntableSub[i],]
-                    Hmisc::prn(singleobs)
-               }     # if
-          }     # for
-     }     # anyonlyone
+     anyonlyone <- any(tableSub < prank)
+
+#     if(anyonlyone){
+#          print("There is as least one instance where a level of the possibly crossed factors contains too few observations.")
+#          print("It may be necessary to remove any such observations before forsearch analysis.")
+#          print("The factor codes and their number of observations are:")
+#          for(i in 1:ncells){
+#               if(tableSub[[i]]==1){
+#                    singleobs <- Subsetsdf[Subsetsdf$SubsetCode==dntableSub[i],]
+#                    Hmisc::prn(singleobs)
+#               }     # if
+#          }     # for
+#     }     # anyonlyone
      uSubsetCode <- sort(unique(SubsetCode))
      nSC <- length(uSubsetCode)
      Subsetlist <- vector("list", nSC)
      names(Subsetlist) <- uSubsetCode
      for(i in 1:nSC){
           Subsetlist[[i]] <- Subsetsdf[Subsetsdf[,2] == uSubsetCode[i],]
-     }
-     if(verbose) {
-          print("", quote = FALSE)
-          print("Finished running variablelist", quote = FALSE)
-          print("", quote = FALSE)
-          print(date(), quote = FALSE)
-          print("", quote = FALSE)
      }
      return(Subsetlist)
 }

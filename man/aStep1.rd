@@ -7,12 +7,12 @@ Analysis
 Derives the first set of observation numbers for forsearch in linear models
 }
 \usage{
-aStep1(yesfactor, data, inner.rank, initial.sample, formula, ycol, nopl)
+aStep1(yesfactor, df1, inner.rank, initial.sample, formula, ycol, nopl, b.d)
 }
 \arguments{
   \item{yesfactor}{Logical. TRUE if there are factors in the X matrix
 }
-  \item{data}{Data frame being analyzed by forward search. 
+  \item{df1}{Data frame being analyzed by forward search. 
 }
   \item{inner.rank}{Rank of X matrix of lm analysis on entire database
 }
@@ -25,6 +25,7 @@ aStep1(yesfactor, data, inner.rank, initial.sample, formula, ycol, nopl)
 }
   \item{nopl}{Number of observations per level of combined factor variables
 }
+  \item{b.d}{Index of point to begin diagnostic listings}
 }
 \note{Presence of Observation column has no effect on outcome
 }

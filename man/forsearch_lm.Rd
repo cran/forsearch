@@ -49,7 +49,7 @@ x1 <- runif(16)
 x2 <- runif(16)
 x3 <- runif(16)
 lmtest1 <- data.frame(Observation,y,x1,x2,x3)
-forsearch_lm(formula=y~x1+x2+x3, data=lmtest1, initial.sample=100,begin.diagnose=100)
+forsearch_lm(formula=y~x1+x2+x3, data=lmtest1, initial.sample=200,begin.diagnose=100)
 \dontrun{
 
 # Analysis of variance 
@@ -59,7 +59,7 @@ AN1 <- as.factor(c(rep("A1",5),rep("A2",5),rep("A3",5)))
 AN1 <- c(AN1,AN1)
 AN2 <- as.factor(c(rep("B1",15),rep("B2",15)))
 lmtest2 <- data.frame(Observation,y,AN1,AN2)
-forsearch_lm(formula=y~AN1*AN2, data=lmtest2, initial.sample=100,begin.diagnose=100)
+forsearch_lm(formula=y~AN1*AN2, data=lmtest2, initial.sample=200,begin.diagnose=100)
 
 # Analysis of covariance
 Observation <- 1:60
@@ -69,7 +69,7 @@ AN1 <- c(AN1,AN1)
 AN2 <- as.factor(c(rep("B1",30),rep("B2",30)))
 COV <- runif(60)
 lmtest3 <- data.frame(Observation,y,AN1,AN2,COV)
-forsearch_lm(formula=y~AN1*AN2+COV, data=lmtest3, initial.sample=100,begin.diagnose=100)
+forsearch_lm(formula=y~AN1*AN2+COV, data=lmtest3, initial.sample=200,begin.diagnose=100)
 }
 }
 \keyword{  datagen  }

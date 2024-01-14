@@ -7,7 +7,7 @@ function(forn,
      wmf="Put_plot_file_title_here", 
      Cairo=TRUE,
      printgraph = TRUE,
-     addline=c("none","loess","straight"),
+     addline="none",
      verbose=TRUE)
 {
      #                          plotdiag.AICX

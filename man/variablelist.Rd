@@ -9,12 +9,12 @@ For a data frame with factor variables V1, V2, V3, etc having levels n1,
    of these interaction levels.
 }
 \usage{
-variablelist(datadf, verbose = TRUE)
+variablelist(datadf, prank)
 }
 \arguments{
   \item{datadf}{Data frame of independent variables in analysis. First column
        of data frame is Observation number}
-  \item{verbose}{If TRUE, indicates beginning and end of function run}
+  \item{prank}{Number of continuous variables among independent variables}
 }
 \details{
 Support function, usually not called independently

@@ -1,0 +1,64 @@
+---
+title: "How Many Observations are Needed and Where Do We Get Them?"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{How many observations are needed and where do we get them}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(forsearch)
+```
+## Step 2 Basics
+Incrementing the subset in Step 2 appears to be quite straightforward:  We have m observations in the subset and we want to have m+1 observations in the next stage. We use the m observations that we have to predict the responses for all the data. Then we select the m+1 observations with the lowest total squared errors or the lowest total squared residual deviances, depending on how we are measuring fit to the model. We use the same procedure to predict from m+1 observations to the entire set and select the best fitting m+2 observations and so on. This procedure greatly affects the procedure used in Step 1, as we will see. Although this procedure is generally simple, there are more issues to address in selecting the subset of observations for Step 2, again as discussed below.
+
+## Types of Independent Variables
+Assume that we have a data frame X of independent variables (columns). Assume that X consists of nobs rows of independent observations. Assume that there are no missing entries. Assume that there are nfacts factor variables (columns) in X. First consider all the possible levels of the factor variables. If the factor variables have r1, r2, r3, etc levels, the total possible number of levels among these variables would be r1 * r2 * r3 * … * rnfacts. However, some of these crossed levels might not exist in the current (complete) database, so we enumerate the main and crossed levels that do exist in the database. We refer to these levels as ‘inner groupings’ and we define their total to be ninner. The parameter nfacts might of course be zero, such as in a linear regression model. 
+
+There might also be p mathematically independent variables (columns) of X, and there might also be na other independent variables. As examples of the latter, they might be represented in the model formula by such terms as x, x2, x3, etc., whereas only x is a column of X. This means that in general knowing the number of columns of X is insufficient to determine the number of observations needed for Step 1.
+
+In the case of mixed effects models, there are always outer groups (and perhaps nested subgroups). Assume that there are nouter levels in the data base of such (combined) groups. In the current forsearch package, if both inner and outer groups are present we enumerate the combined levels of both types of grouping together. We can treat these levels as a single set for our purposes.
+
+In addition to having interactions among the factor variables, the model could have interactions among the nonfactor variables and between factor and nonfactor variables. 
+
+So why does knowledge of the structure of the independent variables matter? 
+
+## Need to Estimate All Parameters at Each Stage
+In going from a subset of m observations to the next subset of m+1 observations, recall that an estimation (prediction) of the parameters in the full dataset is performed. The prediction fails if it encounters a different set of model parameters in the overall database than are present in the predictor subset. This implies that each subset back to Step 1 must have representation of each parameter of the full model. In other words, Step 1 must be able to estimate all of the fixed parameters that would be estimated with the full model. This situation has implications for both the number and source of observations at each stage. 
+In the current forsearch package we assume for simplification of the programming effort that any of the interactions described above may appear in the function or formulas of the model. In order to address this possibility, we subdivide the observations into sets L1, L2, L3, etc. by their level of the (combined inner and outer) groups. We then first treat each of these as a separate linear regression model with only the continuous independent variables and the interactions among them. 
+
+## Obtaining the Rank (rnk)
+We perform a lm() analysis on the full database, omitting the factor variables from the model. The only thing we want from this analysis is the rank of the non-factor independent variables, rnk. For such models it requires rnk observations in order to ensure that their local X’X matrix will be of full rank and therefore invertible. We select these observations by the criterion given by Atkinson and Riani (2000). Allowing for all possible subgroups to contain all possible regressions accounts for all of the interactions defined above, including interactions among continuous variables and factors.
+
+This procedure can produce a large number of observations for Step 1. Surely, some reduction in this number could result from further condition of the model formula of the proposed analysis.  For example, the user may plan to include in the model only the main effects and first level interactions. This possibility is under study.
+
+## Overriding the Rank
+ rnk is the rank of the analysis and the number of observations needed for Step 1. The forsearch_foo functions have the option to replace this number by a user-defined constant, n.obs.per.level. This argument will override rnk if it is larger, otherwise, it is ignored. This parameter is not used in Step 2.
+Another option is to skip Step 1 by entering a vector of observation numbers in the argument skip.step1. These observation numbers should conform to the restrictions of this vignette or the function may fail. There are no internal checks on such a vector. Perhaps the most useful or safest set of manually entered observation numbers would be obtained from a run of the forsearch_foo function that does not skip step 1.
+
+## Step 2
+Now consider step 2. It is possible that selecting the best fitting set of m+1 observations overall would result in reducing the number of observations in some subset to something below rnk. This must be prevented. Accordingly, the best fitting rnk observations is selected for each of the ig inner groups.  Then these are all pooled across subgroups and another (m+1-ig*rnk) observations is added, bringing the total to m+1. By construction, each subgroup will have an invertible X’X matrix, as required.
+
+## A Consideration for Cox Proportional Hazard Calculations
+Some observations in a Cox Proportional Hazards database will be censored. If a censored observation were to be included in Step 1 or in one of the minimal subsets of Step 2, the estimation function might fail. To prevent this, only uncensored observations are considered for Step 1 and for the initial subsetting of Step 2. 
+## Extracting the Intermediate Statistics
+We first completely determine the sequence of observation sets as described above from the first value to m=nobs. This procedure yields the same sequence as that defined by Atkinson and Riani (2000) when the model is linear regression. Their procedure has been modified here to accommodate models with independent variables that are factors. The object of the analytical function, foo, at the center of each forsearch_foo function is saved temporarily in order to extract relevant statistics for plotting. 
+
+## Dependence on the User
+The forsearch_foo functions depend heavily on knowing which variables are factors. In turn, we depend on the user to identify all factor variables in the database by the as.factor() function prior to calling forsearch_foo. This includes grouping variables in forsearch_lme(). Variables that are not factors must not be declared to be factors.
+
+Should dichotomous variables be declared to be factors? When one evaluates such variables in a large dataset, it doesn’t matter. You get the same result either way. The same goes for interactions among dichotomous factors. However, the nature of a forward search is to begin with very few observations. It is possible at early stages that the subset would not contain examples of many or even most of the possible crossed levels. Although this would argue for making all dichotomies factor variables, it should be recalled that this can greatly increase the number of observations included in Step 1.
+
+## Reference
+
+Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New York, 2000.
+
+```

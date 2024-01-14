@@ -25,6 +25,7 @@ function(forn,
           print(MC)
           print("", quote = FALSE)
      }    # verbose
+ 
      #################
      # Plot function #
      #################
@@ -86,6 +87,7 @@ function(forn,
                print(date(), quote = F)
                print("", quote = F)
           }    #  verbose
+          return()
      }      #  plotB1
      #
      ############################                                         #   prepstuff
@@ -200,7 +202,7 @@ function(forn,
                         verbose=verbose)
                }   # if yle = "p"
           }     #   if   else
-
+     return()
      }     # End of preparation function #
 
 
@@ -209,12 +211,10 @@ function(forn,
 ##################################################   Main function    ##############################################
 
      grouped <- FALSE       #   possible future development
-
      #############################################################
      # Extract each set of coefficients and form into data frame #
      #############################################################
      ylab.extend <- substr(ylab.extend,1,1)                        # first letter 
-
      if(!(ylab.extend=="p" | ylab.extend =="v" ))stop("ylab.extend is not recognized")
 
      if(ylab.extend=="p"){    

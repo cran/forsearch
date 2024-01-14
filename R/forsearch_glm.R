@@ -2,7 +2,6 @@
 forsearch_glm <-
 function(
           initial.sample=1000, 
-          cobs, 
           response.cols,
           indep.cols,
           family,
@@ -14,15 +13,9 @@ function(
           skip.step1=   NULL,   
           unblinded = TRUE,
 
-         #weights=    NULL,         #subset=     NULL,         #na.action=  NULL,
-         #start=      NULL,         #etastart=   NULL,         #mustart=    NULL,
-         #offset=     NULL,         #control=    NULL,         #model=      FALSE,
-         #method=     NULL,         #x=          FALSE,        #y=          FALSE,
-         #singular.ok=TRUE,         #contrasts=  NULL,         #intercept=  FALSE, 
-
          begin.diagnose=  100,          verbose=    TRUE)
 {
-#                                                     forsearch_glm
+#                                                                      forsearch_glm
      MC <- match.call()
      if(verbose) {
           print("", quote = FALSE)
@@ -34,6 +27,7 @@ function(
           print(MC)
           print("", quote = FALSE)
      }
+     # Doesn't follow general plan for diagnostics because doesn't call xStepy #
      spacer <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                   "     # used for begin.diagnose prints
 
      ############################
@@ -107,6 +101,12 @@ function(
                                                                          #############################
      options(warn = -1)
      on.exit(options(warn = 0))
+
+     nobs <- dim(data)[1]
+ 
+                                 if(begin.diagnose <= 1){print(paste(spacer,"Section 1",sep=" "),quote=FALSE);Hmisc::prn(utils::head(data));
+                                        Hmisc::prn(formula);Hmisc::prn(nobs);Hmisc::prn(response.cols);Hmisc::prn(indep.cols)       }
+
      ##################################################################
      # Get parts of formula to enable subsetting                      #
      # Ensure that first independent variable is Observation          #
@@ -165,23 +165,56 @@ function(
           print(lmAlldata)
           print("",quote=FALSE)
      }
-     ######################################
-     # Check for factor status of dataset #
-     ######################################
-#print("_glm    OK to 20")
-     dimdata <- dim(data)[2]
-     ufactor <- rep(TRUE, dimdata)
-     for(m in 1:dimdata) ufactor[m] <- is.factor(data[,m])
-     yesfactor <- any(ufactor)     
-     p <- rnk <- lmAlldata$rank
-     nopl <- n.obs.per.level 
-#print("_glm    OK to 30")
+     ############################################################################
+     # Check for factor status of dataset                                       #
+     # Define number of factors and continuous variables in the independent set #
+     ############################################################################
+     ndatacols <- length(indep.cols)
+     ufactor <- rep(TRUE, ndatacols)
+     for(m in 1:ndatacols){
+          index <- indep.cols[m]
+          ufactor[m] <- is.factor(data[,index])
+     }
+     yesfactor <- any(ufactor)
+     lmAlldata <- stats::lm(formula=genformula, data, singular.ok=TRUE, x=TRUE, y=TRUE)                                    # lm
+     ncoeffs <- length(lmAlldata$coefficients)
+     rnk <- lmAlldata$rank
+
+                                 if(begin.diagnose <= 2){print(paste(spacer,"Section 2",sep=" "),quote=FALSE);Hmisc::prn(ncoeffs);
+                                       Hmisc::prn(rnk)       }
+ 
+     nopl <- n.obs.per.level
+     ######################################################
+     # Define p = number of continuous variables in X and #
+     #   nfacts = number of factor variables in X         #
+     ######################################################
+
+     p <- length(indep.cols)       # temporary
+     nfacts <- 0
      if(yesfactor){
-          # there are factors in the dataset
-          ssl <- variablelist(datadf <- data, verbose=FALSE)
-          pickm <- picksome(subsetlist=ssl, nobs=dim(data)[1], initial.sample = initial.sample, n.obs.per.level=nopl, rank=rnk, verbose = FALSE)
+          nfacts <- sum(ufactor)
+          p <- p - nfacts
+          ss77all <- variablelist(datadf = data, prank = p)
+          nss77all <- length(ss77all)
+     }
+ 
+                                 if(begin.diagnose <= 3){print(paste(spacer,"Section 3",sep=" "),quote=FALSE);Hmisc::prn(ndatacols);
+                                       Hmisc::prn(nfacts);Hmisc::prn(p)       }
+ 
+     if(yesfactor){
+          print("There are factors in the design", quote=FALSE)
+          ss77 <- variablelist(datadf = data, prank=p)
+
+                                if(begin.diagnose <= 3.5){print(paste(spacer,"Section 3.5",sep=" "),quote=FALSE);Hmisc::prn(ss77);
+                                       Hmisc::prn(nfacts);Hmisc::prn(p)       }
+
+          pickm <- picksome(subsetlist=ss77, nobs=dim(data)[1], initial.sample = initial.sample, n.obs.per.level=nopl, rank=p+1)
           dimpickm <- dim(pickm)[2]  
-     }    # yesfactor
+     }
+     else{ print("There are no factors in the design", quote=FALSE) }
+
+                                if(begin.diagnose <= 4){print(paste(spacer,"Section 4",sep=" "),quote=FALSE);Hmisc::prn(nfacts);Hmisc::prn(p)       }
+
      #
      ############################################
      # Restore to previous version of lmAlldata #
@@ -190,29 +223,31 @@ function(
           lmAlldata <- stats::glm(formula=genformula, family=family, data=indata, weights=bin.wts, singular.ok=TRUE, x=TRUE, y=TRUE)         # glm
      }
      else if(family[[1]]=="Gamma"){
-#print("_glm    OK to 30")
-          lmAlldata <- stats::glm(formula=genformula, family=family, data=indata, singular.ok=TRUE, x=TRUE, y=TRUE)         # glm
+          lmAlldata <- stats::glm(formula=genformula, family=family, data=indata, singular.ok=TRUE, x=TRUE, y=TRUE)                          # glm
      }
      else if(family[[1]]=="poisson"){
-          lmAlldata <- stats::glm(formula=genformula, family=family, data=data, singular.ok=TRUE, x=TRUE, y=TRUE)         # glm
+          lmAlldata <- stats::glm(formula=genformula, family=family, data=data, singular.ok=TRUE, x=TRUE, y=TRUE)                            # glm
      }
      else{
           stop("family name not recognized")
      }
      coeffnames <- names(lmAlldata$coefficients)
+     ncoeffs <- length(coeffnames)
+
+                                 if(begin.diagnose <= 5){print(paste(spacer,"Section 5",sep=" "),quote=FALSE);Hmisc::prn(coeffnames);
+                                       Hmisc::prn(ncoeffs)       }
+
      x1 <- z1 <- lmAlldata$x
      y1 <- lmAlldata$y
      dimdata <- dim(data)
-     #
+      #
      ############################################################################
      # Resampling algorithm for Step 1 of forward search     p31                #
-     # p is the dimension of the independent variables, omitting 'Observation'  #
+     # p is the dimension of the continuous independent variables               #
      # rows.in.model is a list whose elements are vectors of increasing length  #
      # residuals contains model residual for each term at each stage of the fit #
      # The residuals for i-th observation are in i-th row                       #
      ############################################################################
-#print("_glm    OK to 100")
-     p <- dim(lmAlldata$x)[2]
      randset <- 1:initial.sample
      dimx <- dim(data)
      dimx1 <- dimx[1]
@@ -227,15 +262,18 @@ function(
      zlist.inner <- list(result=result,devmat=deviance.matrix,weights=NULL)           # step 1
      rows.in.model <- vector("list",dimx1)
      residuals <- matrix(0,nrow=dimx1,ncol=dimx1)
-     param.est <- matrix(0,nrow=p, ncol=dimx1)
+     param.est <- matrix(0,nrow=ncoeffs, ncol=dimx1)
      t.set <- param.est                                        # t statistics
      xtemp.list <- vector("list",dimx1)          
      modCook <- rep(0,dimx1)                                                                                              #CD
      s.2 <- rep(0,dimx1)
      leverage <- matrix(0,nrow=1,ncol=3)
-                                 if(begin.diagnose <= 5){Hmisc::prn(paste(spacer,"Section 5",sep=" "));Hmisc::prn(utils::head(param.est));Hmisc::prn(utils::tail(param.est));
-                                      Hmisc::prn(s.2)       }
+
+                                 if(begin.diagnose <= 6){print(paste(spacer,"Section 6",sep=" "),quote=FALSE);Hmisc::prn(utils::head(param.est));
+                                       Hmisc::prn(utils::tail(param.est));Hmisc::prn(s.2)       }
      #
+####################################################################################################################################################
+# Step 1
      ################################################################################
      # Step 1 of the procedure follows.                                             #
      # By creating an index, randomly reorder the rows of matrix Z = (X,y).         #
@@ -247,7 +285,7 @@ function(
           print("ENTERING STEP 1", quote=FALSE)                                                                          # Step 1
           for(i in 1:initial.sample){
                if(!yesfactor){
-                   this.sample <- sample(1:dimx1,cobs)                                                                   # sample
+                   this.sample <- sample(1:dimx1,nobs)                                                                   # sample
                    zlist.inner$result <- this.sample
                    this.data <- indata[this.sample,]
                }     # if not yesfactor
@@ -271,7 +309,7 @@ function(
                pred.s2 <- stats::predict.glm(glm.s2, newdata=data, type="response")                                                     #   predict
                zlist.inner$devmat[,2] <- pred.s2      #                                                            # pred.s2 for each candidate ?
 
-                                    if(begin.diagnose <= 7){Hmisc::prn(paste(spacer,"Section 7",sep=" "));Hmisc::prn(pred.s2)       }
+                                    if(begin.diagnose <= 20){print(paste(spacer,"Section 20",sep=" "),quote=FALSE);Hmisc::prn(pred.s2)       }
 
                if(family[[1]]=="binomial"){
                     for(j in 1:dimdata[1]){
@@ -304,6 +342,11 @@ function(
                     stop("family name not recognized")
                }
                #
+ 
+                                 if(begin.diagnose <= 22){print(paste(spacer,"Section 22",sep=" "),quote=FALSE);Hmisc::prn(y1);
+                                       Hmisc::prn(zlist.inner$devmat)       }
+ 
+ 
                #######################
                # get median deviance #
                #######################
@@ -313,25 +356,31 @@ function(
                zlist[[i]] <- zlist.inner
           }       # for i in 1 initial.sample
 
-                                        if(begin.diagnose <= 12){Hmisc::prn(paste(spacer,"Section 12",sep=" "));Hmisc::prn(zlist[[i]])       }
- 
+                                        if(begin.diagnose <= 24){print(paste(spacer,"Section 24",sep=" "),quote=FALSE);Hmisc::prn(zlist[[i]][[1]]);Hmisc::prn(utils::head(zlist[[i]][[2]]));
+                                                          Hmisc::prn(utils::tail(zlist[[i]][[2]]))       }
+
          # select set with min(median deviance)
           candidate.sets<- rep(0,initial.sample)
-          for(i in 1:initial.sample){
-               if(is.na(zlist[[i]]$devmat[1,4])){
+          for(ib in 1:initial.sample){
+               if(is.na(zlist[[ib]]$devmat[1,4])){
                     zlist[[i]]$devmat[1,4] <- zlist[[i]]$devmat[1,4] + 1
                }
-               candidate.sets[i] <- zlist[[i]]$devmat[1,4]
-          }     #  i 
+               candidate.sets[ib] <- zlist[[ib]]$devmat[1,4]
+          }     #  ib
+ 
           min.candidate <- min(candidate.sets)
-
-          for(i in 1:initial.sample){
-               if(zlist[[i]]$devmat[1,4]==min.candidate){
-                    got.set <- i
+          for(id in 1:initial.sample){
+               if(zlist[[id]]$devmat[1,4]==min.candidate){
+                    got.set <- id
                     break
-               }
-          }
+               }    # if zlist
+          }   # id
           chosen.set <- zlist[[got.set]]$result                             # chosen set
+
+
+
+          ninStep1 <- nopl*rnk + 1
+          chosen.set <- chosen.set[1:ninStep1]        
           lengotset <- length(chosen.set)
           rows.in.model[[lengotset]] <- chosen.set                          # obs chosen for Step 1
           mstart <- lengotset + 1
@@ -344,8 +393,10 @@ function(
           SOON <- skip.step1
           mstart <- lenskip + 1
      }   #   if not skip step 1
-                                                  if(begin.diagnose <= 20){Hmisc::prn(paste(spacer,"Section 20",sep=" "));Hmisc::prn(mstart)       }
+                                                  if(begin.diagnose <= 49){print(paste(spacer,"Section 49",sep=" "),quote=FALSE);Hmisc::prn(SOON);Hmisc::prn(mstart)       }
      #
+###################################################################################################################################################
+# Step2
      ##################################################################
      # Step 2 of the procedure follows.                               #
      # Adding observations to the initial set                         #
@@ -359,7 +410,7 @@ function(
      # Initialize storage matrices and vectors           #
      # Variables starting "glm" created in this function #
      #####################################################
-     betahatset <- matrix(0,nrow=dimx1,ncol=p)
+     betahatset <- matrix(0,nrow=dimx1,ncol=ncoeffs)
      glmcoeff <- matrix(0,nrow=dimx1, ncol=p)
      glmdeviance <- rep(0,dimx1)
      glmphi <- rep(0,dimx1)
@@ -371,15 +422,15 @@ function(
      glmHat <- vector("list", dimx1)                        # will store Hat matrices for leverage, Cook, and (last one) studentization of errors
      #
 
-                                             if(begin.diagnose <= 25){Hmisc::prn(paste(spacer,"Section 25",sep=" "));Hmisc::prn(glmdeviance)       }
+                                             if(begin.diagnose <= 51){print(paste(spacer,"Section 51",sep=" "),quote=FALSE);Hmisc::prn(glmdeviance)       }
 
      ###################################################################################################
      # The next section increments the number of observations while collecting entermediate statistics #
      ###################################################################################################
-     for(i in mstart:(dimx1+1)){                                                  # mstart is the step after the original p obs entered
+     for(i in mstart:(dimx1-1)){                                                  # mstart is the step after the original p obs entered
           rim <- rows.in.model[[i-1]]                                             # picks up rows for previous step
           Zlatest <- Z[rim,]
-                                          if(begin.diagnose <= 26){Hmisc::prn(paste(spacer,"Section 26",sep=" "));Hmisc::prn(Zlatest)       }
+                                          if(begin.diagnose <= 53){print(paste(spacer,"Section 53",sep=" "),quote=FALSE);Hmisc::prn(Zlatest)       }
 
           xtemp <- x1[rim,]
 
@@ -399,11 +450,11 @@ function(
                stop("family name not recognized")
           }
 
-                                                if(begin.diagnose <= 30){Hmisc::prn(paste(spacer,"Section 30",sep=" "));Hmisc::prn(getthisglm)              }
+                                                if(begin.diagnose <= 55){print(paste(spacer,"Section 55",sep=" "),quote=FALSE);Hmisc::prn(getthisglm)              }
 
-          ############################
-          # Form weighted hat matrix #
-          ############################
+          ##################################################
+          # Form weighted hat matrix for leverage and Cook #
+          ##################################################
           W <- getthisglm$weights
           lengthW <- length(W)
           matrixW <- c(W[1],rep(0,lengthW))
@@ -415,7 +466,8 @@ function(
           transtemp <- t(xtemp)
           cross <- transtemp %*% matrixW %*% xtemp
           uueigen <- unlist(eigen(cross)[1])
-          if(any(uueigen < 10^(-12))){
+#          if(any(uueigen < 10^(-12))){
+          if(any(uueigen < 10^(-8))){
                print(uueigen - 10^(-12))
                print("", quote=FALSE)
                print("The X'X matrix of the model is singular. Increase the value", quote=FALSE)
@@ -430,7 +482,7 @@ function(
           sqrtW <- sqrt(matrixW)
           glmHat[[i-1]] <- sqrtW %*% hat %*% sqrtW        
 
-                                           if(begin.diagnose <= 35){Hmisc::prn(paste(spacer,"Section 35",sep=" "));Hmisc::prn(cross);Hmisc::prn(glmHat[[i-1]])       }
+                                           if(begin.diagnose <= 60){print(paste(spacer,"Section 60",sep=" "),quote=FALSE);Hmisc::prn(cross);Hmisc::prn(glmHat[[i-1]])       }
 
           #
           ###################################################################
@@ -451,7 +503,8 @@ function(
           medaugx[,2] <- 0 
           if(i > p) s.2[i-1] <- sum(model.resids * model.resids)/(i-p)
 
-                                            if(begin.diagnose <= 40){Hmisc::prn(paste(spacer,"Section 40",sep=" "));Hmisc::prn(model.resids);Hmisc::prn(s.2[i-1])       }
+                                            if(begin.diagnose <= 64){print(paste(spacer,"Section 64",sep=" "),quote=FALSE);Hmisc::prn(model.resids);
+                                                      Hmisc::prn(s.2[i-1])       }
 
           # Deviances #
           glmdeviance[i-1] <- getthisglm$deviance
@@ -461,19 +514,17 @@ function(
           else{
                glmphi[i-1] <- 1
           }
-          # Null Deviance #
+         # Null Deviance #
           glmnulldeviance[[i-1]] <- getthisglm$null.deviance
 
           # AIC #
           glmaic[[i-1]] <- getthisglm$aic
           #
-
           if(i > mstart){
-               t.setbase <- c(summary(getthisglm)$coefficients[,3], rep(0,p))
-               t.set[,i-1] <- t.setbase[1:p]
+               t.setbase <- c(summary(getthisglm)$coefficients[,3], rep(0,ncoeffs))
+               t.set[,i-1] <- t.setbase[1:ncoeffs]
           }
-
-                                   if(begin.diagnose <= 45){Hmisc::prn(paste(spacer,"Section 45",sep=" "));Hmisc::prn(glmphi[i-1]);
+                                   if(begin.diagnose <= 65){print(paste(spacer,"Section 65",sep=" "),quote=FALSE);Hmisc::prn(glmphi[i-1]);
                                                Hmisc::prn(glmnulldeviance[[i-1]]);Hmisc::prn(t.set[,i-1])       }
 
           ############
@@ -494,7 +545,7 @@ function(
                }   # j 1:i
           }        #   x1 is matrix
                    
-                                                   if(begin.diagnose <= 50){Hmisc::prn(paste(spacer,"Section 50",sep=" "));Hmisc::prn(leverage)       }
+                                                   if(begin.diagnose <= 70){print(paste(spacer,"Section 70",sep=" "),quote=FALSE);Hmisc::prn(leverage)       }
           #
           #####################################################################
           # Determine next set of observations to include in set              #
@@ -510,7 +561,7 @@ function(
                candidates <- candidates[order(candidates$disparity),]
                rows.in.model[[i]] <- sort(candidates[1:i,1])
 
-                                             if(begin.diagnose <= 55){Hmisc::prn(paste(spacer,"Section 55",sep=" "));Hmisc::prn(candidates)       }
+                                             if(begin.diagnose <= 75){print(paste(spacer,"Section 75",sep=" "),quote=FALSE);Hmisc::prn(candidates)       }
 
                #
                ######################################
@@ -600,11 +651,11 @@ function(
      ############################################################
 #     denom <- sqrt(glmphi * (1 - diag(glmHat[[dimx1]])))                            # see p 199 of A&R  
 #     obs <- data$Observation
-#     for(i in mstart:(dimx1)){
-#          yyy <- data.frame(obs, storeDevianceResiduals[[i-1]], denom, storeDevianceResiduals[[i-1]]/denom)
+#     for(ii in mstart:(dimx1)){
+#          yyy <- data.frame(obs, storeDevianceResiduals[[ii-1]], denom, storeDevianceResiduals[[ii-1]]/denom)
 #          yyy <- data.frame(i, yyy)
 #          glmstudresids <- rbind(glmstudresids,yyy)
-#     }
+#     }   #  ii
 #     names(glmstudresids) <- c("m","obs","devresid")
 
      dimleverage <- dim(leverage)
@@ -624,6 +675,7 @@ function(
      sigma <- sqrt(sum(medaugx[,2])/(dimx1-p))
      residuals <- residuals/sigma
      #                                                                                                                   #Cook
+if(F){
      ##########################
      # Modified Cook distance #
      ##########################
@@ -631,24 +683,27 @@ function(
      param.est.current <- param.est[-1,]
      param.est.prev <- param.est[-nms,]
      param.diff <- param.est.prev - param.est.current
-                                 if(begin.diagnose <= 65){Hmisc::prn(paste(spacer,"Section 65",sep=" "));Hmisc::prn(param.est);Hmisc::prn(param.est.prev);
-                                                                  Hmisc::prn(param.est.current);Hmisc::prn(param.diff);Hmisc::prn(xtemp.list)      }    
+
+                                                  if(begin.diagnose <= 85){print(paste(spacer,"Section 85",sep=" "),quote=FALSE);Hmisc::prn(param.est);
+                                                            Hmisc::prn(param.est.prev);
+                                                            Hmisc::prn(param.est.current);Hmisc::prn(param.diff);Hmisc::prn(xtemp.list)      }    
      getw <- getthisglm$weights
-     for(i in mstart:dimx1){
-         aa <- param.diff[i-1,]
+     for(ij in mstart:dimx1){
+         aa <- param.diff[ij-1,]
          aa <- as.numeric(aa[,-1])
          aa <- matrix(aa,nrow=1)
-         bb <- xtemp.list[[i]]
-                                     if(begin.diagnose <= 75){Hmisc::prn(paste(spacer,"Section 75",sep=" "));Hmisc::prn(aa);Hmisc::prn(bb)    }
+         bb <- xtemp.list[[ij]]
+                                     if(begin.diagnose <= 88){Hmisc::prn(paste(spacer,"Section 88",sep=" "));Hmisc::prn(aa);Hmisc::prn(bb)    }
 
          lastHat <- glmHat[[dimx1]]
          lastHat <- lastHat * my.identity(dimx1)    # select diagonal elements
          www <- aa %*% t(bb)
 
-                                 if(begin.diagnose <= 85){Hmisc::prn(paste(spacer,"Section 85",sep=" "));Hmisc::prn(www)       }
+                                 if(begin.diagnose <= 89){print(paste(spacer,"Section 89",sep=" "),quote=FALSE);Hmisc::prn(www)       }
 
-         modCook[i] <- (www %*% t(www))/(p*s.2[i])
-     }       #    i
+         modCook[i] <- (www %*% t(www))/(p*s.2[ij])
+     }       #    ij
+}     # if(F)
      #
      if(verbose) {
           print("", quote = FALSE)

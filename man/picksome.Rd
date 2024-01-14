@@ -7,8 +7,7 @@ Restricts Step 1 of forward search procedures to ensure that every possible
    combination of levels is included for observations containing factors
 }
 \usage{
-picksome(subsetlist, nobs, initial.sample, n.obs.per.level, rank, 
-     verbose)
+picksome(subsetlist, nobs, initial.sample, n.obs.per.level, rank)
 }
 \arguments{
   \item{subsetlist}{List, each element is a data frame of 2 columns with code 
@@ -25,8 +24,6 @@ picksome(subsetlist, nobs, initial.sample, n.obs.per.level, rank,
 }
   \item{rank}{Rank of the X matrix of the analytical function to be used on 
      data frame.
-}
-  \item{verbose}{If TRUE, indicates beginning and end of function run.
 }
 }
 \details{
