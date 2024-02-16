@@ -2,7 +2,7 @@
 title: "How Many Observations are Needed and Where Do We Get Them?"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{How many observations are needed and where do we get them}
+  %\VignetteIndexEntry{How Many Observations are Needed and Where Do We Get Them?}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

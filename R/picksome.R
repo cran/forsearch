@@ -19,7 +19,7 @@ function(subsetlist, nobs, initial.sample, n.obs.per.level, rank)
      ################################################################################
      # Set up and populate matrix of observation numbers from categorical variables #
      ################################################################################
-     nsample <- rank*nopl
+     nsample <- max(rank,nopl)
      out <- array(0, dim=c(lennamesSL, nsample, initial.sample))
      for(k in 1:initial.sample){
           for(i in 1:lennamesSL){   

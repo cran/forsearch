@@ -8,8 +8,8 @@
         unblinded=TRUE, begin.diagnose= 100, verbose=TRUE)
 }
 \arguments{
-  \item{alldata}{Data frame containing Observation number, event time, status, 
-        and independent variables}
+  \item{alldata}{Data frame containing variables 'Observation', 'event.time',
+        'status', and independent variables, in that order}
   \item{formula.rhs}{Character vector of names of independent variables in 
         model}
   \item{initial.sample}{Number of observations in Step 1 of forward search}

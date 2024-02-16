@@ -9,7 +9,6 @@ function(datadf, prank)
      # INPUT          datadf     Data frame of independent variables in analysis
      #                prank       Rank of X matrix continuous variables 
      #
-# prn(datadf)
     dimdata <- dim(datadf)
      nnrows <- dimdata[1]
      nncols <- dimdata[2]
@@ -32,17 +31,6 @@ function(datadf, prank)
      ncells <- length(tableSub)
      anyonlyone <- any(tableSub < prank)
 
-#     if(anyonlyone){
-#          print("There is as least one instance where a level of the possibly crossed factors contains too few observations.")
-#          print("It may be necessary to remove any such observations before forsearch analysis.")
-#          print("The factor codes and their number of observations are:")
-#          for(i in 1:ncells){
-#               if(tableSub[[i]]==1){
-#                    singleobs <- Subsetsdf[Subsetsdf$SubsetCode==dntableSub[i],]
-#                    Hmisc::prn(singleobs)
-#               }     # if
-#          }     # for
-#     }     # anyonlyone
      uSubsetCode <- sort(unique(SubsetCode))
      nSC <- length(uSubsetCode)
      Subsetlist <- vector("list", nSC)

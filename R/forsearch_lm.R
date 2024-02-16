@@ -30,10 +30,6 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
      if(uu[1] != "Observation")stop("First column of data must be 'Observation'")
      #
      #
-
-
-
-
 if(F){
      ####################################################
      # Ensure that there is replication in the database #
@@ -48,10 +44,6 @@ if(F){
      }
      #
 }   # if F
-
-
-
-
      #######################################################################
      # Print the structure of the analysis that will be done on these data #
      # unless the treatment group is blinded                               #
@@ -84,7 +76,15 @@ if(F){
           print("", quote = FALSE)
           print("Check the following ANOVA paradigm for source of variation and associated degrees of freedom (Df)", quote=FALSE)
           print("", quote = FALSE)
-          print(stats::anova(lmAlldata))
+          ux2 <- stats::anova(lmAlldata)
+          nux2 <- dim(ux2)[1]
+          dimnamesux2 <- dimnames(ux2)
+          dn1 <- dimnamesux2[[1]]
+          dn1 <- dn1[-nux2]
+          ux2 <- ux2[-nux2,]
+          Df <- as.character(ux2[,1])
+          ux3 <- data.frame(Df, row.names=dn1)
+          print(ux3, , quote=FALSE)
           print("", quote = FALSE)
           print("All categorical variables must be defined to be factors in the database, not in the formula.", quote=FALSE)
           print("", quote = FALSE)
@@ -235,7 +235,7 @@ if(F){
      }       # skipping step 1
                                  if(begin.diagnose <= 48){print("", quote = FALSE);print(paste(spacer,"Section 48",sep=" "),quote=FALSE);
                                             Hmisc::prn(rows.in.model);Hmisc::prn(SOON)      }
-     #
+    #
 #############################################################################################################################
 # Step 2
      print("ENTERING STEP 2", quote=FALSE)
@@ -256,6 +256,7 @@ if(F){
      sigma <- aStep2out[[4]]
                                  if(begin.diagnose <= 80){print("", quote = FALSE);print(paste(spacer,"Section 80",sep=" "),quote=FALSE);
                                             Hmisc::prn(rows.in.model);Hmisc::prn(fooResult)      }
+#
 ##############################################################################################################################
 # EXTRACT STATS
      print("", quote=FALSE)
@@ -302,15 +303,11 @@ if(F){
           thisleverage <- 1
           x1 <- data[,-c(1,ycol)]
           xtemp <- getthislmx
-#prn(i)
-#prn(getthislmx)
                                  if(begin.diagnose <= 81){print("", quote = FALSE);print(paste(spacer,"Section 81",sep=" "),quote=FALSE);
                                        Hmisc::prn(dimx1);Hmisc::prn(i);Hmisc::prn(xtemp)       }
 
           vvv <- eigen(t(xtemp) %*% xtemp)[[1]]
-#prn(vvv)
           uuu <- prod(vvv)
-#prn(uuu)
                                  if(begin.diagnose <= 82){print("", quote = FALSE);print(paste(spacer,"Section 82",sep=" "),quote=FALSE);
                                            Hmisc::prn(i);Hmisc::prn(vvv);Hmisc::prn(uuu)       }
 

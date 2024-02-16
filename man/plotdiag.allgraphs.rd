@@ -8,13 +8,16 @@ Executes all the plotting functions for a select analytical function
    to plot all fixed and random coefficients.
 }
 \usage{
-plotdiag.allgraphs(object, mt=" ", st=" ", cpt=" ", cc=NULL, ccrand = NULL,Cairo=TRUE)
+plotdiag.allgraphs(object, mt=" ", st=" ", cpt=" ", blind.label=FALSE, cc=NULL,
+               ccrand = NULL,Cairo=TRUE)
 }
 \arguments{
   \item{object}{Name of forsearch object file}
   \item{mt}{Maintitle of graph}
   \item{st}{Subtitle of graph}
   \item{cpt}{Caption on the graph}
+  \item{blind.label}{TRUE causes 'blind' to be added to graph and to file name
+           for fixed parameters}
   \item{cc}{Fixed variable code numbers of coefficients to be included in graph}
   \item{ccrand}{Random variable code numbers of parameters to be included in 
       graph}

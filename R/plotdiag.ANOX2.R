@@ -92,17 +92,23 @@ function(forn,
      #
      ############################                                         #   prepstuff
      # Preparation for plotting #
+     # Remove any na's          #
      # Remove initial zero rows #
      ############################
      prepstuff <- function(rightforn, yle){
 #                                                                        print("OK to plotdiag.ANOX2    30")
           df2 <- rightforn
+          indexna <- is.na(df2)
+          indexna <- apply(indexna,1,any)
+          df2 <- df2[!indexna,]
           ndf2 <- dim(df2)[1]
 
           for(ir in 1:ndf2){
                uu <- df2[1,-1] 
                if(sum(uu)==0){df2 <- df2[-1,]} else break
           }      #   ir
+
+
           nrows <- dim(df2)[1]
           df3 <- df2[,-1]
           ncols <- dim(df3)[2]
@@ -220,6 +226,7 @@ function(forn,
      if(ylab.extend=="p"){    
           df1 <- forn$"Proportionality Test"                  # df1 already has a column of m
      }
+#prn(df1)
      if(ylab.extend=="v"){
           df1 <- forn$"ANOVA"                            # df1 already has a column of m
      }

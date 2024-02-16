@@ -1,0 +1,24 @@
+---
+title: "Exploring the Search History"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Exploring the Search History}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+  knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+  )
+```
+```
+One of the intermediate statistics collected during the forward search is a list of vectors of increasing length containing the observation numbers included in the subset at each stage. The search.history() function organizes these into a data frame showing the numbers as they enter and perhaps also as they leave the subset. As explained by Atkinson and Riani (2000), after a few observations are chosen for Step 1 the remaining observations are usually added one at a time. For some stages, one or two observations may be replaced in order to make room for a better fitting set of observations. This note discusses the case in which very large numbers of observations may be replaced at the beginning of Step 2 or (less frequently) in the middle of Step 2.
+
+Randomly generated data frames were created to explore the behavior of the search history. As explained in another vignette of this package, when factors are included in the independent variables Step 1 is conducted by selecting observations for each factor subset of the database. That is, if there are k factors with levels r1, r2, …, rk, the total number of factor subsets could be as high as r1 x r2 x …x rk. For a linear regression, in which each independent variable is continuous, the search history might show a few occasions when one or two observations is dropped to accommodate a better fit. So when multiple linear regressions are being fit, it would not be unusual for more observations to be dropped at the start of Step 2. However, in our exploration it was common for very large numbers of observations to be replaced.
+
+In some cases it was clear that the transition from Step 1 to Step 2 was the cause of what has come to be called “gross reinitialization”—the forsearch_lm() function was using Step 2 to reinitialize a less-than-ideal Step 1. Our data frames included a randomly generated vector C1 and a factor variable F1 that consisted of three levels, D, E and G. The response variable was defined to be y=3 + 4C1 for F1=D, y=8 + 9C1 for F1=E, and y=7 + C1 for y=G. The formula for the analysis was y=F1 + C1. Step 1 was correctly carried out and resulted in 6 observations, 2 from each factor subset. The first stage of Step 2, stage 7, resulted in removing five of the original observations and adding six new observations. In time it was realized that the formula was for a main effects analysis but the data was in fact factorial. Changing the formula to y=F1*C1 corrected the problem; no observations were then removed in all of Step 2.
+
+The forward_foo() functions all use the presence of every factor variable in the data set to define the factor subsets of the forward search and use the continuous variables of the formula to determine the rank of the linear regression and from that the number of observations needed in Step 1. In order to ensure that the forward search is appropriate for the data and the analysis to be conducted on that data, the dataset must not contain any variables, certainly not any factor variables, that are not included in the formula. Moreover, if it is possible that the linear regression relationships differ by level of the factor subsets, the formula must recognize this relationship.
+

@@ -1,6 +1,6 @@
 #' @export
 plotdiag.allgraphs <-
-function (object, mt = " ", st = " ", cpt = " ", cc = NULL, ccrand = NULL, Cairo=TRUE) 
+function (object, mt = " ", st = " ", cpt = " ", blind.label=FALSE, cc = NULL, ccrand = NULL, Cairo=TRUE) 
 {
 #                                  plotdiag.allgraphs
 #
@@ -27,7 +27,11 @@ function (object, mt = " ", st = " ", cpt = " ", cc = NULL, ccrand = NULL, Cairo
 #          plotdiag.deviances(object, maintitle = mt, subtitle = st, caption = cpt, wmf="Deviances", Cairo=Cairo)
 #          plotdiag.fit3(object, maintitle = mt, subtitle = st, caption = cpt, wmf="fit3", Cairo=Cairo)
           plotdiag.leverage(object, maintitle = mt, subtitle = st, caption = cpt, wmf="leverage", Cairo=Cairo)         
-          plotdiag.params.fixed(object, coeff.codenums=cc, maintitle = mt, subtitle = st, caption = cpt, wmf="params fixed", Cairo=Cairo)
+          if(blind.label){
+               plotdiag.blind.fixed(object, coeff.codenums=cc, maintitle = mt, subtitle = st, caption = cpt, wmf="blind params fixed", Cairo=Cairo)
+          }else{
+               plotdiag.params.fixed(object, coeff.codenums=cc, maintitle = mt, subtitle = st, caption = cpt, wmf="params fixed", Cairo=Cairo)
+           }
 #          plotdiag.params.random(object, coeff.codenums=ccrand, maintitle = mt, subtitle = st, caption = cpt, wmf="params random"
 #          plotdiag.phihatx(object, maintitle = mt, subtitle = st, caption = cpt, wmf="phihatx", Cairo=Cairo)
 #          plotdiag.residuals(object, maintitle = mt, subtitle = st, caption = cpt, wmf="residuals", Cairo=Cairo)         
@@ -93,7 +97,12 @@ function (object, mt = " ", st = " ", cpt = " ", cc = NULL, ccrand = NULL, Cairo
           plotdiag.deviances(object, devtype="N", maintitle = mt, subtitle = st, caption = cpt, wmf="Deviances type N", Cairo=Cairo)
 #          plotdiag.fit3(object, maintitle = mt, subtitle = st, caption = cpt, wmf="fit3", Cairo=Cairo)
           plotdiag.leverage(object, maintitle = mt, subtitle = st, caption = cpt, wmf="leverage", Cairo=Cairo)          
-          plotdiag.params.fixed(object, coeff.codenums=cc, maintitle = mt, subtitle = st, caption = cpt, wmf="params fixed", Cairo=Cairo)
+          if(blind.label){
+               plotdiag.blind.fixed(object, coeff.codenums=cc, maintitle = mt, subtitle = st, caption = cpt, wmf="blind params fixed", Cairo=Cairo)
+          }else{
+               plotdiag.params.fixed(object, coeff.codenums=cc, maintitle = mt, subtitle = st, caption = cpt, wmf="params fixed", Cairo=Cairo)
+           }
+#          plotdiag.params.fixed(object, coeff.codenums=cc, maintitle = mt, subtitle = st, caption = cpt, wmf="params fixed", Cairo=Cairo)
 #          plotdiag.params.random(object, coeff.codenums=ccrand, maintitle = mt, subtitle = st, caption = cpt, wmf="params random", Cairo=Cairo)
 #          plotdiag.residuals(object, maintitle = mt, subtitle = st, caption = cpt, wmf="residuals", Cairo=Cairo)         
 #          plotdiag.s2(object, maintitle = mt, subtitle = st, caption = cpt, wmf="s2", Cairo=Cairo)

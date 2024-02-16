@@ -1,3 +1,20 @@
+2/16/2024 forsearch version 5.1.0 
+=================================
+* Major changes: None 
+
+
+* Moderate changes: 
+  + Completely revised flow of forsearch_glm to better accommodate models
+       containing independent variables as factors 
+  + Added vignette regarding exploration of the search history
+
+* Minor changes and bug fixes:
+  + Fixed proportionality test bug (na's) in plotdiag.ANOX2 for Cox regression
+  + Changed use of n.obs.per.level in picksome to be additive
+  + Remove unused argument of bStep2
+  + Added blind.label to arguments of plotdiag.allgraphs to allow
+       user to request labeling of graph to reflect blinded database
+  
 1/13/2024 forsearch version 5.0.0 
 =================================
 * Major changes: 

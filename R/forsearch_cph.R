@@ -19,7 +19,7 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
      #
 
      #   begin.diagnose      Step 0: 1 - 19        Step 1: 20     -     49     Step 2:    50 - 59           Extraction:     81 - 
-     #                                                aStep1:  31 - 39                    aStep2:  60 - 80
+     #                                                aStep1:  31 - 39                    cStep2:  60 - 80
 
      #
      MC <- match.call()
@@ -209,7 +209,7 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
                                                if(begin.diagnose <=22) {print(paste(spacer,"Section 22",sep=" "),quote=FALSE)   }
 
      if(is.null(skip.step1)){
-          print("ENTERING STEP 1", quote=FALSE)
+          print("BEGINNING STEP 1", quote=FALSE)
           inner.rank <- datacontrank
 
                                                if(begin.diagnose <=23){ print(paste(spacer,"Section 23",sep=" "),quote=FALSE);Hmisc::prn(inner.rank);
@@ -252,7 +252,7 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
 #####################################################################################################################################
 # Step 2
      print("", quote=FALSE)
-     print("ENTERING STEP 2", quote = FALSE)
+     print("BEGINNING STEP 2", quote = FALSE)
      print("", quote=FALSE)
      heresStep2 <- cStep2(f.e=formula.rhs, finalm=rows.in.model, dfa2=fixdat.df, ms=mstart,  
                          rnk2=datacontrank, ss=skip.step1, b.d=begin.diagnose)                                             # cStep2
@@ -304,21 +304,25 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
           WaldTest[dd] <- coxphout$wald.test
           LLout <- coxphout$loglik
           LL[dd,] <- c(dd,LLout) 
-          ########################
-          # Proportionality test #
-          ########################
-          an.error.occurred <- FALSE
-          if(nfacts > 0 & proportion){
-               tryCatch( {thiszph <- survival::cox.zph(coxphout, global=FALSE)[[1]]}
-                   , error = function(e) {an.error.occurred <<- TRUE})
-          }
-          if(an.error.occurred){
-               print("error occurred")
-               proprtnlty[,dd] <- NA
-          }
-          else{
-              proprtnlty[,dd] <- thiszph[,3]
-          }
+          ##############################
+          # Proportionality test       #
+          # Skip first stage in Step 2 #
+          ##############################
+          if(dd > mstart){              
+               an.error.occurred <- FALSE
+               if(nfacts > 0 & proportion){
+                    tryCatch( {thiszph <- survival::cox.zph(coxphout, global=FALSE)[[1]]}
+                        , error = function(e) {an.error.occurred <<- TRUE})
+               }
+               if(an.error.occurred){
+                    messprop <- paste("Skipping proportionality test in stage",dd, sep=" ")
+                    print(messprop,quote=FALSE)
+                    proprtnlty[,dd] <- NA
+               }
+               else{
+                   proprtnlty[,dd] <- thiszph[,3]
+               }
+          } # dd > mstart
           ############
           # Leverage #
           ############

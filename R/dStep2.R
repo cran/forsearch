@@ -1,20 +1,22 @@
-bStep2 <-
-function(f2, dfa2, randm2, ms, finalm, fbg, b.d, rnk2) 
+dStep2 <-
+function(f2, dfa2, randm2, ms, finalm, fbg, b.d, rnk2, ycol, fam) 
 {
-     #                                            bStep2
+     #                                            dStep2
      #
-     # VALUE        An updated list of the rim during Step 2 NOT HAVING A LIST OF LISTS ANY MORE
-     #                 Second element of the primary list is saved lm output for subsequent extraction of statistics. 
-     #                 For each level of the factor subsets, select the rnk observations with the smallest squared errors
-     #                 Then pool the results and add enough of the remaining observations to bring the total to m+1.
+     # VALUE        A list of 2 levels. The first of these is a complete list of the rim during the search.
+     #                 Second level of the primary list is the saved glm output for subsequent extraction of statistics. 
+     #                 For each level  m  of the factor subsets, select the  rnk  observations with the smallest squared errors
+     #                 Then pool the results and add enough of the remaining observations to bring the total to  m+1.
      #
      # INPUT 
+     #     fam     Family with link
      #
-     spacer <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX        bStep2               "
+     spacer <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX        dStep2               "
+
      nobs <- dim(dfa2)[1]
 
                             if(b.d <=60 ){print("",quote=FALSE); print(paste(spacer,"Section 60",sep=" "),quote=FALSE);
-                                Hmisc::prn(finalm);Hmisc::prn(utils::head(dfa2));Hmisc::prn(utils::tail(dfa2));Hmisc::prn(dim(dfa2));
+                                Hmisc::prn(f2);Hmisc::prn(utils::head(dfa2));Hmisc::prn(utils::tail(dfa2));Hmisc::prn(dim(dfa2));
                                 Hmisc::prn(ms);Hmisc::prn(rnk2)    }
 
 
@@ -31,16 +33,12 @@ function(f2, dfa2, randm2, ms, finalm, fbg, b.d, rnk2)
                             if(b.d <=61 ){print("",quote=FALSE); print(paste(spacer,"Section 61",sep=" "),quote=FALSE);
                                 Hmisc::prn(thisdata)    }
 
-
-          f3 <- as.character(f2)
-          f3form <- stats::as.formula(f3)
-
-          thislme <- do.call(what=nlme::lme, args=list(fixed=f3form, data=thisdata, random=randm2)  )                                      # lme
-
+          f3 <- f2
+          thislme <- stats::glm(formula=f3, family=fam, data=thisdata, y=TRUE, x=TRUE)                                      # glm
           fooResult[[i]] <- thislme
 
           thispredict <- stats::predict(thislme, fixdat.mod)
-          fixdat.mod$diff2 <- (fixdat.mod$y - thispredict)^2
+          fixdat.mod$diff2 <- (fixdat.mod[, ycol] - thispredict)^2
           fixdat.mod <- fixdat.mod[order(fixdat.mod$diff2),]
           firstobs <- NULL
 

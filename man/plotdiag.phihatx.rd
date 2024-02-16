@@ -11,7 +11,7 @@ Plot output from forsearch_glm to show change in phiHat statistics as the
 plotdiag.phihatx(forn, maintitle = "Put main title here", 
 subtitle = "Put subtitle here", caption="Put caption here", 
 wmf = "Put_graph_filename_here", 
-Cairo=TRUE, printgraph=TRUE, addline=c("none","loess","straight"),  
+Cairo=TRUE, printgraph=TRUE, addline="none",
 verbose = TRUE)
 }
 \arguments{
@@ -21,7 +21,8 @@ verbose = TRUE)
   \item{caption}{Content of caption}
   \item{wmf}{File name of stored plot; omit ".wmf"}
   \item{Cairo}{TRUE causes use of Cairo graphics}
-  \item{addline}{add a line to the graph; abbreviation allowed}
+  \item{addline}{add a line to the graph; abbreviation allowed; "none", "loess",
+             or "straight""}
   \item{printgraph}{TRUE causes graph to print to file and closes device}
   \item{verbose}{If TRUE, indicates beginning and end of function}
 }

@@ -112,7 +112,7 @@ function (yesfactor, form.A2, finalm, rimbs, dfa2, ycol, mstart, rnk, b.d)
                finalm[[i]] <- predictions[1:i,1]
 
                                  if(b.d <= 71){print("", quote = FALSE);print(paste(spacer,"Section 71",sep=" "),quote=FALSE);
-                                      Hmisc::prn(i);Hmisc::prn(thisdf1);Hmisc::prn(finalm[[i]])       }
+                                      Hmisc::prn(i);Hmisc::prn(thisdf1);Hmisc::prn(predictions);Hmisc::prn(finalm[[i]])       }
 
           }    #   i
           sigma <- sqrt(sum(predictions[,2])/(nobs-rnk))

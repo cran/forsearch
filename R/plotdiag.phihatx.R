@@ -7,7 +7,7 @@ function(forn,
      wmf="Put_graph_filename_here", 
      Cairo=TRUE,
      printgraph = TRUE,
-     addline=c("none","loess","straight"),
+     addline="none",
      verbose=TRUE)
 {
      #                          plotdiag.phihatx

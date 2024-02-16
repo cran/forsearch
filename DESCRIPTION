@@ -1,10 +1,13 @@
 Package: forsearch
 Title: Diagnostic Analysis Using Forward Search Procedure for Various
         Models
-Version: 5.0.0
+Version: 5.1.0
 Authors@R: person("William","Fairweather",
         email = "wrf343@flowervalleyconsulting.com", role = c("aut", "cre"))
-Description: Identifies potential data outliers and their impact on estimates and analyses. Uses the forward search approach of Atkinson and Riani, "Robust Diagnostic Regression Analysis",          2000,<ISBN: o-387-95017-6> to prepare descriptive statistics of a dataset that is to be analyzed by stats::lm(), stats::glm(), nlme::lme() or survival::coxph().  Includes graphics functions to display the descriptive statistics.
+Description: Identifies potential data outliers and their impact on estimates and analyses. Uses the forward search 
+         approach of Atkinson and Riani, "Robust Diagnostic Regression Analysis", 2000,<ISBN: o-387-95017-6> 
+         to prepare descriptive statistics of a dataset that is to be analyzed by stats::lm(), stats::glm(), 
+         nlme::lme() or survival::coxph().  Includes graphics functions to display the descriptive statistics.
 Depends: R (>= 4.2)
 License: GPL (>= 3)
 SystemRequirements: gmp (>= 4.1)
@@ -16,8 +19,8 @@ Imports: Hmisc(>= 4.7-0), Cairo(>= 1.6-0), formula.tools(>= 1.7.0),
 Suggests: rmarkdown, knitr
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2024-01-13 14:41:29 UTC; NO
+Packaged: 2024-02-16 18:29:56 UTC; NO
 Author: William Fairweather [aut, cre]
 Maintainer: William Fairweather <wrf343@flowervalleyconsulting.com>
 Repository: CRAN
-Date/Publication: 2024-01-14 18:20:02 UTC
+Date/Publication: 2024-02-16 19:00:02 UTC
