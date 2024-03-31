@@ -17,12 +17,11 @@ Ensure that data frame has a leading column of observation numbers. Run forsearc
 create a file of diagnostic statistics to be used as input to such 
 plotting functions as plotdiag.residuals, plotdiag.params.fixed, plotdiag.params.random, 
 plotdiag.s2, plotdiag,leverage, and plotdiag.Cook. The file of diagnostic statistics can 
-be voluminous, and utility functions of showme, showmelme, and showmegl (for lm, lme and
-glm analyses, respectively) display the output more succinctly. Plotting of statistics 
-for fixed and for random coefficients is limited by graphical restraints in some cases. 
-The function identifyCoeffs provides a set of indexing codes so that plotdiag.params.random
-can display diagnostics for selected fixed or random model parameters. The function
-identifyFixedCoeffs does the same for lm models.
+be voluminous, and the utility function showme displays the output more succinctly. 
+Plotting of statistics for fixed and for random coefficients is limited by graphical 
+restraints in some cases. The function identifyCoeffs provides a set of indexing codes 
+so that plotdiag.params.random can display diagnostics for selected fixed or random model parameters. 
+The function identifyFixedCoeffs does the same for lm models.
 }
 
 \author{William R. Fairweather, Flower Valley Consulting, Inc., Silver Spring MD USA

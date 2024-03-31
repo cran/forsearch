@@ -155,12 +155,12 @@ The third example is a set of 67 records of British train accidents (Atkinson an
 
 ```
 The table below summarizes the use of plotdiag.xxx functions on forsearch_lm, _lme, 
- _glm, and _cph object databases:
+ _glm, _cph, and _nls object databases:
 
 ```
-------------------- | -------------------------------- | --- | --- | ---  | ---
-xxx	                | plots forsearch output named     | lm  | lme | glm  | cph
-------------------- | -------------------------------- | --- | --- | ---  | ---
+------------------- | -------------------------------- | --- | --- | ---  | ---    ---
+xxx	                | plots forsearch output named     | lm  | lme | glm  | cph  | nls
+------------------- | -------------------------------- | --- | --- | ---  | ---    ---
 AICX                | AIC			                   |     |     |  X  
 ANOX2               | ANOVA                            |  X  |  X  |
 ANOX2               | Proportionality test             |     |     |      |  X
@@ -171,11 +171,11 @@ fit3                | Fit statistics                   |     |  X  |
 leverage	        | Leverage	                       |  X  |  X  |  X   |  X
 loglik	            | Log Likelihood	               |     |     |      |  X
 lrt                 | Likelihood ratio test            |     |     |      |  X
-params.fixed	    | Fixed parameter estimates	       |  X  |  X  |  X   |  X
+params.fixed	    | Fixed parameter estimates	       |  X  |  X  |  X   |  X   |  X
 phihatx	            | PhiHat			               |     |     |  X  
-residuals	        | Standardized residuals	       |  X  |  X  |  
-s2	                | s^2	                           |  X  |	   |  
-tstats	            | t statistics	                   |  X  |  X  |  X  
+residuals	        | Standardized residuals	       |  X  |  X  |      |      |  X
+s2	                | s^2	                           |  X  |	   |      |      |  X
+tstats	            | t statistics	                   |  X  |  X  |  X   |      |  X
 Wald                | Wald Test                        |     |     |      |  X
 ```
 

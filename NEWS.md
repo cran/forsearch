@@ -1,7 +1,19 @@
+3/30/2024 forsearch version 6.0.0 
+=================================
+* Major changes:  
+  + Added functions forsearch_nls, eStep1, and eStep2 for nonlinear statistics
+  
+* Moderate changes: None
+
+* Minor changes and bug fixes:
+  + Added code to function showme for forsearch_nls objects and to function
+      plotdiag.allgraphs for forsearch_nls graphics 
+  + Modified vignette regarding where we get observations to cover nonlinear
+      models
+
 2/16/2024 forsearch version 5.1.0 
 =================================
 * Major changes: None 
-
 
 * Moderate changes: 
   + Completely revised flow of forsearch_glm to better accommodate models
