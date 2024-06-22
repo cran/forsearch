@@ -30,20 +30,6 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
      if(uu[1] != "Observation")stop("First column of data must be 'Observation'")
      #
      #
-if(F){
-     ####################################################
-     # Ensure that there is replication in the database #
-     ####################################################
-     varlist <- variablelist(data, prank=dim(data)[2] - 2)    # = num columns - Obs - response
-     if(length(varlist)==dim(data)[1]){
-          print("",quote=FALSE)
-          print("There is no replication in this dataset. All observations are defined as a combination of factors.", quote=FALSE)
-          print("This function does not support such datasets.", quote=FALSE)
-          print("",quote=FALSE)
-          stop("Try eliminating one or more of the factors in the database and in the formulas of the call.")
-     }
-     #
-}   # if F
      #######################################################################
      # Print the structure of the analysis that will be done on these data #
      # unless the treatment group is blinded                               #
@@ -92,6 +78,29 @@ if(F){
      }
      y1 <- data[,ycol]
      #
+     ################################################################
+     # Check for constructed variables in formula, ie, use of I()   #
+     # First convert formula to a vector of character pairs. Then   #
+     # recode the I( letters as  I(A) and the test accordingly.     #      
+     # Determine whether any of these is 'I(A)'.  If so, count them #
+     ################################################################
+     nAsIs <- 0
+     charform <- as.character(formula)
+     nstrs <- nchar(charform) - 1
+     output <- rep("S", nstrs)
+     for(i in 1:nstrs){
+          output[i] <- substr(charform,start=i, stop=i+1)
+     }
+     formpairs <- output
+     formpairs <- paste(formpairs, "A)", sep="")
+     jj <- "I(A)" %in% formpairs
+     if(jj){
+          kk <- grep(as.character("I(A)"), as.character(formpairs))
+          nAsIs <- length(kk)
+     }
+                                 if(begin.diagnose <= 6){print("", quote = FALSE);print(paste(spacer,"Section 6",sep=" "),quote=FALSE);
+                                      Hmisc::prn(charform);Hmisc::prn(formpairs);Hmisc::prn(jj);Hmisc::prn(nAsIs)       }
+     #
      #############################################################
      # Check for factor status of dataset, redefining lmAlldata  #
      # Remove factor variables and get rank of linear regression #
@@ -128,8 +137,9 @@ if(F){
           lmdatacont <- stats::lm(formulacont,datacont)                                                # lm on data without factor variables
           datacontrank <- lmdatacont$rank
      }
-                                 if(begin.diagnose <= 2){print("", quote = FALSE);print(paste(spacer,"Section 2",sep=" "),quote=FALSE);
-                                      Hmisc::prn(utils::head(datacont));Hmisc::prn(ufactornames);Hmisc::prn(formulacont);Hmisc::prn(datacontrank)       }
+                                 if(begin.diagnose <= 8){print("", quote = FALSE);print(paste(spacer,"Section 8",sep=" "),quote=FALSE);
+                                      Hmisc::prn(utils::head(datacont));Hmisc::prn(ufactornames);Hmisc::prn(formulacont);
+                                      Hmisc::prn(datacontrank);Hmisc::prn(nAsIs)       }
 
      if(yesfactor){                               # why pick some here and not in aStep1 ?  Seems to need this
           # there are factors in the dataset
@@ -173,7 +183,9 @@ if(F){
           zlist[[i]] <- result
           zlist[[i]][,1] <- sample(x=1:dimx1, size=dimx1)                        #    sample permutation
      }      #   i
-                                 if(begin.diagnose <= 20){print("", quote = FALSE);print(paste(spacer,"Section 20",sep=" "),quote=FALSE);Hmisc::prn(zlist);       }
+                                 if(begin.diagnose <= 20){print("", quote = FALSE);print(paste(spacer,"Section 20",sep=" "),quote=FALSE);
+                                     Hmisc::prn(zlist);       }
+
      if(is.null(skip.step1)){
           print("ENTERING STEP 1", quote=FALSE)
           inner.rank <- datacontrank
@@ -189,7 +201,7 @@ if(F){
                                  if(begin.diagnose <= 23){print("", quote = FALSE);print(paste(spacer,"Section 23a",sep=" "),quote=FALSE);
                                      Hmisc::prn(utils::head(datacont));Hmisc::prn(datacontrank);Hmisc::prn(ycolcont)       }
 
-              firstrim <- aStep1(yesfactor, df1=ss77C, inner.rank=datacontrank, initial.sample, formula=formulacont, 
+              firstrim <- aStep1(yesfactor, df1=ss77C, inner.rank=datacontrank + nAsIs, initial.sample, formula=formulacont, 
                        ycol=ycolcont, nopl=n.obs.per.level, b.d = begin.diagnose)                                                         #aStep1
               firstrim <- firstrim[[1]]
               lenfr <- length(firstrim)
@@ -201,8 +213,8 @@ if(F){
                                  if(begin.diagnose <= 23){print("", quote = FALSE);print(paste(spacer,"Section 23b",sep=" "),quote=FALSE);
                                      Hmisc::prn(utils::head(data));Hmisc::prn(formula);Hmisc::prn(datacontrank);Hmisc::prn(ycol)       }
 
-               firstrim <- aStep1(yesfactor, df1=data, inner.rank=datacontrank, initial.sample, formula=formula, 
-                       ycol=ycol, nopl=n.obs.per.level, b.d = begin.diagnose)                                                         #aStep1
+              firstrim <- aStep1(yesfactor, df1=data, inner.rank=datacontrank + nAsIs, initial.sample, formula=formula, 
+                       ycol=ycol, nopl=n.obs.per.level, b.d = begin.diagnose)                                                             #aStep1
                lenfr <- length(firstrim)
                rows.in.model[[lenfr]] <- firstrim  
                SOON <- firstrim
@@ -236,18 +248,19 @@ if(F){
                                  if(begin.diagnose <= 48){print("", quote = FALSE);print(paste(spacer,"Section 48",sep=" "),quote=FALSE);
                                             Hmisc::prn(rows.in.model);Hmisc::prn(SOON)      }
     #
+# stop("before step 2")
 #############################################################################################################################
 # Step 2
      print("ENTERING STEP 2", quote=FALSE)
      thisy <- ycol
      if(yesfactor){
           aStep2out <- aStep2(yesfactor, form.A2=formula, finalm=rows.in.model, rimbs=ss77, dfa2=data, ycol=thisy, mstart=mstart, 
-                        rnk=datacontrank, b.d=begin.diagnose)                                                    #   aStep2
+                        rnk=datacontrank+nAsIs, b.d=begin.diagnose)                                                    #   aStep2
      }       #  factors are present
      else{
           nofactrank <- rnk
           aStep2out <- aStep2(yesfactor, form.A2=formula, finalm=rows.in.model, rimbs=NULL, dfa2=data, ycol=thisy, mstart=mstart, 
-                        rnk=nofactrank, b.d=begin.diagnose)                                                    #   aStep2
+                        rnk=nofactrank+nAsIs, b.d=begin.diagnose)                                                    #   aStep2
      }      # no factors present
 
      rows.in.model <- aStep2out[[1]]
@@ -257,6 +270,7 @@ if(F){
                                  if(begin.diagnose <= 80){print("", quote = FALSE);print(paste(spacer,"Section 80",sep=" "),quote=FALSE);
                                             Hmisc::prn(rows.in.model);Hmisc::prn(fooResult)      }
 #
+# stop("before extract stats")
 ##############################################################################################################################
 # EXTRACT STATS
      print("", quote=FALSE)

@@ -12,11 +12,14 @@
                    verbose = TRUE)
 }
 \arguments{
-  \item{formula}{Fixed effects formula as described in stats::lm}
+  \item{formula}{Fixed effects formula as described in help(lm). The only 
+          permitted operators are +, : , and * . Terms must be found in data or 
+          as constructed by I(xxx) where xxx is found in data}
   \item{data}{Name of database}
   \item{initial.sample}{Number of observations in Step 1 of forward search}
   \item{n.obs.per.level}{Number of observations per level of (possibly crossed) 
-    factor levels}
+    factor levels.Set to rank of X'X if model contains constructed variables
+    such as I(x^3), for example in polynomial regression }
   \item{skip.step1}{NULL or a vector of integers for observations to be included
    in Step 1}
   \item{unblinded}{TRUE causes printing of presumed analysis structure}
@@ -70,6 +73,15 @@ AN2 <- as.factor(c(rep("B1",30),rep("B2",30)))
 COV <- runif(60)
 lmtest3 <- data.frame(Observation,y,AN1,AN2,COV)
 forsearch_lm(formula=y~AN1*AN2+COV, data=lmtest3, initial.sample=200,begin.diagnose=100)
+
+# Polynomial regression
+C1 <- 7*runif(60) + 1
+y <- 4 + C1 - 6*C1^2 + 9*C1^3 + rnorm(60)
+Observation <- 1:60
+dfpoly <- data.frame(Observation,C1,y) 
+polyform <- C1 + I(C1^2) + I(C1^3)
+forsearch_lm(formula = y ~ polyform, data = dfpoly,  initial.sample = 200, 
+     begin.diagnose=100)
 }
 }
 \keyword{  datagen  }

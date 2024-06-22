@@ -18,6 +18,7 @@ function(
 
          begin.diagnose=  100,          verbose=    TRUE)
 {
+
 #                                                                      forsearch_glm
 
      MC <- match.call()
@@ -32,7 +33,7 @@ function(
           print("", quote = FALSE)
      }
 
-     spacer <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX           forsearch_glm  "
+     spacer <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXX           forsearch_glm  "
 
      ############################
      # Identity matrix function #  Used only in Cook calculation
@@ -139,6 +140,36 @@ function(
           print(lmAlldata)
           print("",quote=FALSE)
      }
+     #
+if(F){
+     ################################################################
+     # Check for constructed variables in formula, ie, use of I()   #
+     # First convert formula to a vector of character pairs. Then   #
+     # recode the I( letters as  I(A) and the test accordingly.     #      
+     # Determine whether any of these is 'I(A)'.  If so, count them #
+     ################################################################
+     nAsIs <- 0
+     charform <- as.character(formula.cont.rhs)
+     nstrs <- nchar(charform)
+     output <- rep("S", nstrs)
+     for(i in 1:nstrs){
+          output[i] <- substr(charform,start=i, stop=i+1)
+     }
+     formpairs <- output
+     formpairs <- paste(formpairs, "A)", sep="")
+     jj <- "I(A)" %in% formpairs
+     if(jj){
+          kk <- grep(as.character("I(A)"), as.character(formpairs))
+          nAsIs <- length(kk)
+     }
+
+                                 if(begin.diagnose <= 3){print("", quote = FALSE);print(paste(spacer,"Section 3",sep=" "),quote=FALSE);
+                                      Hmisc::prn(charform);Hmisc::prn(formpairs);Hmisc::prn(jj);Hmisc::prn(nAsIs)       }
+#prn(nAsIs)
+ nAsIs <- 0
+}
+
+
      ########################################
      # Check for factor status of dataset   #
      # Get rank of analysis without factors #
@@ -153,7 +184,7 @@ function(
      lmAlldata <- stats::lm(formula=genformula, data, singular.ok=TRUE, x=TRUE, y=TRUE)                                    # lm
      ncoeffs <- length(lmAlldata$coefficients)
      rnk <- lmAlldata$rank
-                                 if(begin.diagnose <= 2){print(paste(spacer,"Section 2",sep=" "),quote=FALSE);
+                                 if(begin.diagnose <= 4){print(paste(spacer,"Section 4",sep=" "),quote=FALSE);
                                       Hmisc::prn(ncoeffs);Hmisc::prn(rnk)       }
  
      nopl <- n.obs.per.level
@@ -295,6 +326,7 @@ function(
                                       Hmisc::prn(ufactornames);Hmisc::prn(this.form2);Hmisc::prn(lmnofactor);
                                       Hmisc::prn(inner.rnk)       }
      #
+# stop("xnorm")
 ##############################################################################################################################
 # Step 1
      if(is.null(skip.step1)){
@@ -309,13 +341,13 @@ function(
                yk <- names(fixdat.list[[1]])
                yk <- match(responseName,yk)
                firstrim <- dStep1(yesfactor,df1=fixdat.list, inner.rank=inner.rnk, initial.sample=initial.sample, 
-                         formuladStep=this.form, fam=family, ycol=yk, nopl=nopl, b.d=begin.diagnose)               # dStep1
+                         formuladStep=this.form, fam=family, ycol=yk, nopl=nopl, b.d=begin.diagnose)                      # dStep1
          }
           else{
                yk <- names(fixdat.df)
                yk <- match(responseName,yk)
                firstrim <- dStep1(yesfactor, df1=fixdat.df, inner.rank=inner.rnk, initial.sample=initial.sample,
-                         formuladStep=this.form, fam=family, ycol=yk, nopl=nopl, b.d=begin.diagnose)               # dStep1)
+                         formuladStep=this.form, fam=family, ycol=yk, nopl=nopl, b.d=begin.diagnose)                      # dStep1)
           }
           alength <- length(firstrim)
           rows.in.model[[alength]] <- firstrim
@@ -333,6 +365,7 @@ function(
                                                   if(begin.diagnose <= 49){print(paste(spacer,"Section 49",sep=" "),quote=FALSE);
                                                         Hmisc::prn(SOON);Hmisc::prn(mstart)       }
      #
+# stop("end of Step 1")
 ###################################################################################################################################################
 # Step2
 
@@ -349,6 +382,8 @@ function(
                                                  if(begin.diagnose <= 52){print(paste(spacer,"Section 52",sep=" "),quote=FALSE);
                                                         Hmisc::prn(rows.in.model)       }
      #
+#prn(rows.in.model)
+# stop("before extracting intermediate stats")
 ###################################################################################################################################################
      print("BEGINNING EXTRACTION OF INTERMEDIATE STATISTICS", quote=FALSE)
      print("",quote=FALSE)

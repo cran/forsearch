@@ -11,7 +11,7 @@ function(f2, dfa2, randm2, ms, finalm, fbg, b.d, rnk2, ycol, fam)
      # INPUT 
      #     fam     Family with link
      #
-     spacer <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX        dStep2               "
+     spacer <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX        dStep2        "
 
      nobs <- dim(dfa2)[1]
 

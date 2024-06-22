@@ -17,6 +17,24 @@ function(x, verbose=TRUE)
      }
      uu <- as.character(x$Call[[1]])
 
+     if(substr(uu,1,13)=="forsearch_nls"){
+               print("This is a forsearch_nls output file", quote=FALSE)
+               print("", quote = FALSE)
+               Hmisc::prn(names(x))
+               print(search.history(x)[[1]])
+               Hmisc::prn(utils::head(x$"Standardized residuals"))
+               Hmisc::prn(utils::tail(x$"Standardized residuals"))
+               Hmisc::prn(x$"Number of model parameters")
+               Hmisc::prn(x$Sigma)
+               Hmisc::prn(x$"Fixed parameter estimates")
+               Hmisc::prn(x$"s^2")
+#               Hmisc::prn(x$"ANOVA")
+#               Hmisc::prn(utils::head(x$Leverage))
+#               Hmisc::prn(utils::tail(x$Leverage))
+#               Hmisc::prn(x$"Modified Cook distance")
+               Hmisc::prn(x$"t statistics")
+     }      # nls
+
      if(substr(uu,1,13)=="forsearch_cph"){
           print("This is a forsearch_cph output file", quote=FALSE)
           print("", quote = FALSE)

@@ -32,7 +32,7 @@ function(fixedform, alldata, randomform, initial.sample=1000, n.obs.per.level=1,
      # 
 
      #   begin.diagnose      Step 0: 1 - 19        Step 1: 20     -     49     Step 2:    50 - 59           Extraction:     81 - 
-     #                                                aStep1:  31 - 39                    aStep2:  60 - 80
+     #                                                aStep1:  31 - 39                    bStep2:  60 - 80
 
 # Step 0
      spacer <- "                                            forsearch_lme        "
@@ -121,12 +121,36 @@ function(fixedform, alldata, randomform, initial.sample=1000, n.obs.per.level=1,
      for(i in 1:nlevfixdat){
           uncenrank.df <- rbind(uncenrank.df, fixdat.list[[i]])
      }
+     ################################################################
+     # Check for constructed variables in formula, ie, use of I()   #
+     # First convert formula to a vector of character pairs. Then   #
+     # recode the I( letters as  I(A) and the test accordingly.     #      
+     # Determine whether any of these is 'I(A)'.  If so, count them #
+     ################################################################
+     nAsIs <- 0
+     charform <- as.character(fixedform)
+     nstrs <- nchar(charform) - 1
+     output <- rep("S", nstrs)
+     for(i in 1:nstrs){
+          output[i] <- substr(charform,start=i, stop=i+1)
+     }
+     formpairs <- output
+     formpairs <- paste(formpairs, "A)", sep="")
+     jj <- "I(A)" %in% formpairs
+     if(jj){
+          kk <- grep(as.character("I(A)"), as.character(formpairs))
+          nAsIs <- length(kk)
+     }
+                                 if(begin.diagnose <= 20){print("", quote = FALSE);print(paste(spacer,"Section 20",sep=" "),quote=FALSE);
+                                      Hmisc::prn(charform);Hmisc::prn(formpairs);Hmisc::prn(jj);Hmisc::prn(nAsIs)       }
+
      #
      #######################################################################
      # Remove factor variables and get rank within continuous observations #
      #######################################################################
      unnames <- names(uncenrank.df)
      unnames <- unnames[-length(unnames)]    # remove factor level indicator
+     rank.form <- 1
      if(length(unnames)==2){                 # contains only Observation and response
            datacontrank <- 1
            mini.df <- fixdat.df[,-(1:2)]
@@ -138,7 +162,7 @@ function(fixedform, alldata, randomform, initial.sample=1000, n.obs.per.level=1,
           rank.form <- paste(fixed.lhs, unnames, sep=" ~ ")
           rank.form <- stats::as.formula(rank.form)
           lm4rank <- stats::lm(formula=rank.form, data=alldata)                    #    lm for rank
-          datacontrank <- lm4rank$rank
+          datacontrank <- max(lm4rank$rank,nopl)
           mini.df <- fixdat.df[,-(1:2)]
      }
 ###########################################################################################################################################
@@ -147,7 +171,8 @@ function(fixedform, alldata, randomform, initial.sample=1000, n.obs.per.level=1,
      LLL <- vector("list", nalldata1)
      zlist <- vector("list",initial.sample)         # zlist elements start with matrix result
 
-                                               if(begin.diagnose <=22) {print(paste(spacer,"Section 22",sep=" "),quote=FALSE)   }
+                                               if(begin.diagnose <=22) {print(paste(spacer,"Section 22",sep=" "),quote=FALSE);Hmisc::prn(fixed.lhs);
+                                                  Hmisc::prn(rank.form)        }        #;Hmisc::prn();Hmisc::prn();   }
 
      if(is.null(skip.step1)){
           print("BEGINNING STEP 1", quote=FALSE)
@@ -168,7 +193,8 @@ function(fixedform, alldata, randomform, initial.sample=1000, n.obs.per.level=1,
           }
           formulacont <- stats::as.formula(xform2)
           #
-          firstrim2 <- aStep1(yesfactor=TRUE, df1=fixdat.list, inner.rank=datacontrank, initial.sample, 
+#stop("before astep 1") 
+         firstrim2 <- aStep1(yesfactor=TRUE, df1=fixdat.list, inner.rank=datacontrank + nAsIs, initial.sample, 
                     formula=formulacont, ycol=2, nopl=nopl, b.d=begin.diagnose)                                         # aStep1 
 
           firstrim <- firstrim2[[1]]
@@ -198,14 +224,18 @@ function(fixedform, alldata, randomform, initial.sample=1000, n.obs.per.level=1,
      print("BEGINNING STEP 2", quote=FALSE)
 
      fixedformform <- stats::formula(fixedform)
+#                                               if(begin.diagnose <=44) {print(paste(spacer,"Section 44",sep=" "),quote=FALSE);
+#                                                  Hmisc::prn(thiscph);Hmisc::prn(SOON);Hmisc::prn(thiscph);Hmisc::prn(SOON);Hmisc::prn(thiscph);Hmisc::prn(SOON);   }
+
 
      zzzz <- bStep2(f2=fixedformform, dfa2=fixdat.df, randm2=randomform, ms=mstart,  
-                    finalm=rows.in.model, fbg=fixdat.list, b.d=begin.diagnose, rnk2=datacontrank)                 # bStep2
+                    finalm=rows.in.model, fbg=fixdat.list, b.d=begin.diagnose, rnk2=datacontrank + nAsIs)                 # bStep2
 
      rows.in.set <- zzzz[[1]]
      LME <- zzzz[[2]]
      rows.in.set[[nalldata1]] <- 1:nalldata1
      LME[[nalldata1]] <- nlme::lme(fixedformform, alldata, randomform)
+# stop("before extraction")
 
 ########################################################################################################################################################################
 # Extracting summary statistics

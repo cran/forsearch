@@ -31,6 +31,9 @@ function (mstart, finalm, start, data2, pformula, algo2, cont, fixdb, fixlist, y
      modCook <- rep(0,nrim)
      residuals2 <- matrix(0,nrim,nrim)
      #
+#prn(finalm)
+#prn(fooResult)
+# stop("step2")
      ##############################
      # Begin loop creating step 2 #
      ##############################
@@ -71,6 +74,13 @@ function (mstart, finalm, start, data2, pformula, algo2, cont, fixdb, fixlist, y
 
      sigma <- sqrt(sum(predictions[,3])/(nrim-length(start)))      # here, we're using an overall estimate, not by factor subsets
 #     param.est <- as.data.frame(t(param.est))
+     #
+#     ###################################
+#     # Finish off finalm and fooResult #
+#     ###################################
+#     finalm[[nrim]] <- 1:nrim
+#     fooResult[[nrim]] <- stats::nls(formula=pformula, start=start, data=data2, control=cont, algorithm=algo2)              # nls
+
      outlist <- list(finalm, fooResult, residuals2, sigma)
      return(outlist)
 }

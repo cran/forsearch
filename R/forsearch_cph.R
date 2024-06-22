@@ -33,7 +33,7 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
           print(MC, quote=FALSE)
           print("", quote=FALSE)
      }
-     spacer <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX      forsearch_cph             "     # used for begin.diagnose prints
+     spacer <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX      forsearch_cph   "     # used for begin.diagnose prints
      options(warn=-1)
      on.exit(options(warn=0))
      #
@@ -99,6 +99,8 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
           print("Actual event times have been replaced by random numbers here.", quote=FALSE)
           print("", quote = FALSE)
           print(stats::anova(coxrandAlldata))
+#       
+          print("", quote = FALSE)
           print("", quote = FALSE)
           print("All categorical variables must be defined to be factors in the database, not in the formula.", quote=FALSE)
           print("", quote = FALSE)
@@ -112,6 +114,30 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
      #    uncenrank.df, a data frame the same as uncensored.list for determining rank                    #
      #####################################################################################################
 
+     ################################################################
+     # Check for constructed variables in formula, ie, use of I()   #
+     # First convert formula to a vector of character pairs. Then   #
+     # recode the I( letters as  I(A) and the test accordingly.     #      
+     # Determine whether any of these is 'I(A)'.  If so, count them #
+     ################################################################
+     nAsIs <- 0
+     charform <- as.character(xform)
+     nstrs <- nchar(charform) - 1
+     output <- rep("S", nstrs)
+     for(i in 1:nstrs){
+          output[i] <- substr(charform,start=i, stop=i+1)
+     }
+     formpairs <- output
+     formpairs <- paste(formpairs, "A)", sep="")
+     jj <- "I(A)" %in% formpairs
+     if(jj){
+          kk <- grep(as.character("I(A)"), as.character(formpairs))
+          nAsIs <- length(kk)
+     }
+                                 if(begin.diagnose <= 6){print("", quote = FALSE);print(paste(spacer,"Section 6",sep=" "),quote=FALSE);
+                                      Hmisc::prn(charform);Hmisc::prn(formpairs);Hmisc::prn(jj);Hmisc::prn(nAsIs)       }
+
+# stop("xform")
      ############################################################
      # Check for factor status of alldata and get factor names  #
      ############################################################
@@ -225,8 +251,8 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
                xform2 <- paste("event.time", formula.rhs2, sep=" ~ ")
           }
           formulacont <- stats::as.formula(xform2)
-          firstrim2 <- aStep1(yesfactor=TRUE, df1=uncensored.list, inner.rank=datacontrank, initial.sample, formula=formulacont, ycol=2, 
-                    nopl=nopl, b.d=begin.diagnose)                                                                                 # aStep1 
+          firstrim2 <- aStep1(yesfactor=TRUE, df1=uncensored.list, inner.rank=datacontrank + nAsIs, initial.sample, formula=formulacont, ycol=2, 
+                    nopl=nopl, b.d=begin.diagnose)                                                                                               # aStep1 
           firstrim <- firstrim2[[1]]
           nfirstrim <- length(firstrim)
           rows.in.model[[nfirstrim]] <- firstrim2                        # save list with pool and individual subsets
@@ -255,10 +281,11 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
      print("BEGINNING STEP 2", quote = FALSE)
      print("", quote=FALSE)
      heresStep2 <- cStep2(f.e=formula.rhs, finalm=rows.in.model, dfa2=fixdat.df, ms=mstart,  
-                         rnk2=datacontrank, ss=skip.step1, b.d=begin.diagnose)                                             # cStep2
+                         rnk2=datacontrank + nAsIs, ss=skip.step1, b.d=begin.diagnose)                                             # cStep2
 
      rows.in.model <- heresStep2[[1]]
-     rows.in.model[nalldata1] <- 1:nalldata1
+     rows.in.model[[nalldata1]] <- 1:nalldata1
+
      LLL <- heresStep2[[2]]
      rows.in.model[[nalldata1]] <- 1:nalldata1
      adet <- alldata$event.time
@@ -269,6 +296,7 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
      coxAlldata <- survival::coxph(formula=formulalast, data=alldata, model=TRUE, x=TRUE, y=TRUE)                  # coxph
      LLL[[nalldata1]] <- coxAlldata
      #
+# stop("before interim stats extraction")
 #UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU
      print("BEGINNING INTERMEDIATE RESULTS EXTRACTION", quote=FALSE)
      print("", quote=FALSE)
@@ -310,6 +338,9 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
           ##############################
           if(dd > mstart){              
                an.error.occurred <- FALSE
+               thiszph <- data.frame(0,0,"Skipping proportionality test")
+#prn(thiszph)
+#stop("thiszph")
                if(nfacts > 0 & proportion){
                     tryCatch( {thiszph <- survival::cox.zph(coxphout, global=FALSE)[[1]]}
                         , error = function(e) {an.error.occurred <<- TRUE})

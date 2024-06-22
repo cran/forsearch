@@ -89,6 +89,9 @@ function (yesfactor, form.A2, finalm, rimbs, dfa2, ycol, mstart, rnk, b.d)
                needed <- remainder.mat[1:(i - nfinal),]
                needed.1 <- needed[,1]
                finalm[[i]] <- c(collect.final, needed.1)
+#prn(finalm[[i]])
+#stop("first Step 2")
+
           }     # i   
 
                                  if(b.d <= 70){print("", quote = FALSE);print(paste(spacer,"Section 70",sep=" "),quote=FALSE);
@@ -113,6 +116,9 @@ function (yesfactor, form.A2, finalm, rimbs, dfa2, ycol, mstart, rnk, b.d)
 
                                  if(b.d <= 71){print("", quote = FALSE);print(paste(spacer,"Section 71",sep=" "),quote=FALSE);
                                       Hmisc::prn(i);Hmisc::prn(thisdf1);Hmisc::prn(predictions);Hmisc::prn(finalm[[i]])       }
+
+#prn(finalm[[i]])
+#stop("first Step 2")
 
           }    #   i
           sigma <- sqrt(sum(predictions[,2])/(nobs-rnk))

@@ -17,7 +17,7 @@ function(f2, dfa2, randm2, ms, finalm, fbg, b.d, rnk2)
                                 Hmisc::prn(finalm);Hmisc::prn(utils::head(dfa2));Hmisc::prn(utils::tail(dfa2));Hmisc::prn(dim(dfa2));
                                 Hmisc::prn(ms);Hmisc::prn(rnk2)    }
 
-
+#stop("inside bStep2")
      fooResult <- vector("list", nobs)
      for(i in ms:(nobs-1)){
           remainder <- NULL

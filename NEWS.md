@@ -1,3 +1,13 @@
+6/22/2024 forsearch version 6.1.0 
+=================================
+* Major changes: None  
+ 
+* Moderate changes:
+  + Enabled models with constructed variables (those that appear in the formula
+    but not in the database)
+
+* Minor changes and bug fixes: None 
+ 
 3/30/2024 forsearch version 6.0.0 
 =================================
 * Major changes:  

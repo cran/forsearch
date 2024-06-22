@@ -31,6 +31,7 @@
    \item{Number of model parameters }{Number of fixed coefficients in Cox model}
    \item{Fixed parameter estimates }{Vector of parameter estimates at each stage}
    \item{Wald Test }{Vector of Wald tests at each stage}
+   \item{Proportionality Test}{Result of Cox proportionality test, if run}
    \item{LogLikelihood }{Vector of null and overall coefficients log likelihoods at
         each stage}
    \item{Likelihood ratio test }{Vector of LRTs at each stage}

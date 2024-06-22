@@ -42,7 +42,6 @@ function (object, mt = " ", st = " ", cpt = " ", blind.label=FALSE, cc = NULL, c
           plotdiag.Wald(object, maintitle = mt, subtitle = st, caption = cpt, wmf="Wald", Cairo=Cairo)  
           plotdiag.lrt(object, maintitle = mt, subtitle = st, caption = cpt, wmf="lrt", Cairo=Cairo) 
  
-          plotdiag.loglik(object, maintitle = mt, subtitle = st, caption = cpt, wmf="loglik", Cairo=Cairo)  
           plotdiag.ANOX2(object, anova.rows=NULL, ylab.extend="p",  maintitle = mt, subtitle = st, caption = cpt, wmf="prop", Cairo=Cairo)
 
           Hmisc::prn(names(object))

@@ -13,7 +13,7 @@ function (df1, inner.rank, initial.sample, formula, start, algo, control, ycol, 
      #            ycol           Response column number
      #            b.d            begin.diagnose Ranges from 25 to 45
      #
-     spacehere <- "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%      eStep1           "    
+     spacehere <- "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%      eStep1        "    
      
                            if(b.d <=31 ){ print("",quote=FALSE);print(paste(spacehere,"Section 31",sep=" "),quote=FALSE);
                                  Hmisc::prn(df1);Hmisc::prn(inner.rank);
@@ -39,7 +39,7 @@ function (df1, inner.rank, initial.sample, formula, start, algo, control, ycol, 
                 zlist[[i]][,1] <- sample(dataObs,dimdata.1, replace=FALSE)                  # sample permutation of observation numbers
           }     # i
                            if(b.d <=33 ){ print("",quote=FALSE);print(paste(spacehere,"Section 33",sep=" "),quote=FALSE);
-                                Hmisc::prn(zlist)   }
+                                Hmisc::prn(zlist)[[initial.sample]]   }
 
           for(i in 1:initial.sample){
                Potential <- matrix(0, nrow=initial.sample, ncol=inner.rank)
@@ -56,6 +56,9 @@ function (df1, inner.rank, initial.sample, formula, start, algo, control, ycol, 
                this.form <- formula
                lmsmall <- stats::nls(formula=this.form, data=smalldata, start = thisstart, 
                      algorithm=algo, control=control, model=TRUE)                                       # nls
+#print("in eStep1")
+#prn(lmsmall$model)
+# stop("lmsmall")
                predsmall <- stats::predict(lmsmall, data, type="response", pred.var=1)                          # predict
                errorsmall <- data[, ycol] - predsmall
                sserrorsmall <- errorsmall^2

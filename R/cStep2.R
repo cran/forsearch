@@ -19,7 +19,7 @@ function (f.e, finalm, dfa2, ms, rnk2, ss, b.d)
      #       ss                skip.step1
      #       b.d               Number at whidh to begin diagnostic listings
      #
-     spacer <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX        cStep2               "
+     spacer <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX        cStep2   "
 
      nobs <- dim(dfa2)[1]
      # Delete observations by factor subset from initial set of observations (from Step 1).
@@ -71,7 +71,8 @@ function (f.e, finalm, dfa2, ms, rnk2, ss, b.d)
      }    #   i
 
                           if(b.d <=80 ){ print("",quote=FALSE);print(paste(spacer,"Section 80",sep=" "),quote=FALSE);
-                                   Hmisc::prn(finalm);Hmisc::prn(fooResult)   }    
+                                   finalm8 <- finalm[[8]];finalmend <- finalm[[nobs-1]] 
+                                   Hmisc::prn(finalm8);Hmisc::prn(finalmend);Hmisc::prn(fooResult[[nobs-1]])   }    
  
     outlist <- list(finalm, fooResult)
 

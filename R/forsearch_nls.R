@@ -10,10 +10,10 @@ function(phaselist, data, poolstart, poolformula, algorithm="default", control=N
      #
      # INPUT
      #     phaselist       Named list, each element of which contains 4 elements that describe 1 phase.
-     #          formula           Formula for phase
-     #          formulacont       Formula omitting all factor variables for phase  
-     #          start             Start for each phase
-     #          nopp              nopp for the phase
+     #          formula           Formula for phase i
+     #          formulacont       Formula omitting all factor variables for phase i  
+     #          start             Start for each phase i
+     #          nopp              nopp for the phase i
      #
      #     data              Dataset. First 2 variables are Observation and Phases (both mandatory)
      #     poolstart         Start for Step 2
@@ -153,27 +153,26 @@ function(phaselist, data, poolstart, poolformula, algorithm="default", control=N
           thisformulacont <- uu[[2]]
           thisstart <- uu[[3]]  
           thisnopp <- uu[[4]]
+          for(tryn in max(3,thisnopp):dim(thissubset)[1]){
 
-          for(tryn in max(2,thisnopp):dim(thissubset)[1]){
-
-                                               if(begin.diagnose <=9){ print(paste(spacer,"Section 9",sep=" "),quote=FALSE);
+                                               if(begin.diagnose <= 9){ print(paste(spacer,"Section 9",sep=" "),quote=FALSE);
                                                       Hmisc::prn(thisphase);Hmisc::prn(thisformulacont);Hmisc::prn(tryn)   }
-
                an.error.occurred <- FALSE
-               OKnls <- NULL
+               OKnls <- list(convInfo <- FALSE)
+
                tryCatch(
                    expr=(OKnls <- stats::nls(formula=thisformulacont, data=thissubset[1:tryn,], start=thisstart, 
                        control = nls.control(warnOnly=TRUE,scaleOffset=10), algorithm = algorithm))
                    , error=function(e) {an.error.occurred <- TRUE}
-                   , warning=function(e) {an.error.occurred <- TRUE}
                         )
                if(an.error.occurred){
-                    messprop <- "nls failed to converge; increasing nobs"
+                    messprop <- "nls failed to converge; increasing nobs in estimation of Step 1"
                     print(messprop, quote=FALSE)
                }
                else{
                     if(OKnls$convInfo[[1]])break
                }
+
           }    # tryn
           nobs.df[i,1] <- thissubset[1,dimtss]
           nobs.df[i,2] <- tryn
