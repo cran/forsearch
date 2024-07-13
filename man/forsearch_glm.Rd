@@ -60,7 +60,7 @@ forsearch_glm(initial.sample=1000, response.cols, indep.cols, family,
 }
 \author{William R. Fairweather}
 \examples{
-# Train deaths (Atkinson and Riani, 2000)
+# Train deaths (Atkinson and Riani, 2000) with Rolling Stock as a factor
 Observation<-1:67
 Month<-c(9,8,3,1,10,6,7,1,8,4,3,3,12,11,10,9,9,4,3,12,12,10,7,2,12,2,12,12,12,
     11,3,10,4,2,12,12,9,11,1,10,8,6,1,10,6,12,8,4,9,6,12,10,7,2,5,12,5,5,4,3,1,
@@ -70,6 +70,7 @@ Year<-c(97,96,96,95,94,94,91,91,90,89,89,89,88,88,87,86,86,86,86,84,84,84,84,84,
     72,71,71,71,71,70,69,69,69,69,69,69,68,67,67,67,67,67)
 RollingStock<-c(2,2,3,2,1,1,1,1,2,3,1,1,1,2,1,2,1,3,2,2,1,2,2,3,1,2,1,1,2,3,1,
     1,1,1,1,1,1,3,3,2,3,1,2,3,1,1,1,3,3,1,3,3,1,1,1,2,1,1,2,1,1,1,1,1,1,1,1)
+RollingStock <- as.factor(RollingStock)    
 Traffic<-c(0.436,0.424,0.424,0.426,0.419,0.419,0.439,0.439,0.431,0.436,0.436,
     0.436,0.443,0.443,0.397,0.414,0.414,0.414,0.414,0.389,0.389,0.389,0.389,
     0.389,0.401,0.401,0.372,0.417,0.417,0.43,0.43,0.426,0.426,0.426,0.43,0.43,
@@ -81,7 +82,7 @@ Deaths<-c(7,1,1,1,5,2,4,2,1,1,2,5,35,1,4,1,2,1,1,3,1,3,13,2,1,1,1,4,1,2,1,5,7,
 train2022 <- data.frame(Observation, Year, RollingStock, Traffic, Deaths)
 forsearch_glm(initial.sample = 100, response.cols = 5, 
     indep.cols = 2:4, formula=Deaths~Year + RollingStock + Traffic,
-    formula.cont.rhs="Year + RollingStock + Traffic", 
+    formula.cont.rhs="Year + Traffic", 
     family = poisson("log"), data = train2022, 
     n.obs.per.level = 1, estimate.phi = TRUE, skip.step1 = NULL, 
     unblinded = TRUE, begin.diagnose=100)

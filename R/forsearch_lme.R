@@ -194,10 +194,14 @@ function(fixedform, alldata, randomform, initial.sample=1000, n.obs.per.level=1,
           formulacont <- stats::as.formula(xform2)
           #
 #stop("before astep 1") 
-         firstrim2 <- aStep1(yesfactor=TRUE, df1=fixdat.list, inner.rank=datacontrank + nAsIs, initial.sample, 
-                    formula=formulacont, ycol=2, nopl=nopl, b.d=begin.diagnose)                                         # aStep1 
+#         firstrim <- aStep1(yesfactor=TRUE, df1=alldata, df1.ls=fixdat.list, inner.rank=datacontrank + nAsIs, initial.sample=initial.sample, 
+#                    formula=formulacont, ycol=2, nopl=nopl, b.d=begin.diagnose)                                         # aStep1 
 
-          firstrim <- firstrim2[[1]]
+# function (yesfactor, df1, df1.ls, inner.rank, initial.sample, formula, randform, ycol, nopl, b.d) 
+#{
+         firstrim <- bStep1(yesfactor=TRUE, df1=alldata, df1.ls=fixdat.list, inner.rank=datacontrank + nAsIs, initial.sample=initial.sample, 
+                    formula=formulacont, randform=randomform, ycol=2, nopl=nopl, b.d=begin.diagnose)                                         # bStep1 ycol set =2
+
           nfirstrim <- length(firstrim)
           rows.in.model[[nfirstrim]] <- firstrim                        # save list with pool and individual subsets
           SOON <- firstrim
@@ -215,26 +219,26 @@ function(fixedform, alldata, randomform, initial.sample=1000, n.obs.per.level=1,
           mstart <- nfirstrim + 1
      }       # skipping step 1
      # 
-#                                               if(begin.diagnose <=42) {print(paste(spacer,"Section 42",sep=" "),quote=FALSE);
-#                                                  Hmisc::prn(thiscph);Hmisc::prn(SOON)   }
+                                               if(begin.diagnose <=42) {print(paste(spacer,"Section 42",sep=" "),quote=FALSE);
+                                                  Hmisc::prn(SOON)   }
 
 #
 ########################################################################################################################################################################
 # Step 2
      print("BEGINNING STEP 2", quote=FALSE)
-
      fixedformform <- stats::formula(fixedform)
 #                                               if(begin.diagnose <=44) {print(paste(spacer,"Section 44",sep=" "),quote=FALSE);
-#                                                  Hmisc::prn(thiscph);Hmisc::prn(SOON);Hmisc::prn(thiscph);Hmisc::prn(SOON);Hmisc::prn(thiscph);Hmisc::prn(SOON);   }
+#                                                  Hmisc::prn(SOON);   }
 
-
+# note X in call
      zzzz <- bStep2(f2=fixedformform, dfa2=fixdat.df, randm2=randomform, ms=mstart,  
-                    finalm=rows.in.model, fbg=fixdat.list, b.d=begin.diagnose, rnk2=datacontrank + nAsIs)                 # bStep2
+                    finalm=rows.in.model, fbg=fixdat.list, b.d=begin.diagnose, rnk2=datacontrank + nAsIs, ycol=ycolfixed)                 # bStep2
 
      rows.in.set <- zzzz[[1]]
      LME <- zzzz[[2]]
      rows.in.set[[nalldata1]] <- 1:nalldata1
      LME[[nalldata1]] <- nlme::lme(fixedformform, alldata, randomform)
+#prn(rows.in.set)
 # stop("before extraction")
 
 ########################################################################################################################################################################

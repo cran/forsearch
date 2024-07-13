@@ -1,5 +1,5 @@
 eStep1 <-
-function (df1, inner.rank, initial.sample, formula, start, algo, control, ycol, b.d) 
+function (df1, inner.rank, initial.sample, formula, start, contR, algo, ycol, b.d) 
 {
      #                                    eStep1   
      # 
@@ -38,8 +38,8 @@ function (df1, inner.rank, initial.sample, formula, start, algo, control, ycol, 
                 zlist[[i]] <- result                                                        # this is the initialized 0,0 matrix
                 zlist[[i]][,1] <- sample(dataObs,dimdata.1, replace=FALSE)                  # sample permutation of observation numbers
           }     # i
-                           if(b.d <=33 ){ print("",quote=FALSE);print(paste(spacehere,"Section 33",sep=" "),quote=FALSE);
-                                Hmisc::prn(zlist)[[initial.sample]]   }
+#                           if(b.d <=33 ){ print("",quote=FALSE);print(paste(spacehere,"Section 33",sep=" "),quote=FALSE);
+#                                Hmisc::prn(zlist)[[initial.sample]]   }
 
           for(i in 1:initial.sample){
                Potential <- matrix(0, nrow=initial.sample, ncol=inner.rank)
@@ -55,11 +55,10 @@ function (df1, inner.rank, initial.sample, formula, start, algo, control, ycol, 
                ####################################################################
                this.form <- formula
                lmsmall <- stats::nls(formula=this.form, data=smalldata, start = thisstart, 
-                     algorithm=algo, control=control, model=TRUE)                                       # nls
-#print("in eStep1")
-#prn(lmsmall$model)
-# stop("lmsmall")
+                     control=contR, algorithm=algo, model=TRUE)                                                             # nls
+
                predsmall <- stats::predict(lmsmall, data, type="response", pred.var=1)                          # predict
+
                errorsmall <- data[, ycol] - predsmall
                sserrorsmall <- errorsmall^2
                rowz <- zlist[[i]]
@@ -87,5 +86,6 @@ function (df1, inner.rank, initial.sample, formula, start, algo, control, ycol, 
           zliststar <- zlist[[lcm3]]     # this is the permutation to use
 
           rim <- c(zliststar[1:length(obsindex), 1])
+
           return(rim)
 }

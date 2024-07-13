@@ -1,7 +1,7 @@
 #' @export
 forsearch_cph <-
 function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
-    ties = "efron", proportion=TRUE, unblinded=TRUE, begin.diagnose= 100, verbose=TRUE)
+    ties = "efron", maxdisturb=.01, proportion=TRUE, unblinded=TRUE, begin.diagnose= 100, verbose=TRUE)
 {
      #                                           forsearch_cph    
      #
@@ -69,7 +69,12 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
      if(sum(alldata[,3])==0)stop("There must be some uncensored observations (ie, status=1)")
      if(statusOK + sum(alldata[,3]==0) - nalldata1 != 0)stop("status must consist only of 0's and 1's")
      #
- 
+     ############################################################################
+     # Add small disturbance to each event.time in order to ensure against ties #
+     ############################################################################
+     disturb <-  -maxdisturb + stats::runif(nalldata1, min=0, max=2*maxdisturb)
+     alldata[,2] <- alldata[,2] + disturb
+     #
      #######################################################################
      # Print the structure of the analysis that will be done on these data #
      # unless the treatment group is blinded                               #
@@ -137,7 +142,6 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
                                  if(begin.diagnose <= 6){print("", quote = FALSE);print(paste(spacer,"Section 6",sep=" "),quote=FALSE);
                                       Hmisc::prn(charform);Hmisc::prn(formpairs);Hmisc::prn(jj);Hmisc::prn(nAsIs)       }
 
-# stop("xform")
      ############################################################
      # Check for factor status of alldata and get factor names  #
      ############################################################
@@ -251,11 +255,13 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
                xform2 <- paste("event.time", formula.rhs2, sep=" ~ ")
           }
           formulacont <- stats::as.formula(xform2)
-          firstrim2 <- aStep1(yesfactor=TRUE, df1=uncensored.list, inner.rank=datacontrank + nAsIs, initial.sample, formula=formulacont, ycol=2, 
-                    nopl=nopl, b.d=begin.diagnose)                                                                                               # aStep1 
-          firstrim <- firstrim2[[1]]
+
+          # Add 1 to inner.rank to accommodate cox.zph #
+          firstrim <- cStep1(yesfactor=TRUE, df1=alldata, df1.ls=uncensored.list, inner.rank=datacontrank + nAsIs + 1, initial.sample, 
+                    formula=formulacont, f.e = formula.rhs, ycol=2, nopl=nopl, b.d=begin.diagnose)                                         # cStep1 
+
           nfirstrim <- length(firstrim)
-          rows.in.model[[nfirstrim]] <- firstrim2                        # save list with pool and individual subsets
+          rows.in.model[[nfirstrim]] <- firstrim                        # save list with pool and individual subsets
           SOON <- firstrim
           mstart <- nfirstrim + 1
      }         # is.null skip.step1
@@ -271,17 +277,16 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
           mstart <- nfirstrim + 1
      }       # skipping step 1
      # 
-#                                               if(begin.diagnose <=42) {print(paste(spacer,"Section 42",sep=" "),quote=FALSE);
- #                                                  Hmisc::prn(thiscph);Hmisc::prn(SOON)   }
+                                               if(begin.diagnose <=42) {print(paste(spacer,"Section 42",sep=" "),quote=FALSE);
+                                                   Hmisc::prn(SOON)   }
 
-#
 #####################################################################################################################################
 # Step 2
      print("", quote=FALSE)
      print("BEGINNING STEP 2", quote = FALSE)
      print("", quote=FALSE)
      heresStep2 <- cStep2(f.e=formula.rhs, finalm=rows.in.model, dfa2=fixdat.df, ms=mstart,  
-                         rnk2=datacontrank + nAsIs, ss=skip.step1, b.d=begin.diagnose)                                             # cStep2
+                         rnk2=datacontrank + nAsIs + 1, ss=skip.step1, b.d=begin.diagnose)                                             # cStep2
 
      rows.in.model <- heresStep2[[1]]
      rows.in.model[[nalldata1]] <- 1:nalldata1
@@ -296,7 +301,6 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
      coxAlldata <- survival::coxph(formula=formulalast, data=alldata, model=TRUE, x=TRUE, y=TRUE)                  # coxph
      LLL[[nalldata1]] <- coxAlldata
      #
-# stop("before interim stats extraction")
 #UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU
      print("BEGINNING INTERMEDIATE RESULTS EXTRACTION", quote=FALSE)
      print("", quote=FALSE)
@@ -310,8 +314,6 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
      WaldTest <- rep(0,dimx1)
      LL <- matrix(0,nrow=dimx1,ncol=3)
 
-     proprtnlty <- "Not computed"
-     
      if(nfacts > 0){
           cox.zph.h1 <- survival::cox.zph(coxAlldata, global=FALSE)
           dn.cox.zph.h1 <- dimnames(cox.zph.h1[[1]])                               # get both sets of dimnames for first element of cox.zph.h1
@@ -332,47 +334,60 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
           WaldTest[dd] <- coxphout$wald.test
           LLout <- coxphout$loglik
           LL[dd,] <- c(dd,LLout) 
-          ##############################
-          # Proportionality test       #
-          # Skip first stage in Step 2 #
-          ##############################
-          if(dd > mstart){              
-               an.error.occurred <- FALSE
-               thiszph <- data.frame(0,0,"Skipping proportionality test")
-#prn(thiszph)
-#stop("thiszph")
-               if(nfacts > 0 & proportion){
-                    tryCatch( {thiszph <- survival::cox.zph(coxphout, global=FALSE)[[1]]}
-                        , error = function(e) {an.error.occurred <<- TRUE})
-               }
-               if(an.error.occurred){
-                    messprop <- paste("Skipping proportionality test in stage",dd, sep=" ")
-                    print(messprop,quote=FALSE)
-                    proprtnlty[,dd] <- NA
-               }
-               else{
-                   proprtnlty[,dd] <- thiszph[,3]
-               }
-          } # dd > mstart
+          if(proportion){
+               ##############################
+               # Proportionality test       #
+               # Skip first stage in Step 2 #
+               ##############################
+               if(dd > mstart){              
+                    an.error.occurred <- FALSE
+                    thiszph <- data.frame(0,0,"Skipping proportionality test")
+                    if(nfacts > 0 & proportion){
+                         tryCatch( {thiszph <- survival::cox.zph(coxphout, global=FALSE)[[1]]   }
+                             , error = function(e) {an.error.occurred <<- TRUE})
+                    }
+                    if(an.error.occurred){
+                         messprop <- paste("Skipping proportionality test in stage",dd, sep=" ")
+                         print(messprop,quote=FALSE)
+                         proprtnlty[,dd] <- NA
+                    }
+                    else{
+                         proprtnlty[,dd] <- thiszph[,3]
+                    }
+               }        # if dd > mstart
+          }     # if proportion
+          else{
+               proprtnlty <- "Not computed"
+          }     
           ############
           # Leverage #
           ############
+          an.inversion.failed <- FALSE
           xtemp <- coxphout$x
-          crossinv <- solve(t(xtemp) %*% xtemp)
+          tryCatch( expr=crossinvtest <- solve(t(xtemp) %*% xtemp)     
+              , error = function(e) {an.inversion.failed <<- TRUE})
+          if(an.inversion.failed){
+               messprop2 <- paste("Skipping leverage calculation in stage",dd, sep="  ")
+               print(messprop2, quote=FALSE)
+               leverage <- rbind(leverage,NA)
+          }
+          else{
+               crossinv <- crossinvtest
+               Zlatest <- rows.in.model[[dd]]
+               Zlatest <- alldata[Zlatest,]
+               for(j in 1:(dd-1)){
+                   Zlatest2 <- data.frame(Zlatest)
+                   if(dim(xtemp)[2]==1){
+                        thisleverage <- c(c(matrix(xtemp[j],nrow=1) %*% crossinv %*% matrix(xtemp[j],ncol=1)))
+                        thisleverage <- c(dd,Zlatest2[j,1],thisleverage)
+                   }else{
+                        thisleverage <- c(c(matrix(xtemp[j,],nrow=1) %*% crossinv %*% matrix(xtemp[j,],ncol=1)))
+                        thisleverage <- c(dd,Zlatest2[j,1],thisleverage)
+                   }
+                   leverage <- rbind(leverage,thisleverage)
+               }   # j 1:dd-1
+          }
 
-          Zlatest <- rows.in.model[[dd]]
-          Zlatest <- alldata[Zlatest,]
-          for(j in 1:(dd-1)){
-              Zlatest2 <- data.frame(Zlatest)
-              if(dim(xtemp)[2]==1){
-                   thisleverage <- c(c(matrix(xtemp[j],nrow=1) %*% crossinv %*% matrix(xtemp[j],ncol=1)))
-                   thisleverage <- c(dd,Zlatest2[j,1],thisleverage)
-              }else{
-                   thisleverage <- c(c(matrix(xtemp[j,],nrow=1) %*% crossinv %*% matrix(xtemp[j,],ncol=1)))
-                   thisleverage <- c(dd,Zlatest2[j,1],thisleverage)
-              }
-              leverage <- rbind(leverage,thisleverage)
-          }   # j 1:dd-1
      }      # dd
      #
      ###################
@@ -385,9 +400,11 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
      param.est <- cbind(m,param.est)                                 #  here we add the m column
      param.est <- param.est[-1,]                  # additional row removals below
 
-     proprtnlty <- as.data.frame(t(proprtnlty))
-     names(proprtnlty) <- dn.cox.zph.h1[[1]]           # already dimnames
-     proprtnlty <- cbind(m, proprtnlty)
+     if(proportion){
+          proprtnlty <- as.data.frame(t(proprtnlty))
+          names(proprtnlty) <- dn.cox.zph.h1[[1]]           # already dimnames
+          proprtnlty <- cbind(m, proprtnlty)
+     }
 
      Wald <- WaldTest 
      WaldTest <- data.frame(m,Wald) 

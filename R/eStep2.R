@@ -1,5 +1,5 @@
 eStep2 <-
-function (mstart, finalm, start, data2, pformula, algo2, cont, fixdb, fixlist, ycol, b.d)
+function (mstart, finalm, start, data2, pformula, contR, algo2, fixdb, fixlist, ycol, b.d)
 {
      #                                            eStep2
      #
@@ -15,9 +15,9 @@ function (mstart, finalm, start, data2, pformula, algo2, cont, fixdb, fixlist, y
 
      fooResult <- vector("list", nrim)
      ##########################################
-     # Create fooResult for complete database #
+     # Create fooResult for complete database, running nls on built-in control #
      ##########################################
-     fooResult[[nrim]] <- stats::nls(formula=pformula, start=start, data=data2, control=cont, algorithm=algo2)       # nls
+     fooResult[[nrim]] <- stats::nls(formula=pformula, start=start, data=data2, control=contR, algorithm=algo2)       # nls
      finalm[[nrim]] <- 1:nrim
 
      Observation <- 1:nrim
@@ -31,9 +31,6 @@ function (mstart, finalm, start, data2, pformula, algo2, cont, fixdb, fixlist, y
      modCook <- rep(0,nrim)
      residuals2 <- matrix(0,nrim,nrim)
      #
-#prn(finalm)
-#prn(fooResult)
-# stop("step2")
      ##############################
      # Begin loop creating step 2 #
      ##############################
@@ -42,7 +39,7 @@ function (mstart, finalm, start, data2, pformula, algo2, cont, fixdb, fixlist, y
           rim <- finalm[[i-1]]
           thisdf1 <- data2[rim,]
 
-          nlsthis <- stats::nls(formula=pformula, start=start, data=thisdf1, control=cont, algorithm=algo2)              # nls
+          nlsthis <- stats::nls(formula=pformula, start=start, data=thisdf1, control=contR, algorithm=algo2)              # nls
 
           fooResult[[i]] <- nlsthis
           preds <- stats::predict(nlsthis, data2)
@@ -79,7 +76,7 @@ function (mstart, finalm, start, data2, pformula, algo2, cont, fixdb, fixlist, y
 #     # Finish off finalm and fooResult #
 #     ###################################
 #     finalm[[nrim]] <- 1:nrim
-#     fooResult[[nrim]] <- stats::nls(formula=pformula, start=start, data=data2, control=cont, algorithm=algo2)              # nls
+#     fooResult[[nrim]] <- stats::nls(formula=pformula, start=start, data=data2, algorithm=algo2)              # nls
 
      outlist <- list(finalm, fooResult, residuals2, sigma)
      return(outlist)

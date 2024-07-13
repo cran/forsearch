@@ -79,8 +79,7 @@ C1 <- 7*runif(60) + 1
 y <- 4 + C1 - 6*C1^2 + 9*C1^3 + rnorm(60)
 Observation <- 1:60
 dfpoly <- data.frame(Observation,C1,y) 
-polyform <- C1 + I(C1^2) + I(C1^3)
-forsearch_lm(formula = y ~ polyform, data = dfpoly,  initial.sample = 200, 
+forsearch_lm(formula = y ~ C1 + I(C1^2) + I(C1^3), data = dfpoly,  initial.sample = 200, 
      begin.diagnose=100)
 }
 }

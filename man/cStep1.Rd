@@ -1,13 +1,14 @@
-\name{aStep1}
-\alias{aStep1}
-\title{Create Set of Observation Numbers in Step 1 for Linear Model 
-Analysis
+\name{cStep1}
+\alias{cStep1}
+\title{Create Set of Observation Numbers in Step 1 for Cox Proportional
+Hazards Model Analysis
 }
 \description{
-Derives the first set of observation numbers for forsearch in linear models
+Derives the first set of observation numbers for forsearch in Cox
+Proportional Hazards models
 }
 \usage{
-aStep1(yesfactor, df1, df1.ls, inner.rank, initial.sample, formula, ycol, nopl, b.d)
+cStep1(yesfactor, df1, df1.ls, inner.rank, initial.sample, formula, f.e, ycol, nopl, b.d)
 }
 \arguments{
   \item{yesfactor}{Logical. TRUE if there are factors in the X matrix
@@ -22,6 +23,8 @@ aStep1(yesfactor, df1, df1.ls, inner.rank, initial.sample, formula, ycol, nopl, 
        initial observations
 }
   \item{formula}{Fixed parameter formula of lm function
+}
+  \item{f.e}{Right-hand side of formula for Surv function
 }
   \item{ycol}{Response column number
 }

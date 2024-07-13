@@ -1,7 +1,7 @@
-aStep1 <-
-function (yesfactor, df1, df1.ls, inner.rank, initial.sample, formula, ycol, nopl, b.d) 
+bStep1 <-
+function (yesfactor, df1, df1.ls, inner.rank, initial.sample, formula, randform, ycol, nopl, b.d) 
 {
-     #                                    aStep1   
+     #                                    bStep1   
      # REVISE ALL THIS
      # VALUE      Produces rim for Step 1. If there are factors, selects random sets from all factor subsets and runs lm
      #            and predictor to determine set with median sum of squared errors.
@@ -16,7 +16,7 @@ function (yesfactor, df1, df1.ls, inner.rank, initial.sample, formula, ycol, nop
      #            nopl           n.obs.per.level 
      #            b.d            begin.diagnose Ranges from 25 to 45
      #
-     spacehere <- "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%      aStep1           "    
+     spacehere <- "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%      bStep1           "    
   
                            if(b.d <=31 ){ print("",quote=FALSE);print(paste(spacehere,"Section 31",sep=" "),quote=FALSE);
                                  Hmisc::prn(yesfactor);Hmisc::prn(utils::head(df1));Hmisc::prn(df1.ls);Hmisc::prn(inner.rank);
@@ -45,7 +45,6 @@ function (yesfactor, df1, df1.ls, inner.rank, initial.sample, formula, ycol, nop
      }
      hold.cands <- matrix(-9L, nrow=initial.sample, ncol=pullN*nlevels)      # will be appended when obs identified by stratum 
      for(i in 1:initial.sample){
-#prn(i)
           hold.cands.this.subset <- NULL
           for(j in 1:nlevels){
                this.subset <- df1.ls[[j]]
@@ -53,22 +52,14 @@ function (yesfactor, df1, df1.ls, inner.rank, initial.sample, formula, ycol, nop
                popu <- 1:n.in.subset
                hold.cands.temp <- sample(x=popu, size=pullN, replace=FALSE)                      # row numbers
                hold.cands.temp <- this.subset$Observation[hold.cands.temp]          # associated observation numbers
-#prn(hold.cands.this.subset)
-#prn(hold.cands.temp)
-#stop("i j")
                hold.cands.this.subset <- c(hold.cands.this.subset, hold.cands.temp)      # append observation numbers to vector
           }    #   j
           len.this.subset <- length(hold.cands.this.subset)
           hold.cands[i,1:len.this.subset] <- sort(hold.cands.this.subset) 
-#prn(hold.cands)
-#stop("i")
      }     # i
-#prn(hold.cands)
-#stop("after loop i")
-
                            if(b.d <=32 ){ print("",quote=FALSE);print(paste(spacehere,"Section 32",sep=" "),quote=FALSE);
                                  Hmisc::prn(inner.rank);Hmisc::prn(nopl);Hmisc::prn(nobs);Hmisc::prn(utils::head(sumSqError));Hmisc::prn(nlevels);
-                                 Hmisc::prn(hold.cands);Hmisc::prn(0);Hmisc::prn(0);Hmisc::prn(0)   }
+                                 Hmisc::prn(hold.cands)   }
 
 
      ################################################################################################# 
@@ -83,26 +74,19 @@ function (yesfactor, df1, df1.ls, inner.rank, initial.sample, formula, ycol, nop
           smalldata <- df1[index,]
           this.form <- formula
 
-          lmsmall <- stats::lm(formula=this.form, data=smalldata, singular.ok=TRUE)                             #    lm
+          lmsmall <- nlme::lme(fixed=this.form, data=smalldata, random=randform)                             #    lme
           predsmall <- stats::predict(lmsmall, data=df1, type="response", pred.var=1)                          # predict
-
           errorsmall <- df1[, ycol] - predsmall
           sserrorsmall <- errorsmall^2
           sumSqError[i,2] <- sum(sserrorsmall)
      }     # i
-#prn(sumSqError)
-
      sumSqError <- sumSqError[order(sumSqError[,2]),]
-#prn(sumSqError)
      MED <- round(initial.sample/2)
-#prn(MED)
-#prn(hold.cands)
+
                            if(b.d <=34 ){ print("",quote=FALSE);print(paste(spacehere,"Section 34",sep=" "),quote=FALSE);
                                  Hmisc::prn(hold.cands);Hmisc::prn(smalldata);Hmisc::prn(this.form);Hmisc::prn(predsmall);Hmisc::prn(sumSqError);
                                  Hmisc::prn(MED);Hmisc::prn(hold.cands)    }
 
      rimout <- hold.cands[MED,]
-#prn(rimout)
-#stop("step 1")
      return(rimout)
 }

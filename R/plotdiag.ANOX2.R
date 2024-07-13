@@ -225,15 +225,14 @@ function(forn,
 
      if(ylab.extend=="p"){    
           df1 <- forn$"Proportionality Test"                  # df1 already has a column of m
+          if(is.character(df1))stop("Proportionality not tested.")
      }
-#prn(df1)
      if(ylab.extend=="v"){
           df1 <- forn$"ANOVA"                            # df1 already has a column of m
      }
      mcolumn <- df1[,1]
      ndf1 <- dim(df1)[2]
      df1 <- df1[,-1]
-#                                                                                 print("OK to plotdiag.ANOX2    11")
      if(ndf1==2){
           df1 <- matrix(df1,nrow=length(df1), ncol=1)
           df1 <- as.data.frame(df1)

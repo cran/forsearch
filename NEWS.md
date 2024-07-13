@@ -1,3 +1,19 @@
+7/13/2024 forsearch version 6.2.0
+=================================
+* Major changes: None
+ 
+* Moderate changes: 
+  + Revised aStep1 to improve step 1 for _lm
+  + Added bStep1 and cStep1 to improve step 1 for _lme and _cph
+
+* Minor changes and bug fixes: 
+  + Added option to disturb event times slightly to avoid duplicates in forsearch_cph
+    observations
+  + Changed message in plotdiag.ANOX2 if proportionality not tested in
+    proportional hazard data
+  + Minor text changes to vignettes
+  + Corrections to examples to correspond to function chagnes
+
 6/22/2024 forsearch version 6.1.0 
 =================================
 * Major changes: None  

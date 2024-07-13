@@ -14,7 +14,7 @@ function (yesfactor, df1, inner.rank, initial.sample, formuladStep, fam, ycol, n
      #                                 (no factors) or list of subsets (factors present)
      #            inner.rank     Rank of lm analysis on dataset with or without factor variables, depending on yesfactor     
      #            initial.sample Number of random samples from which to take rim
-     #            formuladStep   Formula for fixed effects in lm always without factors
+     #            formuladStep   Formula for fixed effects in lm ALWAYS WITHOUT FACTORS
      #            fam            family
      #            ycol           Response column number
      #            nopl           n.obs.per.level 
@@ -97,9 +97,12 @@ function (yesfactor, df1, inner.rank, initial.sample, formuladStep, fam, ycol, n
                # Run general linear model on inner group and predict to entire dataset #
                #########################################################################
                this.form <- formula
+
                lmsmall <- stats::glm(formula=this.form, family=fam, data=smalldata, 
                         model=TRUE, x = TRUE, y=TRUE, singular.ok=TRUE)                                        #    glm
+
                predsmall <- stats::predict(lmsmall, data, type="response", pred.var=1)                          # predict
+
                errorsmall <- data[, ycol] - predsmall
                sserrorsmall <- errorsmall^2
                rowz <- zlist[[i]]
@@ -149,7 +152,6 @@ function (yesfactor, df1, inner.rank, initial.sample, formuladStep, fam, ycol, n
           for(ii in 1:nlevels){              # here is where we perform step 1 for each factor subset
 
                holdrim <- supfun(df2=df1[[ii]], initial.sample=initial.sample, inner.rank=inner.rank,ycol=ycol,nopl=nopl,formula=formuladStep)     # supfun
-
                rim <- c(rim, holdrim)
           }    #  ii
           rimout <- rim                      # single vector of observation numbers. Differs from aStep1 in no by subset list
@@ -159,6 +161,5 @@ function (yesfactor, df1, inner.rank, initial.sample, formuladStep, fam, ycol, n
           rimout <- supfun(df2=df1, initial.sample=initial.sample, inner.rank=inner.rank, ycol=ycol, nopl=nopl, formula=formuladStep)           #  supfun
 
      }       # major function section: no factor present
-
      return(rimout)
 }

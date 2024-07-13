@@ -156,7 +156,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="types-of-independent-variables" class="section level2">
 <h2>Types of Independent Variables</h2>
 <p>Assume that we have a data frame X of independent variables (columns). Assume that X consists of nobs rows of independent observations. Assume that there are no missing entries. Assume that there are nfacts factor variables (columns) in X. First consider all the possible levels of the factor variables. If the factor variables have r1, r2, r3, etc levels, the total possible number of levels among these variables would be r1 * r2 * r3 * … * rnfacts. However, some of these crossed levels might not exist in the current (complete) database, so we enumerate the main and crossed levels that do exist in the database. We refer to these levels as ‘inner groupings’ and we define their total to be ninner. The parameter nfacts might of course be zero, such as in a linear regression model.</p>
-<p>There might also be p mathematically independent variables (columns) of X, and there might also be na other independent variables. As examples of the latter, they might be represented in the model formula by such terms as x, x2, x3, etc., whereas only x is a column of X. This means that in general knowing the number of columns of X is insufficient to determine the number of observations needed for Step 1.</p>
+<p>There might also be p mathematically independent variables (columns) of X, and there might also be na other independent variables. As examples of the latter, they might be represented in the model formula by such terms as x, I(x^2), I(x^3), etc., whereas only x is a column of X. This means that in general knowing the number of columns of X is insufficient to determine the number of observations needed for Step 1.</p>
 <p>In the case of mixed effects models, there are always outer groups (and perhaps nested subgroups). Assume that there are nouter levels in the data base of such (combined) groups. In the current forsearch package, if both inner and outer groups are present we enumerate the combined levels of both types of grouping together. We can treat these levels as a single set for our purposes.</p>
 <p>In addition to having interactions among the factor variables, the model could have interactions among the nonfactor variables and between factor and nonfactor variables.</p>
 <p>So why does knowledge of the structure of the independent variables matter?</p>
@@ -168,7 +168,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="obtaining-the-rank-rnk" class="section level2">
 <h2>Obtaining the Rank (rnk)</h2>
-<p>We perform a lm() analysis on the full database, omitting the factor variables from the model. The only thing we want from this analysis is the rank of the non-factor independent variables, rnk. For such models it requires rnk observations in order to ensure that their local X’X matrix will be of full rank and therefore invertible. We select these observations by the criterion given by Atkinson and Riani (2000). Allowing for all possible subgroups to contain all possible regressions accounts for all of the interactions defined above, including interactions among continuous variables and factors.</p>
+<p>We perform a foo() analysis on the full database, omitting the factor variables from the model. The only thing we want from this analysis is the rank of the non-factor independent variables, rnk. For such models it requires rnk observations in order to ensure that their local X’X matrix will be of full rank and therefore invertible. We select these observations by the criterion given by Atkinson and Riani (2000). Allowing for all possible subgroups to contain all possible regressions accounts for all of the interactions defined above, including interactions among continuous variables and factors.</p>
 <p>This procedure can produce a large number of observations for Step 1. Surely, some reduction in this number could result from further condition of the model formula of the proposed analysis. For example, the user may plan to include in the model only the main effects and first level interactions. This possibility is under study.</p>
 </div>
 <div id="overriding-the-rank" class="section level2">
@@ -182,7 +182,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="a-consideration-for-cox-proportional-hazard-calculations" class="section level2">
 <h2>A Consideration for Cox Proportional Hazard Calculations</h2>
-<p>Some observations in a Cox Proportional Hazards database will be censored. If a censored observation were to be included in Step 1 or in one of the minimal subsets of Step 2, the estimation function might fail. To prevent this, only uncensored observations are considered for Step 1 and for the initial subsetting of Step 2.</p>
+<p>Some observations in a Cox Proportional Hazards database will be censored. If too many censored observations were to be included in Step 1 or in one of the minimal subsets of Step 2, the estimation function might fail. To prevent this, only uncensored observations are considered for Step 1 and for the initial subsetting of Step 2.</p>
 </div>
 <div id="nonlinear-models" class="section level2">
 <h2>Nonlinear Models</h2>
@@ -191,7 +191,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="extracting-the-intermediate-statistics" class="section level2">
 <h2>Extracting the Intermediate Statistics</h2>
-<p>We first completely determine the sequence of observation sets as described above from the first value to m=nobs. This procedure yields the same sequence as that defined by Atkinson and Riani (2000) when the model is linear regression. Their procedure has been modified here to accommodate models with independent variables that are factors. The object of the analytical function, foo, at the center of each forsearch_foo function is saved temporarily in order to extract relevant statistics for plotting.</p>
+<p>We first completely determine the sequence of observation sets as described above from the first value to m=nobs. This procedure yields the same sequence as that defined by Atkinson and Riani (2000) when the model is linear regression. Their procedure has been modified here to accommodate models with independent variables that are factors or event times that are censored. The object of the analytical function, foo, at the center of each forsearch_foo function is saved temporarily in order to extract relevant statistics for plotting.</p>
 </div>
 <div id="dependence-on-the-user" class="section level2">
 <h2>Dependence on the User</h2>

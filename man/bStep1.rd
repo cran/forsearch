@@ -1,13 +1,15 @@
-\name{aStep1}
-\alias{aStep1}
-\title{Create Set of Observation Numbers in Step 1 for Linear Model 
-Analysis
+\name{bStep1}
+\alias{bStep1}
+\title{Create Set of Observation Numbers in Step 1 for Linear Mixed
+     Effects Model Analysis
 }
 \description{
-Derives the first set of observation numbers for forsearch in linear models
+Derives the first set of observation numbers for forsearch in linear mixed
+     effects models
 }
 \usage{
-aStep1(yesfactor, df1, df1.ls, inner.rank, initial.sample, formula, ycol, nopl, b.d)
+bStep1(yesfactor, df1, df1.ls, inner.rank, initial.sample, formula, randform, 
+     ycol, nopl, b.d)
 }
 \arguments{
   \item{yesfactor}{Logical. TRUE if there are factors in the X matrix
@@ -16,13 +18,15 @@ aStep1(yesfactor, df1, df1.ls, inner.rank, initial.sample, formula, ycol, nopl, 
 }
   \item{df1.ls}{List, each element of which is a factor subset of df1
 }
-  \item{inner.rank}{Rank of X matrix of lm analysis on entire database
+  \item{inner.rank}{Rank of X matrix of lme analysis on entire database
 }
   \item{initial.sample}{Number of random samples from which to take set of
        initial observations
 }
-  \item{formula}{Fixed parameter formula of lm function
+  \item{formula}{Two-sided fixed parameter formula of lme function
 }
+  \item{randform}{One-sided random effects formula
+  }
   \item{ycol}{Response column number
 }
   \item{nopl}{Number of observations per level of combined factor variables
@@ -34,8 +38,8 @@ aStep1(yesfactor, df1, df1.ls, inner.rank, initial.sample, formula, ycol, nopl, 
 \details{Support function, usually not called independently
 }
 \value{
-Produces set of observation numbers for Step 1. Accounts for presence of factors
-    in the dataset 
+Produces set of observation numbers for Step 1. Accounts for presence of 
+     factors in the dataset 
 }
 \author{William R. Fairweather
 }

@@ -1,12 +1,12 @@
 #' @export
 forsearch_nls <-
-function(phaselist, data, poolstart, poolformula, algorithm="default", control=NULL, initial.sample=1000,  
+function(phaselist, data, poolstart, poolformula, algorithm="default", controlarg=NULL, initial.sample=1000,  
               skip.step1=NULL, begin.diagnose=100, verbose=TRUE)
 {
      #                          forsearch_nls
      #
-     # VALUE      forsearch_nls does not use covariates besides those included in formula as nonlinear coefficients. Considers all nls datasets
-     #            to be in phases, possibly a single phase
+     # VALUE      forsearch_nls does not use covariates besides those included in formula as nonlinear coefficients. See nlsList for a version
+     #                with additional covariates. Considers all nls datasets to be in phases, possibly a single phase
      #
      # INPUT
      #     phaselist       Named list, each element of which contains 4 elements that describe 1 phase.
@@ -43,6 +43,9 @@ function(phaselist, data, poolstart, poolformula, algorithm="default", control=N
      spacer <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX        forsearch_nls               "     # used for begin.diagnose prints
      nlsc <- nls.control()
      on.exit(expr=nls.control <- nlsc)
+     if(!is.null(controlarg))nls.control <- controlarg
+     carrycontrol <- nls.control
+     #
      #####################################################################
      # Ensure that first variable of data is Observation and that second #
      # variable is Phases. Ensure that phaselist has correct elements    #
@@ -162,7 +165,7 @@ function(phaselist, data, poolstart, poolformula, algorithm="default", control=N
 
                tryCatch(
                    expr=(OKnls <- stats::nls(formula=thisformulacont, data=thissubset[1:tryn,], start=thisstart, 
-                       control = nls.control(warnOnly=TRUE,scaleOffset=10), algorithm = algorithm))
+                       algorithm = algorithm))
                    , error=function(e) {an.error.occurred <- TRUE}
                         )
                if(an.error.occurred){
@@ -237,7 +240,7 @@ function(phaselist, data, poolstart, poolformula, algorithm="default", control=N
                                      Hmisc::prn(formulacont);Hmisc::prn(thisstart);Hmisc::prn(ycolw)     }
 
               firstrim <- eStep1(df1=thisdata, inner.rank=nobs, initial.sample=initial.sample, formula=formulacont, start = thisstart,
-                   algo=algorithm, control=control, ycol=ycolw, b.d = begin.diagnose)                                                  #  eStep1
+                   contR=carrycontrol, algo=algorithm, ycol=ycolw, b.d = begin.diagnose)                                                  #  eStep1
 
               rim <- c(rim, firstrim)
           }     # ip
@@ -285,8 +288,8 @@ function(phaselist, data, poolstart, poolformula, algorithm="default", control=N
                                  if(begin.diagnose <= 50){print("", quote = FALSE);print(paste(spacer,"Section 50",sep=" "),quote=FALSE);
                                             Hmisc::prn(poolformula)      }
 
-     eStep2out <- eStep2(mstart=mstart, finalm=rows.in.model, start=poolstart, data2=data, pformula=poolformula, algo2=algorithm, cont=control,   
-              fixdb=fixdat.df, fixlist=fixdat.list, ycol=ycolw, b.d= begin.diagnose)
+     eStep2out <- eStep2(mstart=mstart, finalm=rows.in.model, start=poolstart, data2=data, pformula=poolformula, algo2=algorithm,    
+              fixdb=fixdat.df, fixlist=fixdat.list, contR=carrycontrol, ycol=ycolw, b.d= begin.diagnose)                                                      #  eStep 2
 
      rows.in.model <- eStep2out[[1]]
      fooResult <- eStep2out[[2]]

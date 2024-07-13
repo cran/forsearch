@@ -19,11 +19,9 @@ function (f.e, finalm, dfa2, ms, rnk2, ss, b.d)
      #       ss                skip.step1
      #       b.d               Number at whidh to begin diagnostic listings
      #
-     spacer <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX        cStep2   "
+     spacer <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX        cStep2   "
 
      nobs <- dim(dfa2)[1]
-     # Delete observations by factor subset from initial set of observations (from Step 1).
-     if(is.null(ss)){finalm[[ms-1]] <- finalm[[ms-1]][[1]]}
 
                             if(b.d <=60 ){print("",quote=FALSE); print(paste(spacer,"Section 60",sep=" "),quote=FALSE);
                                 Hmisc::prn(f.e);Hmisc::prn(finalm);Hmisc::prn(utils::head(dfa2));Hmisc::prn(utils::tail(dfa2));Hmisc::prn(dim(dfa2));
@@ -34,10 +32,12 @@ function (f.e, finalm, dfa2, ms, rnk2, ss, b.d)
      for(i in ms:(nobs-1)){
           remainder <- NULL
           diff2 <- -999
+
           fixdat.mod <- data.frame(dfa2,diff2)
           sbsts <- unique(fixdat.mod$holdISG)
           nsubs <- length(sbsts) 
-          rim <- finalm[[i-1]]
+
+          rim <- finalm[[i-1]]         # the loop before this one
           thisdata <- fixdat.mod[rim,]
           td.et <- thisdata$event.time
           td.st <- thisdata$status
@@ -47,17 +47,26 @@ function (f.e, finalm, dfa2, ms, rnk2, ss, b.d)
                             if(b.d <=61 ){print("",quote=FALSE); print(paste(spacer,"Section 61",sep=" "),quote=FALSE);
                                 Hmisc::prn(xform);Hmisc::prn(thisdata)    }
 
-          thiscph <- survival::coxph(formula=xform, data=thisdata, ties="efron", model=TRUE, singular.ok=TRUE, x=TRUE, y=TRUE)     # coxph
+
+          thiscph <- do.call(what=survival::coxph, args=list(formula=xform, data=thisdata, ties="efron", model=TRUE, 
+                 singular.ok=TRUE, x=TRUE, y=TRUE))                                                                       # coxph
+
+                           if(b.d <=62 ){print("",quote=FALSE); print(paste(spacer,"Section 62",sep=" "),quote=FALSE);
+                                Hmisc::prn(c(ms,i));Hmisc::prn(thiscph$coefficients);Hmisc::prn(thiscph$x);Hmisc::prn(thiscph$y)    }
+
           fooResult[[i]] <- thiscph
 
-          thispredict <- stats::predict(thiscph, fixdat.mod)
-          fixdat.mod$diff2 <- (fixdat.mod$event.time - thispredict)^2
-          fixdat.mod <- fixdat.mod[order(fixdat.mod$diff2),]
-          firstobs <- NULL
+          thispredict <- stats::predict(thiscph, fixdat.mod)                                                           #  predict
 
-                          if(b.d <=67 ){ print("",quote=FALSE);print(paste(spacer,"Section 67",sep=" "),quote=FALSE);
-                                   Hmisc::prn(thiscph);Hmisc::prn(thispredict);Hmisc::prn(fixdat.mod$diff2)   }    
- 
+          yminusyhat <- fixdat.mod$event.time - thispredict
+          letslook <- cbind(fixdat.mod$event.time, yminusyhat)
+          fixdat.mod$diff2 <- (fixdat.mod$event.time - thispredict)^2
+          fixdat.mod <- fixdat.mod[order(fixdat.mod$diff2,fixdat.mod$Observation),]
+
+                           if(b.d <=63 ){print("",quote=FALSE); print(paste(spacer,"Section 63",sep=" "),quote=FALSE);
+                                Hmisc::prn(thispredict);Hmisc::prn(yminusyhat);Hmisc::prn(letslook);Hmisc::prn(fixdat.mod$diff2)    }
+
+          firstobs <- NULL
           for(j in 1:nsubs){
                candidates <- fixdat.mod[fixdat.mod$holdISG==sbsts[j],]
                firstobs <- rbind(firstobs, candidates[1:rnk2,])
@@ -70,10 +79,6 @@ function (f.e, finalm, dfa2, ms, rnk2, ss, b.d)
           finalm[[i]] <- c(firstobs$Observation, needed.obs)
      }    #   i
 
-                          if(b.d <=80 ){ print("",quote=FALSE);print(paste(spacer,"Section 80",sep=" "),quote=FALSE);
-                                   finalm8 <- finalm[[8]];finalmend <- finalm[[nobs-1]] 
-                                   Hmisc::prn(finalm8);Hmisc::prn(finalmend);Hmisc::prn(fooResult[[nobs-1]])   }    
- 
     outlist <- list(finalm, fooResult)
 
     return(outlist)

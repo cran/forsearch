@@ -201,9 +201,12 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
                                  if(begin.diagnose <= 23){print("", quote = FALSE);print(paste(spacer,"Section 23a",sep=" "),quote=FALSE);
                                      Hmisc::prn(utils::head(datacont));Hmisc::prn(datacontrank);Hmisc::prn(ycolcont)       }
 
-              firstrim <- aStep1(yesfactor, df1=ss77C, inner.rank=datacontrank + nAsIs, initial.sample, formula=formulacont, 
+# inner.rank is used only to count out the number of observations to select from each factor subset (or te entire database), if no modifications
+
+              firstrim <- aStep1(yesfactor, df1=data, df1.ls=ss77C ,inner.rank=datacontrank + nAsIs, initial.sample, formula=formulacont, 
                        ycol=ycolcont, nopl=n.obs.per.level, b.d = begin.diagnose)                                                         #aStep1
-              firstrim <- firstrim[[1]]
+
+
               lenfr <- length(firstrim)
               rows.in.model[[lenfr]] <- firstrim  
               SOON <- firstrim
@@ -213,8 +216,9 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
                                  if(begin.diagnose <= 23){print("", quote = FALSE);print(paste(spacer,"Section 23b",sep=" "),quote=FALSE);
                                      Hmisc::prn(utils::head(data));Hmisc::prn(formula);Hmisc::prn(datacontrank);Hmisc::prn(ycol)       }
 
-              firstrim <- aStep1(yesfactor, df1=data, inner.rank=datacontrank + nAsIs, initial.sample, formula=formula, 
-                       ycol=ycol, nopl=n.obs.per.level, b.d = begin.diagnose)                                                             #aStep1
+               firstrim <- aStep1(yesfactor, df1=data, df1.ls=NULL, inner.rank=datacontrank + nAsIs, initial.sample=initial.sample,  
+                       formula=formula,ycol=ycol, nopl=n.obs.per.level, b.d = begin.diagnose)                                                             #aStep1
+
                lenfr <- length(firstrim)
                rows.in.model[[lenfr]] <- firstrim  
                SOON <- firstrim
@@ -264,6 +268,8 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
      }      # no factors present
 
      rows.in.model <- aStep2out[[1]]
+#prn(rows.in.model)
+#stop("rows")
      fooResult <- aStep2out[[2]]
      resids2 <- aStep2out[[3]]
      sigma <- aStep2out[[4]]

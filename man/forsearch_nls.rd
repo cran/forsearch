@@ -9,16 +9,17 @@
    are best fitting at that stage.
 }
 \usage{forsearch_nls(phaselist, data, poolstart, poolformula, algorithm=
-  "default", control=NULL, initial.sample=1000, skip.step1=NULL, 
+  "default", controlarg=NULL, initial.sample=1000, skip.step1=NULL, 
   begin.diagnose=100, verbose=TRUE)
-}              
+}      
 \arguments{
-  \item{phaselist}{LIST of formula, formulacont, start, nopp for each phase}
-  \item{data}{Name of database}
+  \item{phaselist}{LIST of formula, formulacont, start, nopl for each phase}
+  \item{data}{Name of database. First 2 variables are Observation and Phases
+           (both mandatory)}
   \item{poolstart}{List Start values for Step 2}
-  \item{poolformula}{Formula for Step 2}
+  \item{poolformula}{Formula for pooled data from all phases for Step 2}
   \item{algorithm}{algorithm for nls function.}
-  \item{control}{nls control}
+  \item{controlarg}{nls control. Default is NULL to use preset nls.control}
   \item{initial.sample}{Number of observation sets in Step 1 of forward search}
   \item{skip.step1}{NULL or a vector of integers for observations to be included
       in Step 1}
@@ -65,20 +66,20 @@ test01 <- data.frame(Observation,Phases,t,VO2)
 formula.1 <-as.formula(VO2~VO2rest)
 formulacont.1 <- as.formula(VO2~VO2rest)
 start.1 <- list(VO2rest = 400)
-nopp.1 <- 1
+nopl.1 <- 1
 
 formula.2<-
   as.formula(VO2~(VO2rest+(VO2peak-VO2rest)*(1-exp(-(t-5.883)*I(1/mu)))))
 formulacont.2<-
   as.formula(VO2~(VO2rest+(VO2peak-VO2rest)*(1-exp(-(t-5.883)*I(1/mu)))))
 start.2 <- list(VO2rest = 400, VO2peak = 1600, mu = 1)
-nopp.2 <- 6
+nopl.2 <- 6
 
 phaselist <- list(
              REST=
- list(formula=formula.1,formulacont=formulacont.1,start=start.1,nopp=nopp.1),
+ list(formula=formula.1,formulacont=formulacont.1,start=start.1,nopp=nopl.1),
              EXERCISE=
- list(formula=formula.2,formulacont=formulacont.2,start=start.2,nopp=nopp.2))
+ list(formula=formula.2,formulacont=formulacont.2,start=start.2,nopp=nopl.2))
 
 pstart <- list(VO2rest=400, VO2peak = 1600, mu = 1)
 pformula <- as.formula(VO2~(t<=5.883)*(VO2rest)+          
@@ -86,7 +87,7 @@ pformula <- as.formula(VO2~(t<=5.883)*(VO2rest)+
             (1-exp(-(t-5.883)*I(1/mu)))))
 forsearch_nls(phaselist=phaselist, data=test01, 
    poolstart=pstart, poolformula=pformula, algorithm="default", 
-   control=nls.control(maxiter=50,warnOnly=TRUE), initial.sample = 155)
+   controlarg=nls.control(maxiter=50,warnOnly=TRUE), initial.sample = 155)
 }
 }
  \keyword{ datagen }

@@ -18,7 +18,7 @@ function (yesfactor, form.A2, finalm, rimbs, dfa2, ycol, mstart, rnk, b.d)
      #       rnk               Rank of X matrix. For factors, this is rank with factors removed.
      #       b.d               Number at which to begin diagnostic listings
      #
-     spacer <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX        aStep2               "
+     spacer <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX        aStep2               "
      nobs <- dim(dfa2)[1]
 
      fooResult <- vector("list", nobs)
@@ -32,6 +32,7 @@ function (yesfactor, form.A2, finalm, rimbs, dfa2, ycol, mstart, rnk, b.d)
      param.est <- matrix(0,nrow=rnk, ncol=nobs)
      residuals2 <- matrix(0,nobs,nobs)
      #
+# prn(finalm[[mstart-1]])
      if(yesfactor){
           nlevels <- length(rimbs)
           predictions.base <- data.frame(Observation <- 1:nobs, Subset <- rep("A",nobs), Diffs <- rep(-999, nobs))
@@ -61,9 +62,13 @@ function (yesfactor, form.A2, finalm, rimbs, dfa2, ycol, mstart, rnk, b.d)
                residuals2[,i] <- preds - dfa2[,ycol]
                predictions[,3] <- (preds - dfa2[,ycol])^2
                predictions <- predictions[order(predictions[,3]),]
-               ###########################################################
-               # Get obs numbers for first rnk obs in each factor subset #
-               ###########################################################
+# prn(i)
+# temppred <- predictions[1:i,]
+# temppred <- temppred[order(temppred[,1]),]
+# prn(temppred)
+               ####################################################################
+               # Get obs numbers for initial set of rnk obs in each factor subset #
+               ####################################################################
                collect.final <- NULL
                for(j in 1:nlevels){
                     finalStage <- NULL
@@ -74,7 +79,8 @@ function (yesfactor, form.A2, finalm, rimbs, dfa2, ycol, mstart, rnk, b.d)
                }      # j
  
                                  if(b.d <= 66){print("", quote = FALSE);print(paste(spacer,"Section 66",sep=" "),quote=FALSE);
-                                      Hmisc::prn(i);Hmisc::prn(rim);Hmisc::prn(collect.final);Hmisc::prn(predictions[,1])       }
+                                      Hmisc::prn(i);Hmisc::prn(rim);print("Observations in Initial group");Hmisc::prn(collect.final);
+                                      Hmisc::prn(predictions[,1])       }
                #
                ###################################################
                # Add observation numbers to bring number up to i #
@@ -83,21 +89,21 @@ function (yesfactor, form.A2, finalm, rimbs, dfa2, ycol, mstart, rnk, b.d)
                remainder.mat <- predictions[-remainder,]
 
                                  if(b.d <= 68){print("", quote = FALSE);print(paste(spacer,"Section 68",sep=" "),quote=FALSE);
-                                      Hmisc::prn(remainder.mat)       }
+                                      Hmisc::prn(remainder.mat[order(remainder.mat$Subset,remainder.mat$Diffs2),])       }
 
                nfinal <- length(collect.final)
                needed <- remainder.mat[1:(i - nfinal),]
                needed.1 <- needed[,1]
-               finalm[[i]] <- c(collect.final, needed.1)
-#prn(finalm[[i]])
-#stop("first Step 2")
-
+               finalm[[i]] <- sort(c(collect.final, needed.1))
+# prn(finalm[i])
+# if(i > mstart + 2)stop("first 3 ")
           }     # i   
 
                                  if(b.d <= 70){print("", quote = FALSE);print(paste(spacer,"Section 70",sep=" "),quote=FALSE);
                                       Hmisc::prn(finalm)       }
 
           sigma <- sqrt(sum(predictions[,3])/(nobs-rnk))      # here, we're using an overall estimate, not by factor subsets
+
      }               # factors present
      else{
           for(i in mstart:(nobs-1)){
@@ -112,19 +118,19 @@ function (yesfactor, form.A2, finalm, rimbs, dfa2, ycol, mstart, rnk, b.d)
                residuals2[,i] <- preds - dfa2[,ycol]
                predictions[,2] <- (preds - dfa2[,ycol])^2                   # this used to be medaugx[,2]
                predictions <- predictions[order(predictions[,2]),]
+# prn(i)
+# temppred <- predictions[1:i,]
+# prn(temppred)
                finalm[[i]] <- predictions[1:i,1]
+# prn(finalm[[i]])
+# if(i > mstart + 2)stop("first 3 no factors")
 
                                  if(b.d <= 71){print("", quote = FALSE);print(paste(spacer,"Section 71",sep=" "),quote=FALSE);
                                       Hmisc::prn(i);Hmisc::prn(thisdf1);Hmisc::prn(predictions);Hmisc::prn(finalm[[i]])       }
-
-#prn(finalm[[i]])
-#stop("first Step 2")
-
           }    #   i
           sigma <- sqrt(sum(predictions[,2])/(nobs-rnk))
      }               # no factors present  
 
-#     param.est <- as.data.frame(t(param.est))
      outlist <- list(finalm, fooResult, residuals2, sigma)
      return(outlist)
 }
