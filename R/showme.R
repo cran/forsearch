@@ -16,7 +16,6 @@ function(x, verbose=TRUE)
           print("", quote = FALSE)
      }
      uu <- as.character(x$Call[[1]])
-
      if(substr(uu,1,13)=="forsearch_nls"){
                print("This is a forsearch_nls output file", quote=FALSE)
                print("", quote = FALSE)
@@ -126,7 +125,8 @@ function(x, verbose=TRUE)
 
                print("", quote=FALSE)
                Hmisc::prn(x$"Modified Cook distance")
-               Hmisc::prn(x$"t statistics")
+               Hmisc::prn(utils::head(x$"t statistics"))
+               Hmisc::prn(utils::tail(x$"t statistics"))
 
                print("", quote=FALSE)
                print("Head and tail of fit statistics", quote=FALSE)

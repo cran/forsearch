@@ -1,20 +1,19 @@
 \name{forsearch_cph}
 \alias{forsearch_cph}
 \title{Create Statistics Of Forward Search in a Cox Proportional Hazard Database}
-\description{Prepares summary statistics at each stage of forward search for subsequent
-        plotting.}
-\usage{forsearch_cph(alldata, formula.rhs, initial.sample=1000, 
-        n.obs.per.level=1, skip.step1=NULL, ties = "efron", maxdisturb=0.01,
-        proportion=TRUE, unblinded=TRUE, begin.diagnose= 100, verbose=TRUE)
+\description{Prepares summary statistics at each stage of forward search for 
+        subsequent plotting.}
+\usage{forsearch_cph(alldata, formula.rhs, nofactform, initial.sample=1000, 
+        skip.step1=NULL, ties = "efron", maxdisturb=0.01,
+        proportion=TRUE, wiggle = 1, unblinded=TRUE, begin.diagnose= 100, verbose=TRUE)
 }
 \arguments{
   \item{alldata}{Data frame containing variables 'Observation', 'event.time',
         'status', and independent variables, in that order}
   \item{formula.rhs}{Character vector of names of independent variables in 
         model}
+  \item{nofactform}{Right hand side of formula (omitting ~ and factor variables)}      
   \item{initial.sample}{Number of observations in Step 1 of forward search}
-  \item{n.obs.per.level}{Number of observations per level of (possibly crossed) 
-           factor levels to include in Step 1}
   \item{skip.step1}{NULL or a vector of integers for observations to be included
            in Step 1}
   \item{ties}{Method for handling ties in event time; = "efron", "breslow", or 
@@ -23,6 +22,8 @@
           ties. }
   \item{proportion}{TRUE causes evaluation of proportionality of Cox regression
   }
+  \item{wiggle}{Multiplier to prevent change of identical observations. Used only
+          when there are no continuous independent variables}
   \item{unblinded}{TRUE causes printing of presumed analysis structure}
   \item{begin.diagnose}{Numeric. Indicates where in code to begin printing 
            diagnostics. 0 prints all; 100 prints none}
@@ -58,13 +59,13 @@ form.1 <- "trt + celltype"
 forskip <- NULL
 # forskip <- c(12,  23,  38,  71,  91, 104, 116, 130,  31,  73,  62,  76)
 cphtest1a.out <- forsearch_cph(alldata=veteranx, formula.rhs=form.1, 
-       n.obs.per.level=2, skip.step1=forskip, ties="efron", unblinded=TRUE, 
+       skip.step1=forskip, ties="efron", wiggle=1, unblinded=TRUE, 
        initial.sample=467, begin.diagnose = 100, verbose = TRUE)
 }
 {# Same, but skipping Step 1.
 forskip <- c(12, 6, 31, 23, 38, 62, 71, 73, 91,  84, 104, 101, 116, 125,128,76)
 cphtest1b.out <- forsearch_cph(alldata=veteranx, formula.rhs=form.1, 
-      n.obs.per.level=2, skip.step1=forskip, ties="efron", unblinded=TRUE, 
+      skip.step1=forskip, ties="efron", unblinded=TRUE, 
       initial.sample=467, begin.diagnose = 100, verbose = TRUE) 
 }
 }

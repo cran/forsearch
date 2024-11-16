@@ -1,9 +1,35 @@
 #' @export
 forsearch_lme <-
-function(fixedform, alldata, randomform, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL, 
-    unblinded=TRUE, begin.diagnose= 100, verbose=TRUE)
+function(fixedform, nofactform, alldata, randomform, groupnames, initial.sample=1000, wiggle=1,
+    skip.step1=NULL, unblinded=TRUE, begin.diagnose= 100, incCont=FALSE, verbose=TRUE)
 {
-    MC <- match.call()
+     #                                           forsearch_lme 
+     #
+     # VALUE    List of datasets and statistics for plotting in forward search procedure to 
+     #                 diagnose lme observations.  These include: scaled residuals, s^2, leverage,
+     #                 estimated coefficients, variance of random effects. 
+     #
+     # INPUT    fixedform          2-sided formula for fixed effects
+     #          nofaactform        2-sided formula for fixed effects, omitting factors but retaining
+     #                                           random terms 
+     #          alldata            Data frame, first column of which must be "Observation".    
+     #          randomform         1-sided formula for random effects
+     #          groupnames         Character string of names of grouping variables within randomform
+     #          initial.sample     Number of reorderings of observations (= m in Atkinson and Riani)
+     #          skip.step1         NULL or a list, each element of which is a vector of integers for 
+     #                                 observations from 1 subgroup to be included in Step 1
+     #          unblinded          TRUE permits printing of ultimate lme analysis, as specified above
+     #          begin.diagnose     Numeric. Indicates where in code to begin printing diagnostics.  
+     #                                  0 prints all; 100 prints none.
+     #          incCont            Logical TRUE causes increase in allowable iterations and 
+     #                                 allowable tolerances for duration of this function
+     #          verbose            Logical. TRUE causes printing of function ID before and after running.
+     # 
+
+     #   begin.diagnose      Step 0: 1 - 19        Step 1: 20     -     49     Step 2:   50 - 59         Extraction:     81 - 
+     #                                                bStep1:  31 - 39                    bStep2:  60 - 80
+
+     MC <- match.call()
      if(verbose) {
           print("", quote=FALSE)
           print("Running forsearch_lme", quote=FALSE)
@@ -14,233 +40,223 @@ function(fixedform, alldata, randomform, initial.sample=1000, n.obs.per.level=1,
           print(MC, quote=FALSE)
           print("", quote=FALSE)
      }
-     #                                           forsearch_lme 
-     #
-     # VALUE    List of datasets and statistics for plotting in forward search procedure to diagnose lme observations.  These include: scaled residuals, s^2, leverage,
-     #                 estimated coefficients, variance of random effects. 
-     #
-     # INPUT    fixedform          2-sided formula for fixed effects
-     #          alldata            Data frame, first column of which must be "Observation".    
-     #          randomform         1-sided formula for random effects
-     #          initial.sample     Number of reorderings of observations (= m in Atkinson and Riani)
-     #          n.obs.per.level    Number of observations per level of (possibly crossed) factor levels
-     #          skip.step1         NULL or a list, each element of which is a vector of integers for observations from 1 subgroup to be included in Step 1
-     #
-     #          unblinded          TRUE permits printing of ultimate lme analysis, as specified above
-     #          begin.diagnose     Numeric. Indicates where in code to begin printing diagnostics. 0 prints all; 100 prints none.
-     #          verbose            Logical. TRUE causes printing of function ID before and after running.
-     # 
-
-     #   begin.diagnose      Step 0: 1 - 19        Step 1: 20     -     49     Step 2:    50 - 59           Extraction:     81 - 
-     #                                                aStep1:  31 - 39                    bStep2:  60 - 80
-
-# Step 0
-     spacer <- "                                            forsearch_lme        "
+     spacer <- "$$$$$$$$$$$$$$$$$$$$$$$$$$                forsearch_lme        "
      options(warn=-1)
      on.exit(options(warn=0))
-     nopl <- n.obs.per.level
-     #
-     #####################################################################################################
-     # Create all data files that will be used in this function                                          #
-     # Includes fixdat.df data frame with all variables, including inner factor and grouping variables   #
-     # Includes fixdat.list, all continuous variables within each level of factor and grouping variables # 
-     # Includes datacont.df, all continuous variables only                                               #          
-     #####################################################################################################
+
+     if(incCont){
+#          savecontrol <- nlme::lmeControl()
+#          str(lCtr <- lmeControl(maxIter = 1000, msMaxIter = 1000, tolerance = 1e-2, 
+#                 niterEM = 1000, msMaxEval = 1000, msTol = 1e-2, optimMethod = "L-BFGS-B",
+#                 msVerbose = FALSE, returnObject = FALSE) )
+#          do.call(nlme::nlmeControl, lCtr)
+#          on.exit(expr(nlme::nlmeControl <- saveControl), add=TRUE)
+     print("If convergence fails, try setting nlme::lmeControl manually on the console.")
+     }
      nalldata1 <- dim(alldata)[1]
+     wiggle <- wiggle * stats::runif(nalldata1)/100         # wiggle
+     alldata <- data.frame(alldata, wiggle)
+
      nalldata2 <- dim(alldata)[2]
      alldataNames <- names(alldata)
-     ##################################################
-     # Rearrange alldata to have response in column 2 #
-     ##################################################
+     #
+     ########################################################
+     # Ensure that first independent varible is Observation #
+     # and that grouping variables are not factors          #
+     ########################################################
+     if(alldataNames[1] != "Observation") stop("First column of data must be 'Observation'")
+     ngroups <- length(groupnames)                                               # number of group nestings
+     for(i in 1:ngroups){
+          index <- groupnames[i]==alldataNames
+          alldata[,index] <- as.character(alldata[,index])
+     }
+     #
+     ##########################
+     # Locate response column #
+     ##########################
      respName <- formula.tools::lhs(fixedform)
      ycolfixed <- (1:nalldata2)[respName==alldataNames]
-     newalldata <- alldata[,c(1,ycolfixed)]
-     oldalldata <- alldata[,-c(1,ycolfixed)]
-     alldata <- cbind(newalldata,oldalldata)
-     #####################################################################################################
-     # Create all files needed below:                                                                    #
-     #    fixdat.df,   a data frame with factor level indicator and containing all independent variables #
-     #    fixdat.list, a list with the same variables as alldata but no factor variables by factor level #
-     #    fixdatrank.df, a data frame for determining rank                                               #
-     #####################################################################################################
-
-     ############################################################
-     # Check for factor status of alldata and get factor names  #
-     ############################################################
-     datacontrank <- NULL
+     #
+     ######################################################################################
+     # Create all files needed below:                                                     #
+     #    fixdat.df,   alldata with factor level indicator and group variable indicator   #
+     #    fixdatouter.list, a 3-layer list with 1st layer factor subset levels and second # see below
+     #        layer group subset within factor layers. If there are no factors, the       #
+     #        layer will be a list of 1 level. The name of that level will be 'None'      #                                                              #
+     #    fixdatcombo.list, a list whose elements are data frames by combiation of        #
+     #        factor subset and group level                                               #
+     ######################################################################################
+     fixdat.df <- alldata
+     ##############################################################
+     # Check for factor status of fixedform and get factor names  #
+     ##############################################################
      ufactor <- rep(TRUE, nalldata2)
      for(m in 1:nalldata2) ufactor[m] <- is.factor(alldata[,m])
      yesfactor <- any(ufactor)     
      #
-     # Add factor subset indicator #
+     # Add factor subset indicator if there are any factors #
+     fixedISG <- "_None"                                       # default if no factors
+     if(yesfactor){
+          factorNames <- alldataNames[ufactor]  
+          #############################################
+          # Append the factor subset code to the data #
+          #############################################
+          isfactor <- rep(TRUE,nalldata2)
+          for(nn in 1:nalldata2){
+               isfactor[nn] <- is.factor(fixdat.df[,nn])
+          }
+          justfactors <- fixdat.df[isfactor]                        
+          fixedISG <- apply(justfactors, 1, paste,collapse="/")
+          fixedISG <- paste("_", fixedISG, sep="")
+     }     #   yesfactor                                         # does this work with F1 and F2?
+     fixdat.df <- data.frame(fixdat.df, fixedISG)   
 
-     factorNames <- alldataNames[ufactor]
-
-     ############################################
-     # Add the factor grouping code to the data #
-     ############################################
-     fixdat.df <- alldata
-     isfactor <- rep(TRUE,nalldata2)
-     for(nn in 1:nalldata2){
-          isfactor[nn] <- is.factor(fixdat.df[,nn])
-     }
-     justfactors <- fixdat.df[isfactor]
-     holdISG <- apply(justfactors, 1, paste,collapse="/")
-     holdISG <- paste("_",holdISG, sep="")
-     fixdat.df <- data.frame(fixdat.df, holdISG)                                                 # fixdat.df
-
-                                               if(begin.diagnose <=17){ print(paste(spacer,"Section 17",sep=" "),quote=FALSE);
-                                                      Hmisc::prn(utils::head(fixdat.df));Hmisc::prn(utils::tail(fixdat.df));
-                                                      Hmisc::prn(dim(fixdat.df))   }
-
-     ##########################################################################################
-     # Create a list by factor subset levels, each of which does not contain factor variables #
-     ##########################################################################################
-     ufixdatISG <- unique(fixdat.df$holdISG)
-     nlevfixdat <- length(ufixdatISG)
-     fixdat.list <- vector("list", nlevfixdat)
-
-     innerfact <- isfactor
-     innerfact[1:2] <- FALSE
-     for(i in 1:nlevfixdat){
-          fixdat.sub <- fixdat.df[fixdat.df$holdISG==ufixdatISG[i],]
-          fixdat.sub <- fixdat.sub[,!innerfact]
-          fixdat.list[[i]] <- fixdat.sub
-     }                                                                                          # fixdat.list   Step 2
-     names(fixdat.list) <- ufixdatISG
-
-                                               if(begin.diagnose <=19){ print(paste(spacer,"Section 19",sep=" "),quote=FALSE);
-                                                   Hmisc::prn(fixdat.list);Hmisc::prn(names(fixdat.list))  }
-
-     nfacts <- nlevfixdat                                        # used in extracting statistics
-     #
      ######################################
-     # collapse this list to a data frame #
+     # Add the grouping codes to the data #
      ######################################
-     uncenrank.df <- NULL
-     for(i in 1:nlevfixdat){
-          uncenrank.df <- rbind(uncenrank.df, fixdat.list[[i]])
-     }
-     ################################################################
-     # Check for constructed variables in formula, ie, use of I()   #
-     # First convert formula to a vector of character pairs. Then   #
-     # recode the I( letters as  I(A) and the test accordingly.     #      
-     # Determine whether any of these is 'I(A)'.  If so, count them #
-     ################################################################
-     nAsIs <- 0
-     charform <- as.character(fixedform)
-     nstrs <- nchar(charform) - 1
-     output <- rep("S", nstrs)
-     for(i in 1:nstrs){
-          output[i] <- substr(charform,start=i, stop=i+1)
-     }
-     formpairs <- output
-     formpairs <- paste(formpairs, "A)", sep="")
-     jj <- "I(A)" %in% formpairs
-     if(jj){
-          kk <- grep(as.character("I(A)"), as.character(formpairs))
-          nAsIs <- length(kk)
-     }
-                                 if(begin.diagnose <= 20){print("", quote = FALSE);print(paste(spacer,"Section 20",sep=" "),quote=FALSE);
-                                      Hmisc::prn(charform);Hmisc::prn(formpairs);Hmisc::prn(jj);Hmisc::prn(nAsIs)       }
-
-     #
-     #######################################################################
-     # Remove factor variables and get rank within continuous observations #
-     #######################################################################
-     unnames <- names(uncenrank.df)
-     unnames <- unnames[-length(unnames)]    # remove factor level indicator
-     rank.form <- 1
-     if(length(unnames)==2){                 # contains only Observation and response
-           datacontrank <- 1
-           mini.df <- fixdat.df[,-(1:2)]
+     groupcols <- match(groupnames, names(alldata))
+     isgroup <- (1:nalldata2)[groupcols]
+     ngrouplevels <- length(isgroup) 
+     if(ngroups==1){
+          groupISG <- alldata[, isgroup]
+          groupISG <- paste("_", groupISG, sep="")
      }
      else{
-          unnames <- unnames[-c(1:2)]
-          unnames <- paste(unnames, collapse=" + ")
-          fixed.lhs <- formula.tools::lhs(fixedform)
-          rank.form <- paste(fixed.lhs, unnames, sep=" ~ ")
-          rank.form <- stats::as.formula(rank.form)
-          lm4rank <- stats::lm(formula=rank.form, data=alldata)                    #    lm for rank
-          datacontrank <- max(lm4rank$rank,nopl)
-          mini.df <- fixdat.df[,-(1:2)]
+             stop("multiple grouping needs work in _lme")
      }
+     grouplevels <- unique(groupISG)
+     ngrouplevels <- length(unique(groupISG))
+     fixdat.df <- data.frame(fixdat.df, groupISG)                                             
+     #
+                     if(begin.diagnose <=17){ print(paste(spacer,"Section 17",sep=" "),quote=FALSE);
+                               Hmisc::prn(utils::head(fixdat.df));Hmisc::prn(utils::tail(fixdat.df));
+                               Hmisc::prn(dim(fixdat.df))   }
+     #
+     #########################
+     # Append a combined ISG #
+     #########################
+     comboISG <- paste(fixdat.df$fixedISG, fixdat.df$groupISG, sep="_F,G")
+     fixdat.df <- data.frame(fixdat.df, comboISG)
+     ################################################################################################################
+     # We will perform lme analyses on the factor subsets of fixdat.df. We need to get the inner rank of these      # 
+     # factor subsets. To ge this, we will run lm on one factor subset where the model consists of the fixed effects #
+     # plus the part of te random effects to the left of the '|' symbol.                                             #
+     ################################################################################################################
+
+
+     namesSubsets <- unique(fixedISG)
+     nsubsets <- length(namesSubsets)                                  # number of model factor levels
+
+     ###################################################
+     # Structure fixdatouter.list and then populate it #
+     ###################################################
+     fixdatouter.list <- vector("list", ngrouplevels)
+     fixdatinner.list <- vector("list", nsubsets)
+     for(k in 1:ngrouplevels){
+          fixdatouter.list[[k]] <- fixdatinner.list
+     }
+     for(k in 1:ngrouplevels){
+          for(j in 1:nsubsets){
+              uu <- fixdat.df[    fixdat.df$fixedISG==namesSubsets[j] ,]
+              vv <- uu[    uu$groupISG==grouplevels[k]    ,     ]
+              fixdatouter.list[[k]][[j]] <- vv
+          }     #   j
+     }          #   k         
+     #
+     ##############################################
+     # Break up fixdat.df into a list by comboISG #
+     ##############################################
+     ucomboISG <- unique(comboISG)
+     ncomboISG <- length(ucomboISG)
+     fixdatcombo.list <- list(ucomboISG)
+     for(i in 1:ncomboISG){
+          fixdatcombo.list[[i]] <- fixdat.df[fixdat.df$comboISG==ucomboISG[i]   ,]
+     }
+#
 ###########################################################################################################################################
 # Step 1
+     holdrim <- NULL 
      rows.in.model <- vector("list", nalldata1)
      LLL <- vector("list", nalldata1)
      zlist <- vector("list",initial.sample)         # zlist elements start with matrix result
 
-                                               if(begin.diagnose <=22) {print(paste(spacer,"Section 22",sep=" "),quote=FALSE);Hmisc::prn(fixed.lhs);
-                                                  Hmisc::prn(rank.form)        }        #;Hmisc::prn();Hmisc::prn();   }
-
      if(is.null(skip.step1)){
+          ##########################################################################   
+          # Get rank of model without groups by calculating lm on 1st group's data #
+          ##########################################################################
+          agroup <- fixdat.df[fixdat.df$groupISG==grouplevels[[1]],]
+
+          lmAlldata <- stats::lm(formula=fixedform, data=agroup)
+          coeflmAll <- stats::coefficients(lmAlldata)
+          ncoeffs <- length(coeflmAll)
           print("BEGINNING STEP 1", quote=FALSE)
           print(" ", quote=FALSE)
-          inner.rank <- datacontrank
 
-                                               if(begin.diagnose <=23){ print(paste(spacer,"Section 23",sep=" "),quote=FALSE);Hmisc::prn(inner.rank);
-                                                 Hmisc::prn(nopl);
-                                                 Hmisc::prn(utils::head(uncenrank.df));Hmisc::prn(utils::tail(uncenrank.df))   }
+          basenumber <- floor(ncoeffs/nsubsets + .000001)
+          additional <- rep(0,nsubsets)
+          nadd <- ncoeffs - basenumber*nsubsets
+          if(nadd > 0) additional[1:nadd] <- 1 
+          inner.rnk <- rep(basenumber, nsubsets) + additional 
+          if(yesfactor){
+               ################################################################################
+               # Define number of source slots and define the number of observations per slot #
+               ################################################################################
+               firstrim <- bStep1(yesfactor, df1=fixdat.df, df1.ls=fixdatouter.list, groups=grouplevels, 
+                            inner.rank=inner.rnk, 
+                            initial.sample=initial.sample, nofactform=nofactform,formulaA=fixedform, 
+                            randform=randomform, ycol=ycolfixed, b.d=begin.diagnose)                         #  bStep1 
+          }     # End of yesfactor
 
-          if(datacontrank==1){
-               fixed.lhs <- formula.tools::lhs(fixedform)
-               xform2 <- paste(fixed.lhs, "1", sep=" ~ ")
-          }else{
-               formula.rhs2 <- unnames
-               if(length(formula.rhs2)>1)formula.rhs2 <- paste("",formula.rhs2, collapse=" + ")
-               xform2 <- paste(fixed.lhs, formula.rhs2, sep=" ~ ")
-          }
-          formulacont <- stats::as.formula(xform2)
-          #
-#stop("before astep 1") 
-#         firstrim <- aStep1(yesfactor=TRUE, df1=alldata, df1.ls=fixdat.list, inner.rank=datacontrank + nAsIs, initial.sample=initial.sample, 
-#                    formula=formulacont, ycol=2, nopl=nopl, b.d=begin.diagnose)                                         # aStep1 
+          else{
+               firstrim <- bStep1(yesfactor, df1=fixdat.df, df1.ls=fixdatouter.list, groups=grouplevels,
+                            inner.rank=inner.rnk, initial.sample=initial.sample, nofactform=nofactform, 
+                            formulaA=fixedform, randform=randomform, ycol=ycolfixed, b.d=begin.diagnose)     #  bStep1 
 
-# function (yesfactor, df1, df1.ls, inner.rank, initial.sample, formula, randform, ycol, nopl, b.d) 
-#{
-         firstrim <- bStep1(yesfactor=TRUE, df1=alldata, df1.ls=fixdat.list, inner.rank=datacontrank + nAsIs, initial.sample=initial.sample, 
-                    formula=formulacont, randform=randomform, ycol=2, nopl=nopl, b.d=begin.diagnose)                                         # bStep1 ycol set =2
-
-          nfirstrim <- length(firstrim)
-          rows.in.model[[nfirstrim]] <- firstrim                        # save list with pool and individual subsets
-          SOON <- firstrim
+          }     # no factor present
+          SOON <- sort(firstrim)
+          
+          nfirstrim <- length(firstrim) 
           mstart <- nfirstrim + 1
+          rows.in.model[[nfirstrim]] <- sort(firstrim)
      }         # is.null skip.step1
      else{
           print("SKIPPING STEP 1", quote=FALSE)       # no guarantees for user-defined skip.step1
           nfirstrim <- length(skip.step1)
-          rows.in.model[[nfirstrim]] <- skip.step1
+          rows.in.model[[nfirstrim]] <- sort(skip.step1)
  
-                                              if(begin.diagnose <=41) {print(paste(spacer,"Section 41",sep=" "),quote=FALSE);
+                               if(begin.diagnose <=42) {print(paste(spacer,"Section 42",sep=" "),quote=FALSE);
                                                    Hmisc::prn(rows.in.model);Hmisc::prn(alldata[skip.step1,])   }
 
-          SOON <- skip.step1
-          mstart <- nfirstrim + 1
+          SOON <- sort(skip.step1)
+          mstart <- nfirstrim
      }       # skipping step 1
      # 
-                                               if(begin.diagnose <=42) {print(paste(spacer,"Section 42",sep=" "),quote=FALSE);
+                                               if(begin.diagnose <=43) {print(paste(spacer,"Section 43",sep=" "),quote=FALSE);
                                                   Hmisc::prn(SOON)   }
 
-#
+#stop("before entering step 2")
 ########################################################################################################################################################################
 # Step 2
      print("BEGINNING STEP 2", quote=FALSE)
-     fixedformform <- stats::formula(fixedform)
-#                                               if(begin.diagnose <=44) {print(paste(spacer,"Section 44",sep=" "),quote=FALSE);
-#                                                  Hmisc::prn(SOON);   }
+     fixedform <- stats::formula(fixedform)
 
-# note X in call
-     zzzz <- bStep2(f2=fixedformform, dfa2=fixdat.df, randm2=randomform, ms=mstart,  
-                    finalm=rows.in.model, fbg=fixdat.list, b.d=begin.diagnose, rnk2=datacontrank + nAsIs, ycol=ycolfixed)                 # bStep2
+     #############################################################################
+     # Bind a combination index to fixdat.df and add a column for squared errors #
+     #############################################################################
+     comboISG <- paste(fixdat.df$groupISG, fixdat.df$fixedISG, sep="&")
+     diffs2 <- 0
+     fixdat.df <- data.frame(fixdat.df, comboISG, diffs2)
+     pushaside <- formula.tools::rhs(randomform)=="1"
+     zzzz <- bStep2(yf=yesfactor, f2=fixedform, dfa2=fixdat.df, onlyfactor=pushaside, randm2=randomform, ms=mstart, ycol=ycolfixed,
+                    initn=inner.rnk, finalm=rows.in.model, fbg=fixdatcombo.list, b.d=begin.diagnose)                 # bStep2
 
      rows.in.set <- zzzz[[1]]
      LME <- zzzz[[2]]
-     rows.in.set[[nalldata1]] <- 1:nalldata1
-     LME[[nalldata1]] <- nlme::lme(fixedformform, alldata, randomform)
-#prn(rows.in.set)
-# stop("before extraction")
 
+     rows.in.set[[nalldata1]] <- 1:nalldata1
+     LME[[nalldata1]] <- nlme::lme(fixedform, alldata, randomform)                                # lme
+
+# stop("before extraction")
 ########################################################################################################################################################################
 # Extracting summary statistics
      print("", quote=FALSE)
@@ -254,7 +270,7 @@ function(fixedform, alldata, randomform, initial.sample=1000, n.obs.per.level=1,
      rnkfixed <- length(zholdcoeffs[[1]])                                                # these go into param.est
 
      if(unblinded){
-          print("The assumed analysis for these data will be as follows:", quote=FALSE)
+          print("The assumed analysis for these data is as follows:", quote=FALSE)
           print("", quote=FALSE)
           print(zholdlm)
           print("", quote=FALSE)
@@ -266,7 +282,6 @@ function(fixedform, alldata, randomform, initial.sample=1000, n.obs.per.level=1,
      #################################################################################################
      nrowsdf1 <- nalldata1
      dddd <- zholdlm$dims
-     ss77 <- variablelist(datadf=alldata, prank=datacontrank)
      hold.residuals <- matrix(0,nrowsdf1,nrowsdf1)          # for standardized residuals across all observations
      hold.subset.residuals <- rep(0,nrowsdf1)               # for use in Cook distance   
      hold.dims <- vector("list", nrowsdf1)
@@ -296,10 +311,10 @@ function(fixedform, alldata, randomform, initial.sample=1000, n.obs.per.level=1,
      #########################################################
      # Set up for extraction of leverage and Cook's distance #
      #########################################################
-     levAlldata <- stats::lm(formula=fixedform, data=alldata, x=TRUE, y=TRUE)                                  # lm
+     levAlldata <- stats::lm(formula=fixedform, data=alldata, x=TRUE, y=TRUE)         # lm ????
      x1 <- levAlldata$x
 
-     for(dd in mstart:nalldata1){                                                                   #    for loop starts here
+     for(dd in mstart:nalldata1){                               #    for loop starts here
           rim <- rows.in.set[[dd]]             # picks up row numbers for a set of observations
           Zlatest <- fixdat.df[rim,]  
           ############################################################################
@@ -341,7 +356,8 @@ function(fixedform, alldata, randomform, initial.sample=1000, n.obs.per.level=1,
           hold.coeffs.fixed[[dd]] <- zholdlme$coefficients[[1]]
           temprand<-zholdlme$coefficients[[2]]
 
-                                               if(begin.diagnose <= 88){print(paste(spacer,"Section 88         dd=",dd));Hmisc::prn(zholdlme)}
+                                               if(begin.diagnose <= 88){print(paste(spacer,"Section 88         dd=",dd));
+                                                              Hmisc::prn(zholdlme)    }
 
           xbar <- mean(c(temprand[[1]]))
           devs <- c(temprand[[1]])-xbar
@@ -364,7 +380,7 @@ function(fixedform, alldata, randomform, initial.sample=1000, n.obs.per.level=1,
           #########################################################
           td1 <- dim(fixdat.df)[1]
           errors <- rep(-999, td1)
-          y1 <- fixdat.df[,2]
+          y1 <- fixdat.df[,ycolfixed]
           for(j in 1:td1){
                errors[j] <- y1[j] - sum(hold.coeffs.fixed[[dd]] * x1[j,])
           }             #   j
@@ -374,7 +390,8 @@ function(fixedform, alldata, randomform, initial.sample=1000, n.obs.per.level=1,
           #          "Fixed parameter estimates"=          param.est #
           ############################################################
           param.est[,dd] <- c(zholdlme$coefficients[[1]])     
-                                                              if(begin.diagnose <= 90){print(paste(spacer,"Section 90         dd=",dd));Hmisc::prn(param.est[,dd])}
+                                     if(begin.diagnose <= 90){print(paste(spacer,"Section 90         dd=",dd));
+                                              Hmisc::prn(param.est[,dd])}
           #
           ###########################################################
           # ANOVA test of fixed effects               anova.pvalues #
@@ -382,8 +399,8 @@ function(fixedform, alldata, randomform, initial.sample=1000, n.obs.per.level=1,
           AVlme <- stats::anova(zholdlme)
           AVlmeps <- AVlme[,4]                     # no need to remove p value (NA) for residuals; not in AVlme
           anova.pvalues[,dd] <- AVlmeps
-                                                              if(begin.diagnose <= 92){print(paste(spacer,"Section 92         dd=",dd));
-                                                                     Hmisc::prn(anova.pvalues[,dd])}
+                                       if(begin.diagnose <= 92){print(paste(spacer,"Section 92         dd=",dd));
+                                                   Hmisc::prn(anova.pvalues[,dd])}
           #
 
           ############################################################
@@ -392,9 +409,8 @@ function(fixedform, alldata, randomform, initial.sample=1000, n.obs.per.level=1,
           thisleverage <- 1
           if(is.matrix(x1)){
                for(j in 1:dd){
-                                                              if(begin.diagnose <= 93){print(paste(spacer,"Section 93         dd=",dd));Hmisc::prn(j);
-                                                                    #Hmisc::prn(Zlatest);
-                                                                    Hmisc::prn(dim(x1)[2]);Hmisc::prn(matrix(xtemp[j,],nrow=1));Hmisc::prn(det(crossinv))       }
+                                        if(begin.diagnose <= 93){print(paste(spacer,"Section 93         dd=",dd));Hmisc::prn(j);
+                                                   Hmisc::prn(dim(x1)[2]);Hmisc::prn(matrix(xtemp[j,],nrow=1));Hmisc::prn(det(crossinv))       }
 
                     if(solvecross){
                          Zlatest2 <- data.frame(Zlatest)
@@ -436,7 +452,7 @@ function(fixedform, alldata, randomform, initial.sample=1000, n.obs.per.level=1,
      names(param.est) <- paste("b",1:rnkfixed, sep="")
      param.est <- rbind(m,param.est)
      #
-     hold.summary.stats <- data.frame(m, hold.summary.stats)                          # hold.summary.stats defined
+     hold.summary.stats <- data.frame(m, hold.summary.stats)         # hold.summary.stats defined
      names(hold.summary.stats) <- c("m", "AIC", "BIC", "logLik")
      # 
      t.set <- as.data.frame(t(t.set))
@@ -469,13 +485,13 @@ function(fixedform, alldata, randomform, initial.sample=1000, n.obs.per.level=1,
           aa <- as.numeric(aa[-1])
           aa <- matrix(aa,nrow=1)
           bb <- as.matrix(xtemp.list[[i]])
-                                                              if(begin.diagnose <= 95){print(paste(spacer,"Section 95"));
-                                                                   Hmisc::prn(aa);Hmisc::prn(bb)}
+                                         if(begin.diagnose <= 95){print(paste(spacer,"Section 95"));
+                                                                  Hmisc::prn(aa);Hmisc::prn(bb)}
           www <- aa %*% t(bb)
           modCook[i-1] <- (www %*% t(www))/(rnkfixed * hold.subset.residuals[i-1])
 
-                                                              if(begin.diagnose <= 96){print(paste(spacer,"Section 96"));
-                                                                     Hmisc::prn(hold.subset.residuals[i-1])}
+                                           if(begin.diagnose <= 96){print(paste(spacer,"Section 96"));
+                                                               Hmisc::prn(hold.subset.residuals[i-1])}
      }     #  for i
      #
      #######################################
@@ -505,10 +521,14 @@ function(fixedform, alldata, randomform, initial.sample=1000, n.obs.per.level=1,
      if(dnAVlme[1]=="(Intercept)"){
           anova.pvalues <- anova.pvalues[,-1]           # remove (Intercept)
      }
-     listout <- list(
+
+                                       if(begin.diagnose <= 99){print(paste(spacer,"Section 99"));
+                                                   Hmisc::prn(inner.rnk)     }
+
+    listout <- list(
           "Number of observations in Step 1"=   mstart-1,
           "Step 1 observation numbers"=         SOON,
-          "Rows by subgroup"=                   fixdat.list,
+          "Rows by subgroup"=                   fixdatouter.list,
           "Rows in stage"=                      rows.in.set,
            Sigma=                               sigma,
           "Standardized residuals"=             hold.residuals,            

@@ -13,10 +13,6 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
-
-```{r setup}
-library(forsearch)
-```
 ## Introduction
 
 Years ago, statisticians were primarily concerned with development of statistical methods for the analysis of various kinds of data.  They developed the probability distributions and attributes of new estimates, tests of hypothesis, and predictive methodologies.  They then applied these methods to the data that was presented to them by subject matter specialists, fitting the methods to the data as well as they could.

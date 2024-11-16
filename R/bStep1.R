@@ -1,92 +1,105 @@
 bStep1 <-
-function (yesfactor, df1, df1.ls, inner.rank, initial.sample, formula, randform, ycol, nopl, b.d) 
+function (yesfactor, df1, df1.ls, groups, inner.rank, initial.sample, nofactform=NULL, formulaA, randform, ycol, b.d) 
 {
+
      #                                    bStep1   
-     # REVISE ALL THIS
-     # VALUE      Produces rim for Step 1. If there are factors, selects random sets from all factor subsets and runs lm
-     #            and predictor to determine set with median sum of squared errors.
+     # 
+     # VALUE      Produces rim for Step 1. Uses candprep function to form matrix of candidate sets of observation numbers
+     #            and runs lme and predictor to determine set of observation numbers with median sum of squared errors.
      #
      # INPUT      yesfactor      Logical. TRUE if there are factors in the X matrix 
-     #            df1            Data frame being analyzed by forward search. Observation column has no effect on lm analysis
+     #            df1            Data frame being analyzed by forward search. 
      #            df1.ls         List of df1 by factor subset or NULL
-     #            inner.rank     Rank of lm analysis on dataset with or without factor variables, depending on yesfactor     
+     #            groups         groupISG
+     #            inner.rank     Vector. Number of observations to pull from each factor subset, or from overall database otherwise
      #            initial.sample Number of random samples from which to take rim
-     #            formula        Formula for all effects including factors and constructed variables    
+     #            Nofactform     2-sided formula without factors
+     #            formulaA       Formula for all effects including factors and constructed variables    
+     #            nofactform     1-sided Formula for group and random effects, omitting factors
      #            ycol           Response column number
-     #            nopl           n.obs.per.level 
-     #            b.d            begin.diagnose Ranges from 25 to 45
+     #            b.d            begin.diagnose Ranges from 20 to 32
+     #
+     # Strategy   Runs calculations on each group separately up to the point of selecting a rim for that group NO
+     #                 and passes them out as a list by group .
      #
      spacehere <- "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%      bStep1           "    
-  
-                           if(b.d <=31 ){ print("",quote=FALSE);print(paste(spacehere,"Section 31",sep=" "),quote=FALSE);
-                                 Hmisc::prn(yesfactor);Hmisc::prn(utils::head(df1));Hmisc::prn(df1.ls);Hmisc::prn(inner.rank);
-                                 Hmisc::prn(initial.sample);Hmisc::prn(dim(df1));Hmisc::prn(formula);Hmisc::prn(ycol)   }
+# print("in bStep1") 
 
+                     if(b.d <=31 ){ print("",quote=FALSE);print(paste(spacehere,"Section 31",sep=" "),quote=FALSE);
+                         Hmisc::prn(yesfactor);Hmisc::prn(utils::head(df1));Hmisc::prn(df1.ls);Hmisc::prn(inner.rank);
+                         Hmisc::prn(initial.sample);Hmisc::prn(nofactform);Hmisc::prn(dim(df1));Hmisc::prn(formulaA);
+                         Hmisc::prn(ycol);print("End of bStep1 argument listing")   }
+     #
 
-     ############################################################################################################### 
-     # Collect sufficient observation numbers from all factor subsets or the entire database if no factors present #
-     # Assemble them into a matrix.  The number of rows is initial.sample and the number of columns depends on the # 
-     # number of observations and nopl.                                                                            #
-     # Then run lm() on each row and predict to the entire database.  Select the Step 1 row which is the median of #
-     # the sum of squared errors of the predictions. Formula contains all variables, including factors.            #
-     ############################################################################################################### 
+     Nlevels <- length(groups)
+     nfacts <- length(inner.rank)
+     ngroups <- length(df1.ls)
+     listbyGroups <- vector("list", ngroups)
+     hold.cands.pool <- vector("list", length(inner.rank))
+     fixed <- unique(df1$fixedISG)
+     nfixed <- length(fixed)
+     newlist <- vector("list", nfixed)
+     pullN <- max(inner.rank)
 
-     # Set up final holding variables
-     nobs <- dim(df1)[1]
-     Observation <- 1:initial.sample
-     SSE <- -99
-     sumSqError <- data.frame(Observation, SSE)
-     pullN <- max(inner.rank,nopl)
+                 if(b.d <= 32){print("", quote = FALSE);print(paste(spacehere,"Section 32",sep=" "),quote=FALSE);
+                                      Hmisc::prn(inner.rank);Hmisc::prn(pullN)       }
 
-     if(yesfactor) nlevels <- length(df1.ls)
+     ############################################################
+     # Get a 2-level list each element of which is a matrix of  # 
+     # sample observatons (initial.sample x factor/group subset #
+     ############################################################
+     if(yesfactor){
+          for(mm in 1:nfixed){
+               newlist[[mm]] <- df1[df1$fixedISG==fixed[mm],]
+          }    #   mm
+          hold.cands <- candprep(yf=yesfactor, dfa2=df1, fixd.ls=df1.ls, preprnk=pullN, 
+                    inner.rank=inner.rank, in.sam=initial.sample, makearray=TRUE, b.d=b.d)           # candprep
+     }     # yesfactor
      else{
-          nlevels <- 1
-          df1.ls <- list(df1)
-     }
-     hold.cands <- matrix(-9L, nrow=initial.sample, ncol=pullN*nlevels)      # will be appended when obs identified by stratum 
-     for(i in 1:initial.sample){
-          hold.cands.this.subset <- NULL
-          for(j in 1:nlevels){
-               this.subset <- df1.ls[[j]]
-               n.in.subset <- dim(this.subset)[1]    # may be more obs in some subsets than in others
-               popu <- 1:n.in.subset
-               hold.cands.temp <- sample(x=popu, size=pullN, replace=FALSE)                      # row numbers
-               hold.cands.temp <- this.subset$Observation[hold.cands.temp]          # associated observation numbers
-               hold.cands.this.subset <- c(hold.cands.this.subset, hold.cands.temp)      # append observation numbers to vector
-          }    #   j
-          len.this.subset <- length(hold.cands.this.subset)
-          hold.cands[i,1:len.this.subset] <- sort(hold.cands.this.subset) 
-     }     # i
-                           if(b.d <=32 ){ print("",quote=FALSE);print(paste(spacehere,"Section 32",sep=" "),quote=FALSE);
-                                 Hmisc::prn(inner.rank);Hmisc::prn(nopl);Hmisc::prn(nobs);Hmisc::prn(utils::head(sumSqError));Hmisc::prn(nlevels);
-                                 Hmisc::prn(hold.cands)   }
+               hold.cands <- candprep(yf=yesfactor, dfa2=df1, fixd.ls=df1.ls, preprnk=pullN, in.sam=initial.sample, 
+                      inner.rank=inner.rank, makearray=TRUE, b.d=b.d)                                 # candprep
+     }      # else, no factors
 
+     ###########################################
+     # now we have a set of candidate rims.  
+     # Reduce the structure to a single matrix #
+     ###########################################
+     MED <- floor( dim(df1)[1]/2 + .00001 )
+     SSE <- rep(-99, initial.sample)
+     concatout <- matrix(-99, nrow=initial.sample, ncol= sum(inner.rank)*Nlevels)
+     for(r in 1:initial.sample){
+          subrim <- NULL
+          for(k in 1:nfixed){
+               for(j in 1:Nlevels){
+                    piddly <- hold.cands[[j]][[k]][r,]
+                    piddly <- piddly[1:inner.rank[k]  ]
+                    subrim <- c(subrim, piddly)
+               }    # in j
+          }         # in k
+          concatout[r,] <- sort(subrim)
+     }              # in r
 
-     ################################################################################################# 
-     # Run the lm function on each row of hold.cands and predict to the entire database for each one #
-     # Calculate the sum of squares of the error for each one amd store it in sumSqError[i,2]        #
-     # Sort this matrix on the 2nd column and locate the median row.  The observations for this row  #
-     # are the rim for Step 1                                                                        #
-     ################################################################################################# 
+                 if(b.d <= 49){print("", quote = FALSE);print(paste(spacehere,"Section 49",sep=" "),quote=FALSE);
+                                      Hmisc::prn(hold.cands);Hmisc::prn(concatout)       }
 
-     for(i in 1:initial.sample){
-          index <- hold.cands[i,]
-          smalldata <- df1[index,]
-          this.form <- formula
+     for(r in 1:initial.sample){
+          smalldata <- df1[concatout[r,],]
+          lmesmall <- nlme::lme(fixed = formulaA, data = smalldata, random = randform)         # lme
+          predsmall <- stats::predict(lmesmall, data=df1)                                # predict
 
-          lmsmall <- nlme::lme(fixed=this.form, data=smalldata, random=randform)                             #    lme
-          predsmall <- stats::predict(lmsmall, data=df1, type="response", pred.var=1)                          # predict
-          errorsmall <- df1[, ycol] - predsmall
-          sserrorsmall <- errorsmall^2
-          sumSqError[i,2] <- sum(sserrorsmall)
-     }     # i
-     sumSqError <- sumSqError[order(sumSqError[,2]),]
-     MED <- round(initial.sample/2)
+          error2 <- (df1[, ycol] - predsmall)^2 + df1$wiggle
+          error2 <- sort(error2)
+          mederror2 <- error2[MED]
+          SSE[r] <- mederror2
+     }   # r
+     augmented <- cbind(SSE,concatout)
+     augmented <- augmented[order(augmented[,1]),]
+     smallestmed <- augmented[1,]
+     smallestmed <- smallestmed[-1]
 
-                           if(b.d <=34 ){ print("",quote=FALSE);print(paste(spacehere,"Section 34",sep=" "),quote=FALSE);
-                                 Hmisc::prn(hold.cands);Hmisc::prn(smalldata);Hmisc::prn(this.form);Hmisc::prn(predsmall);Hmisc::prn(sumSqError);
-                                 Hmisc::prn(MED);Hmisc::prn(hold.cands)    }
+                 if(b.d <= 49){print("", quote = FALSE);print(paste(spacehere,"Section 49",sep=" "),quote=FALSE);
+                                      Hmisc::prn(smalldata);Hmisc::prn(predsmall);Hmisc::prn(SSE);Hmisc::prn(smallestmed)       }
 
-     rimout <- hold.cands[MED,]
-     return(rimout)
+     return(smallestmed)
+
 }

@@ -11,14 +11,13 @@ function(
           formula.cont.rhs,      
 
           data,  
-          n.obs.per.level=1,
           estimate.phi= TRUE, 
+          wiggle=1,
           skip.step1=   NULL,   
           unblinded = TRUE,
 
          begin.diagnose=  100,          verbose=    TRUE)
 {
-
 #                                                                      forsearch_glm
 
      MC <- match.call()
@@ -33,7 +32,7 @@ function(
           print("", quote = FALSE)
      }
 
-     spacer <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXX           forsearch_glm  "
+     spacer <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                forsearch_glm"
 
      ############################
      # Identity matrix function #  Used only in Cook calculation
@@ -41,70 +40,48 @@ function(
      my.identity <- function(n){
           matrix(rep(c(1, rep(0, n)), times = n)[1:(n * n)], nrow = n, ncol = n, byrow = T)
      }
-     ########################################################################################
-     # Helper function for calculaton of deviance code for each observation based on family #
-     ########################################################################################
-     devianceCode <- function (obs, pred, ni=NULL, fam) 
-     {
-          if(obs/pred < 0) { out <- 0  }
-          else{
-               if(fam=="binomial"){
-                    if(obs==0){ out <- ni*log(ni/(ni-pred))     }      # expects whole numbers, not proportions
-                    else if(obs==ni){ out <- obs*log(obs/pred) }
-                    else{ out <- obs*log(obs/pred) + (ni-obs)*log((ni-obs)/(ni-pred)) }
-               }
-               else if(fam=="Gamma"){ out <- -log(obs/pred) + (obs-pred)/pred  }
-               else if(fam=="poisson"){ if(obs==0){ out <- pred }
-                    else{ out <- obs*log(obs/pred) - obs + pred  }
-               }
-               else if(fam=="exponential"){ out <- -log(obs/pred) + obs*pred - 1 }
-               else{
-                    stop("family name not recognized")
-               }
-               if(is.na(out)){ out <- 0 }
-               else{
-                    if(abs(out)<= 10^(-12)){ out <- 0 }
-                    else{ out <- 2 * out; vv <- obs - pred; vv <- vv/abs(vv)            #  1 or -1
-                         out <- sqrt(out)*vv }
-               }
-          }
-          return(out)
-     }                                   # end of devianceCode function
-     #
      ##########################################################################################################
-     # MAIN FUNCTION STARTS HERE #
+     #                                      MAIN FUNCTION STARTS HERE #
      options(warn = -1)
      on.exit(options(warn = 0))
 
      alldata <- data
-     nobs <- dim(data)[1]
-     nalldata2 <- dim(data)[2] 
+     nobs <- dim(alldata)[1]
+     wiggle <- wiggle * stats::runif(nobs)/100
+     alldata <- cbind(alldata, wiggle)
+     nalldata2 <- dim(alldata)[2] 
                                  if(begin.diagnose <= 1){print(paste(spacer,"Section 1",sep=" "),quote=FALSE);
                                      Hmisc::prn(utils::head(data));Hmisc::prn(formula.cont.rhs);Hmisc::prn(nobs);
                                      Hmisc::prn(response.cols);Hmisc::prn(indep.cols)       }
 
-     ##################################################################
-     # Get parts of formula to enable subsetting                      #
-     # Ensure that first independent variable is Observation          #
-     ##################################################################
-     uu <- names(data)
+     #########################################################
+     # Ensure that first independent variable is Observation #
+     # Ensure that family is one that is recognized          # 
+     #########################################################
+     uu <- names(alldata)
      if(uu[1] != "Observation")stop("First column of data must be 'Observation'")
+
+     famly <- family; famly1 <- famly[[1]]
+     if(!{famly1=="binomial" | famly1=="poisson" | famly1=="Gamma"}) stop("family must be one of 'binomial', 'poisson', or  'Gamma'")
      #
+     #####################################
+     # Rename variables to common values #
+     #####################################
      if(family[[1]]=="binomial"){
           name.response <- uu[response.cols]
-          inresponse <- data[,response.cols]
-          bin.wts <- apply(data[,response.cols],1,sum)
-          proportion1 <- data[,response.cols[1]]
-          proportion1 <- proportion1/bin.wts
-          indata <- data.frame(data,proportion1,bin.wts)        # indata has proportion1 and bin.wts
-          bin.wts <- NULL                                       # insist that these come from indata, not argument
-          genformula <- formula(paste("proportion1", binomialrhs, sep=" ~ ")) 
+          inresponse    <- data[,response.cols]
+          bin.wts       <- apply(data[,response.cols],1,sum)
+          proportion1   <- data[,response.cols[1]]
+          proportion1   <- proportion1/bin.wts
+          indata        <- data.frame(data,proportion1,bin.wts)        # indata has proportion1 and bin.wts
+          bin.wts       <- NULL                                       # insist that these come from indata, not argument
+          genformula    <- formula(paste("proportion1", binomialrhs, sep=" ~ ")) 
      }      # binomial  
      else{
           name.response <- uu[response.cols]
-          inresponse <- data[,response.cols]
-          indata <- data
-          genformula <- formula
+          inresponse    <- data[,response.cols]
+          indata        <- alldata
+          genformula    <- formula
     }       # not binomial
 
      print("The formula applied in this analysis was:", quote=FALSE)
@@ -113,7 +90,7 @@ function(
      print("", quote=FALSE)
      print(paste("response.cols = ", name.response, sep=""), quote=FALSE)
      print("", quote=FALSE)
-
+     #
      ############################################################
      # Print structure of analysis by blinding of real response #
      ############################################################
@@ -128,9 +105,9 @@ function(
      else if(family[[1]]=="poisson"){
           lmAlldata <- stats::glm(formula=genformula, family=family, data=indataXX, singular.ok=TRUE, x=TRUE, y=TRUE)                          # glm
      }
-     else{
-          stop("family name not recognized")
-     }
+     x1 <- z1 <- lmAlldata$x
+     y1 <- lmAlldata$y
+
      lmAlldata$df.residual <- 99999
      lmAlldata$df.null     <- 99999
      print("", quote = FALSE)
@@ -140,39 +117,8 @@ function(
           print(lmAlldata)
           print("",quote=FALSE)
      }
-     #
-if(F){
-     ################################################################
-     # Check for constructed variables in formula, ie, use of I()   #
-     # First convert formula to a vector of character pairs. Then   #
-     # recode the I( letters as  I(A) and the test accordingly.     #      
-     # Determine whether any of these is 'I(A)'.  If so, count them #
-     ################################################################
-     nAsIs <- 0
-     charform <- as.character(formula.cont.rhs)
-     nstrs <- nchar(charform)
-     output <- rep("S", nstrs)
-     for(i in 1:nstrs){
-          output[i] <- substr(charform,start=i, stop=i+1)
-     }
-     formpairs <- output
-     formpairs <- paste(formpairs, "A)", sep="")
-     jj <- "I(A)" %in% formpairs
-     if(jj){
-          kk <- grep(as.character("I(A)"), as.character(formpairs))
-          nAsIs <- length(kk)
-     }
-
-                                 if(begin.diagnose <= 3){print("", quote = FALSE);print(paste(spacer,"Section 3",sep=" "),quote=FALSE);
-                                      Hmisc::prn(charform);Hmisc::prn(formpairs);Hmisc::prn(jj);Hmisc::prn(nAsIs)       }
-#prn(nAsIs)
- nAsIs <- 0
-}
-
-
      ########################################
      # Check for factor status of dataset   #
-     # Get rank of analysis without factors #
      ########################################
      datacontrank <- NULL
      ndatacols <- dim(data)[2]
@@ -183,28 +129,36 @@ if(F){
      yesfactor <- any(ufactor)
      lmAlldata <- stats::lm(formula=genformula, data, singular.ok=TRUE, x=TRUE, y=TRUE)                                    # lm
      ncoeffs <- length(lmAlldata$coefficients)
-     rnk <- lmAlldata$rank
-                                 if(begin.diagnose <= 4){print(paste(spacer,"Section 4",sep=" "),quote=FALSE);
+     rnk <- lmAlldata$rank                         # this may be used in call to dStep1 if also correct for non factor subset models
+     #
+     ###################################################################################
+     # if yesfactor setermine how many observations are needed from each factor subset #
+     # Store in datacontrank                                                           #
+     ###################################################################################
+     datacontrank <- minobs <- rnk           # default
+     if(yesfactor){
+          ss77 <- variablelist(datadf = alldata, prank=ndatacols)            # list of matrices 2 columns: observation number
+                                                                            # and subset code by factor subset
+          nfacsub <- length(ss77)
+          persub <- floor(minobs/nfacsub + .00000001)
+          leftover <- minobs - persub * nfacsub
+          datacontrank <- rep(persub,nfacsub)
+          additional <- c(rep(1,leftover),rep(0,nfacsub))
+          additional <- additional[1:nfacsub]
+          datacontrank <- datacontrank + additional
+     }
+                                 if(begin.diagnose <= 2){print(paste(spacer,"Section 2",sep=" "),quote=FALSE);
                                       Hmisc::prn(ncoeffs);Hmisc::prn(rnk)       }
  
-     nopl <- n.obs.per.level
-     ##########################################################
-     # Ensure that if yesfactor, formula.cont.rhs is not null #
-     ##########################################################
-     if(yesfactor & is.null(formula.cont.rhs))stop("There is a factor variable in the data, but formula.cont.rhs is null.")
-
-     x1 <- z1 <- lmAlldata$x
-     y1 <- lmAlldata$y
-     dimdata <- dim(data)
      #
      ############################################################################
-     # Resampling algorithm for Step 1 of forward search     p31                #
+     # Resampling algorithm for Step 1 of forward search     p31 of A&R         #
      # rows.in.model is a list whose elements are vectors of increasing length  #
      # residuals contains model residual for each term at each stage of the fit #
      # The residuals for i-th observation are in i-th row                       #
      ############################################################################
      randset <- 1:initial.sample
-     dimx <- dim(data)
+     dimx <- dim(alldata)
      dimx1 <- dimx[1]
      OBS <- data[,1]
      Z <- cbind(OBS,x1,y1)
@@ -227,23 +181,10 @@ if(F){
      #
 
      #####################################################################################################
-     # Create three files needed below:                                                                  #
+     # Create two files needed below:                                                                    #
      #    fixdat.df,   a data frame with factor level indicator and containing all independent variables #
-     #    fixdat.list, a list with the same variables as alldata but no factor variables by factor level #
-     #    datacont, a data frame with no factor variables for determining the rank of regression         #
+     #    fixdat.list, a list with the same variables as alldata with a level for each factor subset     #
      #####################################################################################################
-
-     ############################################################
-     # Check for factor status of alldata and get factor names  #
-     ############################################################
-     datacontrank <- NULL
-     ufactor <- rep(TRUE, nalldata2)
-     for(m in 1:nalldata2) ufactor[m] <- is.factor(alldata[,m])
-     alldataNames <- names(alldata)
-     yesfactor <- any(ufactor)     
-
-     # Add factor subset indicator #
-     factorNames <- alldataNames[ufactor]
 
      ############################################
      # Add the factor grouping code to the data #
@@ -251,7 +192,7 @@ if(F){
      # Define ycol in any case                  #
      ############################################
      fixdat.df <- alldata
-     isfactor <- rep(TRUE,nalldata2)
+     isfactor <- rep(TRUE, nalldata2)
      for(nn in 1:nalldata2){
           isfactor[nn] <- is.factor(fixdat.df[,nn])
      }
@@ -259,19 +200,24 @@ if(F){
      holdISG <- apply(justfactors, 1, paste,collapse="/")
      holdISG <- paste("_",holdISG, sep="")
      fixdat.df <- data.frame(fixdat.df, holdISG)                                                 # fixdat.df    building
+
+
      if(family[[1]]=="binomial"){
-          fixdat.df <- data.frame(fixdat.df, proportion1); ycol <- dim(fixdat.df)[2]
+          bin.wts <- indata$bin.wts
+          fixdat.df <- data.frame(fixdat.df, proportion1, bin.wts)
+          ycol <- dim(fixdat.df)[2]
           responseName <- "proportion1"
+
      }
      else{responseName <- names(data)[response.cols]     }
 
                                                if(begin.diagnose <=17){ print(paste(spacer,"Section 17",sep=" "),quote=FALSE);
                                                       Hmisc::prn(utils::head(fixdat.df));Hmisc::prn(utils::tail(fixdat.df));
                                                       Hmisc::prn(dim(fixdat.df));Hmisc::prn(responseName)   }
-
-     ##########################################################################################
-     # Create a list by factor subset levels, each of which does not contain factor variables #
-     ##########################################################################################
+     #
+     #########################################
+     # Create a list by factor subset levels #
+     #########################################
      ufixdatISG <- unique(fixdat.df$holdISG)
      nlevfixdat <- length(ufixdatISG)
      fixdat.list <- vector("list", nlevfixdat)
@@ -286,47 +232,7 @@ if(F){
      names(fixdat.list) <- ufixdatISG
      nfacts <- nlevfixdat                                        # used in extracting statistics
      #
-
-     ########################################
-     # Remove factor variables and get rank #
-     # Call this  inner.rnk                 #
-     ###################################### #
-     this.form2 <- NULL
-     lmnofactor <- NULL
-     datacont <- data[,!ufactor]
-     ufactornames <- names(datacont)          # includes Observation and response
-     ufactornames <- ufactornames[-1]         # includes response
-
-     if(length(ufactornames)==1){             # there are no continuous independent variables
-          if(family[[1]] == "binomial"){
-               this.form2 <-paste("proportion1", "1", sep=" ~ ")
-               this.form2 <- stats::formula(this.form2)
-          }
-          else{
-               nameresponse <- names(data)[response.cols]
-               formulacont <- paste(nameresponse, "1", sep=" ~ ")
-               formulacont <- stats::formula(formulacont)
-          }
-          inner.rnk <- 1                      # just the intercept
-     }
-     else{                                    # there are some continuous variables; maybe all of them
-          if(family[[1]] == "binomial"){
-               this.form2 <-paste("proportion1", formula.cont.rhs, sep=" ~ ")
-               this.form2 <- stats::formula(this.form2)
-          }
-          else{
-               nameresponse <- names(data)[response.cols]
-               this.form2 <- paste(nameresponse, formula.cont.rhs, sep=" ~ ")
-               this.form2 <- stats::formula(this.form2)
-         }
-          lmnofactor <- stats::lm(formula = this.form2, data=datacont)
-          inner.rnk <- lmnofactor$rank
-     }
-                                 if(begin.diagnose <= 18){print(paste(spacer,"Section 18",sep=" "),quote=FALSE);
-                                      Hmisc::prn(ufactornames);Hmisc::prn(this.form2);Hmisc::prn(lmnofactor);
-                                      Hmisc::prn(inner.rnk)       }
      #
-# stop("xnorm")
 ##############################################################################################################################
 # Step 1
      if(is.null(skip.step1)){
@@ -340,14 +246,17 @@ if(F){
           if(yesfactor){
                yk <- names(fixdat.list[[1]])
                yk <- match(responseName,yk)
-               firstrim <- dStep1(yesfactor,df1=fixdat.list, inner.rank=inner.rnk, initial.sample=initial.sample, 
-                         formuladStep=this.form, fam=family, ycol=yk, nopl=nopl, b.d=begin.diagnose)                      # dStep1
+               firstrim.out <- dStep1(yesfactor, df1=fixdat.df, df1.ls=fixdat.list, inner.rank=datacontrank, 
+                         initial.sample=initial.sample, formuladStep=this.form, fam=family, ycol=yk, b.d=begin.diagnose)   # dStep1
+               firstrim <- firstrim.out[[1]]
+               nbreak <- firstrim.out[[2]]
          }
           else{
                yk <- names(fixdat.df)
                yk <- match(responseName,yk)
-               firstrim <- dStep1(yesfactor, df1=fixdat.df, inner.rank=inner.rnk, initial.sample=initial.sample,
-                         formuladStep=this.form, fam=family, ycol=yk, nopl=nopl, b.d=begin.diagnose)                      # dStep1)
+               firstrim.out <- dStep1(yesfactor, df1=fixdat.df, df1.ls=NULL, inner.rank=datacontrank, 
+                         initial.sample=initial.sample, formuladStep=this.form, fam=family, ycol=yk, b.d=begin.diagnose)     # dStep1)
+               firstrim <- firstrim.out[[1]]
           }
           alength <- length(firstrim)
           rows.in.model[[alength]] <- firstrim
@@ -365,7 +274,8 @@ if(F){
                                                   if(begin.diagnose <= 49){print(paste(spacer,"Section 49",sep=" "),quote=FALSE);
                                                         Hmisc::prn(SOON);Hmisc::prn(mstart)       }
      #
-# stop("end of Step 1")
+#prn(firstrim)
+#stop("before Step2")
 ###################################################################################################################################################
 # Step2
 
@@ -374,16 +284,24 @@ if(F){
 
      yk <- names(fixdat.df)
      yk <- match(responseName, yk)
-     zzzz <- dStep2(f2=genformula, dfa2=fixdat.df, ms=mstart, finalm=rows.in.model, fbg=fixdat.list, b.d=begin.diagnose, 
-                rnk2=inner.rnk, ycol=yk, fam=family)                                                                       # dStep2
-
+     if(yesfactor){
+          pushaside <- formula.cont.rhs=="1"
+          zzzz <- dStep2(yf=yesfactor, f2=genformula, dfa2=fixdat.df, onlyfactor=pushaside, ms=mstart, finalm=rows.in.model, 
+                fbg=fixdat.list, b.d=begin.diagnose, rnk2=datacontrank, ycol=yk, fam=family)                                  # dStep2
+     }
+     else{
+          zzzz <- dStep2(yf=yesfactor, f2=genformula, dfa2=fixdat.df, ms=mstart, finalm=rows.in.model, fbg=NULL, b.d=begin.diagnose, 
+                rnk2=datacontrank, ycol=yk, fam=family)                                                                       # dStep2
+     }
      rows.in.model <- zzzz[[1]]
-     rows.in.model[[nobs]] <- 1:nobs
-                                                 if(begin.diagnose <= 52){print(paste(spacer,"Section 52",sep=" "),quote=FALSE);
+     fooResult <- zzzz[[2]] 
+
+                            if(begin.diagnose <= 52){print(paste(spacer,"Section 52",sep=" "),quote=FALSE);
                                                         Hmisc::prn(rows.in.model)       }
      #
 #prn(rows.in.model)
-# stop("before extracting intermediate stats")
+#prn(fooResult[[20]])
+#stop("before extraction")
 ###################################################################################################################################################
      print("BEGINNING EXTRACTION OF INTERMEDIATE STATISTICS", quote=FALSE)
      print("",quote=FALSE)
@@ -404,7 +322,9 @@ if(F){
 
                                              if(begin.diagnose <= 53){print(paste(spacer,"Section 53",sep=" "),quote=FALSE);
                                                   Hmisc::prn(glmdeviance)       }
-# Insert result for last level of fooResult
+     ###########################################
+     # Insert result for last level of fooResult
+     ###########################################
      fooResult <- zzzz[[2]]
           if(family[[1]]=="binomial"){
                fooResult[[nobs]] <- stats::glm(formula=genformula, family=family, data=alldata, y=TRUE, x=TRUE)          #   glm
@@ -418,12 +338,9 @@ if(F){
 
      for(i in mstart:nobs){                                
           getthisglm <- fooResult[[i]]
-
-
-
           rim <- rows.in.model[[i]] 
           Zlatest <- Z[rim,]
-                                          if(begin.diagnose <= 53){print(paste(spacer,"Section 53",sep=" "),quote=FALSE);
+                                          if(begin.diagnose <= 54){print(paste(spacer,"Section 54",sep=" "),quote=FALSE);
                                                 Hmisc::prn(Zlatest)       }
 
           xtemp <- getthisglm$x
@@ -472,7 +389,6 @@ if(F){
           betahatset[i-1,] <- betahat
           medaugx <- matrix(1:dimx1, nrow=dimx1, ncol=2, byrow=FALSE)                 # initialize medaugx
           medaugx[,2] <- 0 
-#          if(i > p) s.2[i-1] <- sum(model.resids * model.resids)/(i-p)
 
                                             if(begin.diagnose <= 64){print(paste(spacer,"Section 64",sep=" "),quote=FALSE);
                                                             Hmisc::prn(model.resids)       }
@@ -518,7 +434,7 @@ if(F){
           }        #   x1 is matrix
                    
                                         if(begin.diagnose <= 70){print(paste(spacer,"Section 70",sep=" "),quote=FALSE);
-                                              Hmisc::prn(leverage)       }
+                                              Hmisc::prn(utils::tail(leverage))       }
           #
           #####################################################################
           # Determine next set of observations to include in set              #
@@ -532,7 +448,6 @@ if(F){
                disparity <- disparity^2
                candidates <- data.frame(data,disparity)                                # data has Observation column
                candidates <- candidates[order(candidates$disparity),]
-               rows.in.model[[i]] <- sort(candidates[1:i,1])
 
                                              if(begin.diagnose <= 75){print(paste(spacer,"Section 75",sep=" "),quote=FALSE);
                                                    Hmisc::prn(candidates)       }
@@ -641,7 +556,8 @@ if(F){
      ############################################
      # Estimate sigma and standardize residuals #
      ############################################
-     sigma <- sqrt(sum(medaugx[,2])/(dimx1-inner.rnk))
+     inner.rnk <- sum(datacontrank)
+     sigma <- sqrt(sum(medaugx[,2])/(dimx1 - inner.rnk))
      residuals <- residuals/sigma
      #                                                                                                                   #Cook
 if(F){
@@ -702,6 +618,5 @@ if(F){
 #         "Modified Cook distance"=            modCook, 
           "t statistics"=                      t.set,
           "Call"=                              MC)
-
      return(listout)
 }

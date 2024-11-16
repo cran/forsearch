@@ -1,26 +1,26 @@
 #' @export
 forsearch_cph <-
-function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
-    ties = "efron", maxdisturb=.01, proportion=TRUE, unblinded=TRUE, begin.diagnose= 100, verbose=TRUE)
+function(alldata, formula.rhs, nofactform, initial.sample=1000, skip.step1=NULL,
+    ties = "efron", maxdisturb=.01, proportion=TRUE, wiggle=1, unblinded=TRUE, begin.diagnose= 100, verbose=TRUE)
 {
      #                                           forsearch_cph    
      #
      # VALUE    List of datasets and statistics for plotting in forward search procedure to diagnose coxph observations. Currently, fits only right-censored data.
      #
      # INPUT    alldata            Data frame whose first 3 columns are Observation, event.time, and status, and whose last columns are independent variables
+     #          formula.rhs        Right hand side of formula (omitting ~)
+     #          nofactform         Right hand side of formula (omitting ~ and factor variables)
      #          initial.sample     Number of reorderings of observations (= m in Atkinson and Riani)
-     #          n.obs.per.level    Number of observations per level of (possibly crossed) factor levels
      #          skip.step1         NULL or a list, each element of which is a vector of integers for observations from 1 subgroup to be included in Step 1
      #          ties               Character string specifying the method for handling ties in event time.  See survival::coxph() for definitions.
      #          proportion         TRUE causes running of survival::cox.zph on each stage
+     #          wiggle
      #          unblinded          TRUE permits printing of ultimate coxph analysis, as specified above
      #          begin.diagnose     Numeric. Indicates where in code to begin printing diagnostics. 0 prints all; 100 prints none.
      #          verbose            Logical. TRUE causes printing of function ID before and after running.
      #
-
-     #   begin.diagnose      Step 0: 1 - 19        Step 1: 20     -     49     Step 2:    50 - 59           Extraction:     81 - 
-     #                                                aStep1:  31 - 39                    cStep2:  60 - 80
-
+     #
+     # DETAILS  No need to identify variable for which proportionality would be assessed: proportionality is assessed for EACH independent variable if for any
      #
      MC <- match.call()
      if(verbose) {
@@ -37,20 +37,16 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
      options(warn=-1)
      on.exit(options(warn=0))
      #
-# STEP 0
-     print("", quote=FALSE)
-     print("BEGINNING STEP 0", quote=FALSE)
-     print("", quote=FALSE)
-
      nalldata1 <- dim(alldata)[1]
      nalldata2 <- dim(alldata)[2]
 
-     nopl <- n.obs.per.level 
      statusOK <- sum(alldata[,3])
      nindepvars <- nalldata2 - 3
 
      OBS <- alldata[,1]
-
+     wiggle <- wiggle*stats::runif(nalldata1)/100
+     alldata <- cbind(alldata, wiggle)
+     nalldata2 <- dim(alldata)[2]
      alldataNames <- names(alldata)
 
      #########################################################
@@ -88,15 +84,15 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
      xform <- paste("survival::Surv(time=randevent, event=nulldata[,3], type='right')", formula.rhs, sep=" ~ ")                                      # Surv
      formulatest <- stats::as.formula(xform)
 
-                                               if(begin.diagnose <=3){ print(paste(spacer,"Section 3",sep=" "),quote=FALSE);Hmisc::prn(randevent);
-                                                 Hmisc::prn(utils::head(nulldata));Hmisc::prn(formulatest)   }
+                                    if(begin.diagnose <=3){ print(paste(spacer,"Section 3",sep=" "),quote=FALSE);
+                                                Hmisc::prn(randevent);Hmisc::prn(utils::head(nulldata));Hmisc::prn(formulatest)   }
 
      coxrandAlldata <- do.call(survival::coxph, list(formula=formulatest, data=nulldata, model=TRUE, x=TRUE, y=TRUE))                 # coxph using do.call
      ncols <- dim(nulldata)[2]
      print("", quote = FALSE)
 
      coeffnames <- names(coxrandAlldata$coefficients)
-     ncoeffs <- length(coeffnames)
+     ncoeffs <- length(coeffnames)                      # used to calculate inner.rank; omits intercept
      if(unblinded){
           print("**************************************", quote = FALSE)
           print("", quote = FALSE)
@@ -104,7 +100,7 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
           print("Actual event times have been replaced by random numbers here.", quote=FALSE)
           print("", quote = FALSE)
           print(stats::anova(coxrandAlldata))
-#       
+          #       
           print("", quote = FALSE)
           print("", quote = FALSE)
           print("All categorical variables must be defined to be factors in the database, not in the formula.", quote=FALSE)
@@ -118,29 +114,6 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
      #    uncensored.list,  a list with the same variables as fixdat.list but no censored observations   #
      #    uncenrank.df, a data frame the same as uncensored.list for determining rank                    #
      #####################################################################################################
-
-     ################################################################
-     # Check for constructed variables in formula, ie, use of I()   #
-     # First convert formula to a vector of character pairs. Then   #
-     # recode the I( letters as  I(A) and the test accordingly.     #      
-     # Determine whether any of these is 'I(A)'.  If so, count them #
-     ################################################################
-     nAsIs <- 0
-     charform <- as.character(xform)
-     nstrs <- nchar(charform) - 1
-     output <- rep("S", nstrs)
-     for(i in 1:nstrs){
-          output[i] <- substr(charform,start=i, stop=i+1)
-     }
-     formpairs <- output
-     formpairs <- paste(formpairs, "A)", sep="")
-     jj <- "I(A)" %in% formpairs
-     if(jj){
-          kk <- grep(as.character("I(A)"), as.character(formpairs))
-          nAsIs <- length(kk)
-     }
-                                 if(begin.diagnose <= 6){print("", quote = FALSE);print(paste(spacer,"Section 6",sep=" "),quote=FALSE);
-                                      Hmisc::prn(charform);Hmisc::prn(formpairs);Hmisc::prn(jj);Hmisc::prn(nAsIs)       }
 
      ############################################################
      # Check for factor status of alldata and get factor names  #
@@ -168,12 +141,12 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
      holdISG <- paste("_",holdISG, sep="")
      fixdat.df <- data.frame(fixdat.df, holdISG)                                                 # fixdat.df    building
 
-                                               if(begin.diagnose <=17){ print(paste(spacer,"Section 17",sep=" "),quote=FALSE);
+                                               if(begin.diagnose <=11){ print(paste(spacer,"Section 11",sep=" "),quote=FALSE);
                                                       Hmisc::prn(utils::head(fixdat.df));Hmisc::prn(utils::tail(fixdat.df));Hmisc::prn(dim(fixdat.df))   }
 
-     ##########################################################################################
-     # Create a list by factor subset levels, each of which does not contain factor variables #
-     ##########################################################################################
+     #########################################
+     # Create a list by factor subset levels #
+     #########################################
      ufixdatISG <- unique(fixdat.df$holdISG)
      nlevfixdat <- length(ufixdatISG)
      fixdat.list <- vector("list", nlevfixdat)
@@ -205,88 +178,73 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
           uncenrank.df <- rbind(uncenrank.df, uncensored.list[[i]])                             # uncenrank.df      rank within factor levels
      }
      #
-     #######################################################################
-     # Remove factor variables and get rank within uncensored observations #
-     # and list of uncensored observation numbers ss77                     #
-     #######################################################################
-     unnames <- names(uncenrank.df)
-     unnames <- unnames[-length(unnames)]    # remove factor level indicator
-     if(length(unnames)==3){
-          datacontrank <- 1
-          mini.df <- uncenrank.df[,-(1:3)]
-     }
-     else{
-          unnames <- unnames[-c(1:3)]
-          unnames <- paste(unnames, collapse=" + ")
-          rank.form <- paste("event.time", unnames, sep=" ~ ")      
-          formulacont <- rank.form
-          rank.form <- stats::as.formula(rank.form)
-          lm4rank <- stats::lm(formula=rank.form, data=uncenrank.df)                    #    lm for rank
-          datacontrank <- lm4rank$rank
-          mini.df <- uncenrank.df[,-(1:3)]
-     }
+     ################################################################################### 
+     # Calculate datacontrank = vector of observations to pull from each factor subset #
+     ################################################################################### 
+     ncoeffsP1 <- ncoeffs + 1    # added because ncoeffs ignores intercept
+#prn(ncoeffsP1)
+#prn(nlevfixdat)
+     model.df.source <- floor(ncoeffsP1/nlevfixdat + .00001)
+#prn(model.df.source)
+     datacontrank <- rep(model.df.source, nlevfixdat)
+#prn(datacontrank)
+     additional <- ncoeffsP1 - model.df.source * nlevfixdat
+#prn(additional)
+     datacontrank[1:additional] <- datacontrank[1:additional] + 1
+#prn(datacontrank)
+     datacontrank[datacontrank==0] <- 1
+#prn(datacontrank)
+                                               if(begin.diagnose <=17) {print(paste(spacer,"Section 17",sep=" "),quote=FALSE)   
+                                                   Hmisc::prn(ncoeffsP1);Hmisc::prn(model.df.source);Hmisc::prn(additional);
+                                                   Hmisc::prn(coeffnames);Hmisc::prn(datacontrank)     }
 
+# stop("prior to entering step 1")
 ######################################################################################################################################################
 # Step 1
      #####################################################
-     # Use only the uncensored observatons for this step #
+     # Use only the uncensored observatons for this step #   
      # ycol is event time, column 2                      #
      #####################################################
      rows.in.model <- vector("list", nalldata1)
      LLL <- vector("list", nalldata1)
      zlist <- vector("list",initial.sample)         # zlist elements start with matrix result
-
-                                               if(begin.diagnose <=22) {print(paste(spacer,"Section 22",sep=" "),quote=FALSE)   }
-
      if(is.null(skip.step1)){
           print("BEGINNING STEP 1", quote=FALSE)
-          inner.rank <- datacontrank
-
-                                               if(begin.diagnose <=23){ print(paste(spacer,"Section 23",sep=" "),quote=FALSE);Hmisc::prn(inner.rank);
-                                                 Hmisc::prn(nopl);
-                                                 Hmisc::prn(utils::head(uncenrank.df));Hmisc::prn(utils::tail(uncenrank.df))   }
-
-
-          if(datacontrank==1){
-               xform2 <- "event.time ~ 1"
-          }else{
-               formula.rhs2 <- unnames
-               if(length(formula.rhs2)>1)formula.rhs2 <- paste("",formula.rhs2, collapse=" + ")
-               xform2 <- paste("event.time", formula.rhs2, sep=" ~ ")
-          }
-          formulacont <- stats::as.formula(xform2)
-
-          # Add 1 to inner.rank to accommodate cox.zph #
-          firstrim <- cStep1(yesfactor=TRUE, df1=alldata, df1.ls=uncensored.list, inner.rank=datacontrank + nAsIs + 1, initial.sample, 
-                    formula=formulacont, f.e = formula.rhs, ycol=2, nopl=nopl, b.d=begin.diagnose)                                         # cStep1 
+          inner.rank <- NULL
+          #####################################################################
+          # There is at least one factor variable among independent variables #
+          #####################################################################
+          firstrim <- cStep1(df1=uncenrank.df, df1.ls=uncensored.list, inner.rank=datacontrank, 
+                 initial.sample, cphties=ties, f.e = nofactform, ycol=2, b.d=begin.diagnose)                           # cStep1 
 
           nfirstrim <- length(firstrim)
-          rows.in.model[[nfirstrim]] <- firstrim                        # save list with pool and individual subsets
+          rows.in.model[[nfirstrim]] <- firstrim
           SOON <- firstrim
-          mstart <- nfirstrim + 1
+          mstart <- length(firstrim) + 1
      }         # is.null skip.step1
      else{
           print("SKIPPING STEP 1", quote=FALSE)       # no guarantees for user-defined skip.step1
           nfirstrim <- length(skip.step1)
           rows.in.model[[nfirstrim]] <- skip.step1
  
-                                              if(begin.diagnose <=41) {print(paste(spacer,"Section 41",sep=" "),quote=FALSE);
+                                              if(begin.diagnose <=55) {print(paste(spacer,"Section 55",sep=" "),quote=FALSE);
                                                    Hmisc::prn(rows.in.model);Hmisc::prn(alldata[skip.step1,])   }
 
           SOON <- skip.step1
           mstart <- nfirstrim + 1
      }       # skipping step 1
      # 
-                                               if(begin.diagnose <=42) {print(paste(spacer,"Section 42",sep=" "),quote=FALSE);
+                                               if(begin.diagnose <=56) {print(paste(spacer,"Section 56",sep=" "),quote=FALSE);
                                                    Hmisc::prn(SOON)   }
-
+# stop("prior to entering step 2")
 #####################################################################################################################################
 # Step 2
      print("", quote=FALSE)
      print("BEGINNING STEP 2", quote = FALSE)
      print("", quote=FALSE)
-     heresStep2 <- cStep2(f.e=formula.rhs, finalm=rows.in.model, dfa2=fixdat.df, ms=mstart,  
-                         rnk2=datacontrank + nAsIs + 1, ss=skip.step1, b.d=begin.diagnose)                                             # cStep2
+     pushaside <- nofactform == "1"
+     heresStep2 <- cStep2(fe=formula.rhs, finalm=rows.in.model, rimbs=fixdat.list, dfa2=fixdat.df, onlyfactor=pushaside,  
+                      ycol=NULL, mstart=mstart, cphties=ties, rnk=NULL, b.d=begin.diagnose)                           # cStep2
 
      rows.in.model <- heresStep2[[1]]
      rows.in.model[[nalldata1]] <- 1:nalldata1
@@ -301,7 +259,8 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
      coxAlldata <- survival::coxph(formula=formulalast, data=alldata, model=TRUE, x=TRUE, y=TRUE)                  # coxph
      LLL[[nalldata1]] <- coxAlldata
      #
-#UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU
+#stop("before intermediate data extraction")
+#######################################################################################################################################
      print("BEGINNING INTERMEDIATE RESULTS EXTRACTION", quote=FALSE)
      print("", quote=FALSE)
 
@@ -447,6 +406,8 @@ function(alldata, formula.rhs, initial.sample=1000, n.obs.per.level=1, skip.step
           print("", quote = FALSE)
           print("Finished running forsearch_cph", quote = FALSE)
           print("", quote = FALSE)
+          print("REMINDER: Transfer from Step 1 to Step 2 is artificial and likely", quote=FALSE)
+          print("                     shows many changes in search criteria. Ignore these.", quote=FALSE) 
           print(date(), quote = FALSE)
           print("", quote = FALSE)
      }

@@ -13,7 +13,7 @@
 The DESCRIPTION file:
 \packageDESCRIPTION{forsearch}
 \packageIndices{forsearch}
-Ensure that data frame has a leading column of observation numbers. Run forsearch_xxx to 
+Ensure that data frame has a leading column of observation numbers. Run forsearch_foo to 
 create a file of diagnostic statistics to be used as input to such 
 plotting functions as plotdiag.residuals, plotdiag.params.fixed, plotdiag.params.random, 
 plotdiag.s2, plotdiag,leverage, and plotdiag.Cook. The file of diagnostic statistics can 
@@ -28,7 +28,7 @@ The function identifyFixedCoeffs does the same for lm models.
 \packageAuthor{forsearch}
 
 Maintainer: \packageMaintainer{forsearch}
-William R. Fairweather <wrf343 at flowervalleyconsulting.com>
+William R. Fairweather <wrf343 AT flowervalleyconsulting DOT com>
 }
 \references{
   Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New York, 2000.

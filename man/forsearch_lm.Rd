@@ -7,19 +7,16 @@
    to estimate unknown parameters, and Step 2 to add one observation at each stage such that 
    observations in the set are best fitting at that stage.
 }
-\usage{forsearch_lm(formula, data, initial.sample=1000, n.obs.per.level = 1,
+\usage{forsearch_lm(formula, nofactform, data, initial.sample=1000, 
                    skip.step1 = NULL, unblinded = TRUE, begin.diagnose = 100,
-                   verbose = TRUE)
-}
+                   verbose = TRUE)}
 \arguments{
   \item{formula}{Fixed effects formula as described in help(lm). The only 
           permitted operators are +, : , and * . Terms must be found in data or 
           as constructed by I(xxx) where xxx is found in data}
+  \item{nofactform}{2-sided formula omitting all factors}
   \item{data}{Name of database}
   \item{initial.sample}{Number of observations in Step 1 of forward search}
-  \item{n.obs.per.level}{Number of observations per level of (possibly crossed) 
-    factor levels.Set to rank of X'X if model contains constructed variables
-    such as I(x^3), for example in polynomial regression }
   \item{skip.step1}{NULL or a vector of integers for observations to be included
    in Step 1}
   \item{unblinded}{TRUE causes printing of presumed analysis structure}
@@ -27,8 +24,6 @@
                 0 prints all; 100 prints none}
   \item{verbose}{TRUE causes function identifier to display before and after run}
 }
-\details{Step 2 is determined by the results of Step 1, which itself is random. So,
-    it is possible to reproduce the entire run by using the skip.step1 argument.}
 \value{LIST
   \item{Rows in stage }{Observation numbers of rows included at each stage}
   \item{Standardized residuals }{Matrix of errors at each stage}
@@ -45,6 +40,7 @@ Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New Yo
 }
 \author{William R. Fairweather}
 \examples{
+\dontrun{
 # Multiple regression
 Observation <- 1:16
 y <- runif(16)
@@ -53,6 +49,7 @@ x2 <- runif(16)
 x3 <- runif(16)
 lmtest1 <- data.frame(Observation,y,x1,x2,x3)
 forsearch_lm(formula=y~x1+x2+x3, data=lmtest1, initial.sample=200,begin.diagnose=100)
+}
 \dontrun{
 
 # Analysis of variance 

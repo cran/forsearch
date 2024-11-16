@@ -8,11 +8,9 @@ Derives the first set of observation numbers for forsearch in Cox
 Proportional Hazards models
 }
 \usage{
-cStep1(yesfactor, df1, df1.ls, inner.rank, initial.sample, formula, f.e, ycol, nopl, b.d)
+cStep1(df1, df1.ls, inner.rank, initial.sample, f.e, cphties, ycol, b.d)
 }
 \arguments{
-  \item{yesfactor}{Logical. TRUE if there are factors in the X matrix
-}
   \item{df1}{Data frame being analyzed by forward search. 
 }
   \item{df1.ls}{List, each element of which is a factor subset of df1
@@ -22,17 +20,13 @@ cStep1(yesfactor, df1, df1.ls, inner.rank, initial.sample, formula, f.e, ycol, n
   \item{initial.sample}{Number of random samples from which to take set of
        initial observations
 }
-  \item{formula}{Fixed parameter formula of lm function
-}
   \item{f.e}{Right-hand side of formula for Surv function
+}
+  \item{cphties}{Character value of method of handling ties
 }
   \item{ycol}{Response column number
 }
-  \item{nopl}{Number of observations per level of combined factor variables
-}
   \item{b.d}{Index of point to begin diagnostic listings}
-}
-\note{Presence of Observation column has no effect on outcome
 }
 \details{Support function, usually not called independently
 }

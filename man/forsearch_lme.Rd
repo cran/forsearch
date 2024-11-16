@@ -9,21 +9,25 @@
    final stage to extract the intermediate statistics based on increasing sample size.
 }
 \usage{
-forsearch_lme(fixedform, alldata, randomform, initial.sample=1000, n.obs.per.level=1, 
-   skip.step1=NULL, unblinded=TRUE, begin.diagnose = 100, verbose = TRUE)
+forsearch_lme(fixedform, nofactform, alldata, randomform, groupnames, initial.sample=1000, 
+   wiggle=1, skip.step1=NULL, unblinded=TRUE, begin.diagnose = 100, 
+   incCont=FALSE, verbose = TRUE)
 }
 \arguments{
   \item{fixedform}{2-sided formula for fixed effects}
+  \item{nofactform}{2-sided formula for fixed effects, omitting factors}
   \item{alldata}{data frame, first column of which must be "Observation"}
   \item{randomform}{1-sided formula for random effects}
+  \item{groupnames}{Vector of quoted names of group variables in randomform}
   \item{initial.sample}{Number of observations in Step 1 of forward search}
-  \item{n.obs.per.level}{Number of observations per level of (possibly crossed) 
-         factor levels}
+  \item{wiggle}{Multiplier to prevent change of identical observations. Used only
+          when there are no continuous independent variables}
   \item{skip.step1}{NULL or a vector of integers for observations to be included
          in Step 1}
   \item{unblinded}{TRUE causes printing of presumed analysis structure}
   \item{begin.diagnose}{Numeric indicator of place in coding to begin printing 
          diagnostic information. 0 prints all information, 100 prints none.}
+  \item{incCont}{Logical. Currently ignored}
   \item{verbose}{TRUE causes function identifier to display before and after 
          run}
 }
@@ -56,18 +60,17 @@ forsearch_lme(fixedform, alldata, randomform, initial.sample=1000, n.obs.per.lev
 \author{William R. Fairweather
 }
 \examples{
-# Multiple regression in grouped data
-Observation <- 1:16
-y <- runif(16)
-x1 <- runif(16)
-x2 <- runif(16)
-x3 <- runif(16)
-group <- as.factor(rep(c("G1","G2"),each=8))
-lmetest1 <- data.frame(Observation,y,x1,x2,x3,group)
-%lmetest1 <- nlme::groupedData(formula = y ~ 1 | group, data = lmetest1)
-forsearch_lme(fixedform=y~x1+x2+x3, alldata=lmetest1, randomform= ~1|group, 
-   n.obs.per.level=1, initial.sample=200)
 \dontrun{
+# Multiple regression in grouped data
+Observation <- 1:160
+y <- runif(160)
+x1 <- runif(160)
+x2 <- runif(160)
+x3 <- runif(160)
+group <- as.factor(rep(c("G1","G2"),each=80))
+lmetest1 <- data.frame(Observation,y,x1,x2,x3,group)
+forsearch_lme(fixedform=y~x1+x2+x3, nofactform=y~x1+x2+x3, alldata=lmetest1, 
+   randomform= ~1|group, groupnames=c("G1","G2"), initial.sample=200)
 
 # Analysis of variance in grouped data
 Observation <- 1:60
@@ -79,8 +82,8 @@ AN2 <- c(AN2,AN2)
 group <- as.factor(rep(c("G1","G2"),each=30))
 lmetest2 <- data.frame(Observation,y,AN1,AN2,group)
 %lmetest2 <- nlme::groupedData(formula = y ~ 1|group, alldata = lmetest2)
-forsearch_lme(fixedform=y~AN1*AN2, alldata=lmetest2, randomform= ~1|group,
-             initial.sample=500)
+forsearch_lme(fixedform=y~AN1*AN2, nofactform=y~1, alldata=lmetest2, 
+   randomform= ~1|group, groupnames=c("G1","G2"),initial.sample=500)
 
 # Analysis of covariance in grouped data
 
@@ -95,8 +98,8 @@ group <- as.factor(rep(c("G1","G2"),each=30))
 group <- c(group,group)
 lmetest3 <- data.frame(Observation,y,AN1,AN2,COV,group)
 %lmetest3 <- nlme::groupedData(formula = y ~ 1 | group, data = lmetest3)
-forsearch_lme(fixedform=y~AN1*AN2+COV, alldata=lmetest3, randomform= ~ 1 | group,
-        initial.sample=500)
+forsearch_lme(fixedform=y~AN1*AN2+COV,nofactform=y~AN1*AN2+Cov,alldata=lmetest3,
+        randomform= ~ 1 | group,groupnames=c("G1","G2"),initial.sample=500)
 }
 }
 \keyword{ datagen }

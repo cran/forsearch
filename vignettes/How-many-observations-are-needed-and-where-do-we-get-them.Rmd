@@ -14,9 +14,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
-library(forsearch)
-```
 ## Step 2 Basics
 Incrementing the subset in Step 2 appears to be quite straightforward:  We have m observations in the subset and we want to have m+1 observations in the next stage. We use the m observations that we have to predict the responses for all the data. Then we select the m+1 observations with the lowest total squared errors or the lowest total squared residual deviances, depending on how we are measuring fit to the model. We use the same procedure to predict from m+1 observations to the entire set and select the best fitting m+2 observations and so on. This procedure greatly affects the procedure used in Step 1, as we will see. Although this procedure is generally simple, there are more issues to address in selecting the subset of observations for Step 2, again as discussed below.
 
@@ -41,10 +38,8 @@ We perform a foo() analysis on the full database, omitting the factor variables 
 
 This procedure can produce a large number of observations for Step 1. Surely, some reduction in this number could result from further condition of the model formula of the proposed analysis.  For example, the user may plan to include in the model only the main effects and first level interactions. This possibility is under study.
 
-## Overriding the Rank
- rnk is the rank of the analysis and the number of observations needed for Step 1. The forsearch_foo functions have the option to replace this number by a user-defined constant, n.obs.per.level. This argument will override rnk if it is larger, otherwise, it is ignored. This parameter is not used in Step 2.
- 
-Another option is to skip Step 1 by entering a vector of observation numbers in the argument skip.step1. These observation numbers should conform to the restrictions of this vignette or the function may fail. There are no internal checks on such a vector. Perhaps the most useful or safest set of manually entered observation numbers would be obtained from a run of the forsearch_foo function that does not skip step 1.
+## Skipping step 1
+The user may skip Step 1 by entering a vector of observation numbers in the argument skip.step1. These observation numbers should conform to the restrictions of this vignette or the function may fail. There are no internal checks on such a vector. Perhaps the most useful or safest set of manually entered observation numbers would be obtained from a run of the forsearch_foo function that does not skip step 1.
 
 ## Step 2
 Now consider step 2. It is possible that selecting the best fitting set of m+1 observations overall would result in reducing the number of observations in some subset to something below rnk. This must be prevented. Accordingly, the best fitting rnk observations is selected for each of the ig inner groups.  Then these are all pooled across subgroups and another (m+1-ig*rnk) observations is added, bringing the total to m+1. By construction, each subgroup will have an invertible X’X matrix, as required.

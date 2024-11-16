@@ -1,3 +1,26 @@
+11/15/2024 forsearch version 6.3.0
+==================================
+* Major changes: None
+ 
+* Moderate changes: 
+  + Added candprep support function
+  + Optimized step 1 of every forsearch_foo function
+  + Identified observation set within step 1 as yielding
+    lowest median squared error WITHIN each factor
+    subset
+  + Changed to 2-phase procedure in step 2 to ensure all
+    parameters can be estimated at every stage in step 2
+  + Added arguments to forsearch_lme to liberalize controls
+  + Changed from predict to predict.lme, predict.glm and
+    predict.coxph in xStep1 and xStep2 
+  + Added vignette on Study Credibility  
+  
+* Minor changes and bug fixes: 
+  + Modified showme to limit output for forsearch_lme
+  + Added graphs for forsearch_lme
+  + Corrected use of deviances in forsearch_glm
+  + Removed forsearch_nls for corrections and improvements
+
 7/13/2024 forsearch version 6.2.0
 =================================
 * Major changes: None
@@ -12,7 +35,7 @@
   + Changed message in plotdiag.ANOX2 if proportionality not tested in
     proportional hazard data
   + Minor text changes to vignettes
-  + Corrections to examples to correspond to function chagnes
+  + Corrections to examples to correspond to function changes
 
 6/22/2024 forsearch version 6.1.0 
 =================================

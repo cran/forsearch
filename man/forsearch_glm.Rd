@@ -10,9 +10,9 @@ contains code for pre-processing of the data.
 }
 \usage{
 forsearch_glm(initial.sample=1000, response.cols, indep.cols, family,  
-   formula=NULL, binomialrhs=NULL, formula.cont.rhs, data, n.obs.per.level = 1,
-   estimate.phi = TRUE, skip.step1=NULL, unblinded=TRUE, begin.diagnose=100, 
-   verbose=TRUE)
+   formula=NULL, binomialrhs=NULL, formula.cont.rhs, data, 
+   estimate.phi = TRUE, wiggle=1, skip.step1=NULL, unblinded=TRUE, 
+   begin.diagnose=100, verbose=TRUE)
 }
 \arguments{
   \item{initial.sample}{Number of random sets of observations in Step 1 of forward 
@@ -27,9 +27,9 @@ forsearch_glm(initial.sample=1000, response.cols, indep.cols, family,
   \item{formula.cont.rhs}{Quoted character.Right-hand side of formula, omitting
             factor variables. Required for all families}       
   \item{data}{Name of database}
-  \item{n.obs.per.level}{Number of observations per level of (possibly crossed) 
-           factor levels}
   \item{estimate.phi}{TRUE causes phi to be estimated; FALSE causes phi to be set = 1}
+  \item{wiggle}{Number multiplier to minimize arbitrary exchange of observations in
+       step 2. Default is 1. Used only if independent variabls are all factors.}
   \item{skip.step1}{NULL, or vector of observation numbers to include at end of Step 1}
   \item{unblinded}{TRUE allows print of formula of analysis function}
   \item{begin.diagnose}{Numeric. Indicates where in code to begin printing diagnostics.
@@ -60,6 +60,7 @@ forsearch_glm(initial.sample=1000, response.cols, indep.cols, family,
 }
 \author{William R. Fairweather}
 \examples{
+\dontrun{
 # Train deaths (Atkinson and Riani, 2000) with Rolling Stock as a factor
 Observation<-1:67
 Month<-c(9,8,3,1,10,6,7,1,8,4,3,3,12,11,10,9,9,4,3,12,12,10,7,2,12,2,12,12,12,
@@ -84,7 +85,7 @@ forsearch_glm(initial.sample = 100, response.cols = 5,
     indep.cols = 2:4, formula=Deaths~Year + RollingStock + Traffic,
     formula.cont.rhs="Year + Traffic", 
     family = poisson("log"), data = train2022, 
-    n.obs.per.level = 1, estimate.phi = TRUE, skip.step1 = NULL, 
+    estimate.phi = TRUE, skip.step1 = NULL, 
     unblinded = TRUE, begin.diagnose=100)
-}
+}}
 \keyword{ datagen }

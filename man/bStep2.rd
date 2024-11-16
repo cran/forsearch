@@ -5,18 +5,22 @@
 Derives the set of Step 2 observation numbers for forsearch in linear mixed 
           effects models
 }
-\usage{bStep2(f2, dfa2, randm2, ms, finalm, fbg, b.d, rnk2, ycol)
+\usage{bStep2(yf, f2, dfa2, randm2, onlyfactor = FALSE,ms, ycol, initn, finalm, fbg, b.d)
 }
 \arguments{
+  \item{yf}{Logical. Indicates presence of factor variables}
   \item{f2}{Fixed parameter formula}
   \item{dfa2}{Complete data set with factor subset identification codes}
   \item{randm2}{Random parameter formula}
+  \item{onlyfactor}{TRUE if there are no continuous independent variables in 
+         the model}
   \item{ms}{Number of observations beginning Step 2}
+  \item{ycol}{Column number of response variable}
+  \item{initn}{Vector of number of observations from each group or fixed factor
+         subset to draw for primary stage of step 2}
   \item{finalm}{List of expanding subset observation numbers}
   \item{fbg}{List of observation numbers by factor subgroup}
   \item{b.d}{Indicator of place in code to begin diagnostic printouts}
-  \item{rnk2}{Rank of linear regression with factor variables eliminated}
-  \item{ycol}{Column number of response variable}
 }
 \details{Support function, usually not called independently}
 \value{List of expanding number sets corresponding to observation numbers}

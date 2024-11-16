@@ -1,0 +1,46 @@
+---
+title: "Study Credibility"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Study Credibility}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+  knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+  )
+```
+
+
+We conduct studies in order to advance our knowledge in a particular area of science, engineering, social sciences, etc. A study consists of first, the data and second, the model and analyses that will be used to summarize that data. 
+
+Neither the data nor the analyses are simple entities. A study has to be big enough to justify all the resources that will be spent on it and small enough that it has a chance of being completed and coming to a useful conclusion. Considerable effort is therefore required to ensure that the data will be relevant to the issue and that the logistics of the study are feasible. The model must be correct for the data and the anticipated outcome. There is ample opportunity for errors to creep in.
+
+Every statistical analysis relies on some number of underlying assumptions. Efforts are made to be confident that these assumptions are met.  
+
+A model is intended to reduce the large amount of data to a more manageable level and to allow the analysis to focus on well-defined, relevant aspects of the data. This is a summary of the data. Sponsors may describe studies as positive or negative, whether they reached the anticipated conclusion or failed to do so. This is essentially a summary of a summary.
+
+Credibility of the study refers to how well the data and the final conclusions of the model support each other, how consistent is the body of evidence, how harmonious they are. Instead of reducing the large body of data to a few parameters, credibility aims to assess whether that is a justifiable procedure.
+
+We can use the following scale in describing study credibility:    
+
+| 5.  All observations support the study analyses and conclusions. They are completely harmonious. 
+
+| 4.  A majority of observations support the analyses and conclusions; the rest show no discernable pattern
+
+| 3.  A majority of observations support the analyses and conclusions; some pattern(s) may be present among non-supporting observations  
+
+| 2.  A minority of observations support the conclusions; the analytical results are carried by observations with greater than average influence  
+
+| 1. There is no support for the conclusions; either the data is dubious or the model is incorrect. There is no mutual support in evidence. The situation is chaotic. Something is seriously wrong, either with the data collection or with the model or the analysis
+
+Study credibility is relevant whether the study is positive or negative. Both positive and negative studies define the path of future research.
+
+A credibility analysis that is ranked 3 or lower might well suggest rejection of the study conclusions.
+
+We need to know if there are any observations that have unusually large influence on the conclusions of the study. We need to know which ones these are, how many there are, and where they exert their influence. The functions in the forsearch package provide a useful, efficient  tool for assessing study credibility.
+
+

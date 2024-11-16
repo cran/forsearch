@@ -7,7 +7,8 @@ Analysis
 Derives the first set of observation numbers for forsearch in linear models
 }
 \usage{
-aStep1(yesfactor, df1, df1.ls, inner.rank, initial.sample, formula, ycol, nopl, b.d)
+aStep1(yesfactor, df1, df1.ls, inner.rank, initial.sample, formulaA, 
+   nofactform, ycol, b.d)
 }
 \arguments{
   \item{yesfactor}{Logical. TRUE if there are factors in the X matrix
@@ -21,11 +22,11 @@ aStep1(yesfactor, df1, df1.ls, inner.rank, initial.sample, formula, ycol, nopl, 
   \item{initial.sample}{Number of random samples from which to take set of
        initial observations
 }
-  \item{formula}{Fixed parameter formula of lm function
+  \item{formulaA}{Fixed parameter formula of lm function
 }
+  \item{nofactform}{2-sided formula excluding factor variables
+  }
   \item{ycol}{Response column number
-}
-  \item{nopl}{Number of observations per level of combined factor variables
 }
   \item{b.d}{Index of point to begin diagnostic listings}
 }

@@ -9,7 +9,7 @@ function(datadf, prank)
      # INPUT          datadf     Data frame of independent variables in analysis
      #                prank       Rank of X matrix continuous variables 
      #
-    dimdata <- dim(datadf)
+     dimdata <- dim(datadf)
      nnrows <- dimdata[1]
      nncols <- dimdata[2]
      SubsetCode <- rep("_", nnrows)

@@ -8,8 +8,8 @@ Derives the first set of observation numbers for forsearch in linear mixed
      effects models
 }
 \usage{
-bStep1(yesfactor, df1, df1.ls, inner.rank, initial.sample, formula, randform, 
-     ycol, nopl, b.d)
+bStep1(yesfactor, df1, df1.ls, groups, inner.rank, initial.sample, 
+      nofactform = NULL, formulaA, randform, ycol, b.d)
 }
 \arguments{
   \item{yesfactor}{Logical. TRUE if there are factors in the X matrix
@@ -18,18 +18,20 @@ bStep1(yesfactor, df1, df1.ls, inner.rank, initial.sample, formula, randform,
 }
   \item{df1.ls}{List, each element of which is a factor subset of df1
 }
+  \item{groups}{Vector of Quoted names of group variables
+}
   \item{inner.rank}{Rank of X matrix of lme analysis on entire database
 }
   \item{initial.sample}{Number of random samples from which to take set of
        initial observations
 }
-  \item{formula}{Two-sided fixed parameter formula of lme function
+  \item{nofactform}{2-sided formula without factors
+}
+  \item{formulaA}{Formula for all effects including factors and constructed variables
 }
   \item{randform}{One-sided random effects formula
   }
   \item{ycol}{Response column number
-}
-  \item{nopl}{Number of observations per level of combined factor variables
 }
   \item{b.d}{Index of point to begin diagnostic listings}
 }
@@ -39,7 +41,7 @@ bStep1(yesfactor, df1, df1.ls, inner.rank, initial.sample, formula, randform,
 }
 \value{
 Produces set of observation numbers for Step 1. Accounts for presence of 
-     factors in the dataset 
+     factors and groups in the dataset 
 }
 \author{William R. Fairweather
 }

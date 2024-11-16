@@ -1,9 +1,12 @@
 #' @export
 forsearch_lm <-
-function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL, unblinded=TRUE, begin.diagnose=100, verbose=TRUE)
+function(formula, nofactform, data, initial.sample=1000, skip.step1=NULL, unblinded=TRUE, begin.diagnose=100, verbose=TRUE)
 {
      #                          forsearch_lm
      #
+     # INPUT         formula      2-sided formula that includes all covariates, including factors and constructed (AsIs) variables
+     #               data         Data frame in which factors are identifed already
+     # 
      MC <- match.call()
      if(verbose) {
           print("", quote = FALSE)
@@ -19,16 +22,21 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
      #   begin.diagnose      Step 0: 1 - 19        Step 1: 20     -     49     Step 2:    50 - 59           Extraction:     81 - 
      #                                                aStep1:  31 - 39                    aStep2:  60 - 80
 
-     spacer <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX        forsearch_lm               "     # used for begin.diagnose prints
+     spacer <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX        forsearch_lm               "     # used for begin.diagnose prints
 
+     #############################################
+     # Replace formula and data with local names #
+     #############################################
+     formulaLM <- formula
+     dataLM <- data
+     #
      ##################################################################
      # Ensure that first independent variable is Observation          #
      # Make x1 the matrix of independent variables without obs number #
      # x1 will represent the formula for independent obs              #
      ##################################################################
-     uu <- names(data)
+     uu <- names(dataLM)
      if(uu[1] != "Observation")stop("First column of data must be 'Observation'")
-     #
      #
      #######################################################################
      # Print the structure of the analysis that will be done on these data #
@@ -37,14 +45,14 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
      options(warn = -1)
      on.exit(options(warn = 0))
 
-     nulldata <- data
-     lhsformula <- formula.tools::lhs(formula)
-     rhsformula <- formula.tools::rhs(formula)
+     nulldata <- dataLM
+     lhsformula <- formula.tools::lhs(formulaLM)
+     rhsformula <- formula.tools::rhs(formulaLM)
      ncols <- dim(nulldata)[2]
      ycol <- (1:ncols)[uu==lhsformula]
      nulldata[,ycol] <- 0
      print("", quote = FALSE)
-     lmAlldata <- stats::lm(formula, nulldata, singular.ok=TRUE, x=TRUE, y=TRUE)                          # lm
+     lmAlldata <- stats::lm(formulaLM, nulldata, singular.ok=TRUE, x=TRUE, y=TRUE)                          # lm
      coeffnames <- names(lmAlldata$coefficients)
      lmAlldata$df.residual <- 99999
      ########################################
@@ -55,7 +63,7 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
      dnAVlm <- dimnames(AVlm)                               # level 1 is names of sources of variation, incl residuals
      dnAVlmM1 <- dnAVlm[[1]]
      dnAVlmM1 <- dnAVlmM1[-length(dnAVlmM1)]           # chop off last one 
-     anova.pvals <- matrix(0, nrow=length(dnAVlmM1), ncol=dim(data)[1])
+     anova.pvals <- matrix(0, nrow=length(dnAVlmM1), ncol=dim(dataLM)[1])
      #
      if(unblinded){
           print("**************************************", quote = FALSE)
@@ -76,92 +84,57 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
           print("", quote = FALSE)
           print("**************************************", quote = FALSE)
      }
-     y1 <- data[,ycol]
+     y1 <- dataLM[,ycol]
      #
-     ################################################################
-     # Check for constructed variables in formula, ie, use of I()   #
-     # First convert formula to a vector of character pairs. Then   #
-     # recode the I( letters as  I(A) and the test accordingly.     #      
-     # Determine whether any of these is 'I(A)'.  If so, count them #
-     ################################################################
-     nAsIs <- 0
-     charform <- as.character(formula)
-     nstrs <- nchar(charform) - 1
-     output <- rep("S", nstrs)
-     for(i in 1:nstrs){
-          output[i] <- substr(charform,start=i, stop=i+1)
-     }
-     formpairs <- output
-     formpairs <- paste(formpairs, "A)", sep="")
-     jj <- "I(A)" %in% formpairs
-     if(jj){
-          kk <- grep(as.character("I(A)"), as.character(formpairs))
-          nAsIs <- length(kk)
-     }
-                                 if(begin.diagnose <= 6){print("", quote = FALSE);print(paste(spacer,"Section 6",sep=" "),quote=FALSE);
-                                      Hmisc::prn(charform);Hmisc::prn(formpairs);Hmisc::prn(jj);Hmisc::prn(nAsIs)       }
-     #
-     #############################################################
-     # Check for factor status of dataset, redefining lmAlldata  #
-     # Remove factor variables and get rank of linear regression #
-     # Locate response column in reduced data frame              #
-     #############################################################
-     datacontrank <- NULL
-     ndatacols <- dim(data)[2]
+     #######################################
+     # Check for factor status of dataset. #
+     #######################################
+     ndatacols <- dim(dataLM)[2]
      ufactor <- rep(TRUE, ndatacols)
-     for(m in 1:ndatacols) ufactor[m] <- is.factor(data[,m])
-     yesfactor <- any(ufactor)     
+     for(m in 1:ndatacols) ufactor[m] <- is.factor(dataLM[,m])
+     yesfactor <- any(ufactor)                                    
+   
      ncoeffs <- length(lmAlldata$coefficients)
      rnk <- lmAlldata$rank
-     nopl <- n.obs.per.level 
+     
+     ##########################################################################
+     # If yesfactor, determine how many observations from each factor subset. #
+     # Otherwise, determine number overall. Save in minobs and datacontrank   #
+     ##########################################################################
+     datacontrank <- minobs <- length(coeffnames)        # default
+     if(yesfactor){                               
+          ss77 <- variablelist(datadf = dataLM, prank=ndatacols)            # ss77 is list of matrices 2 columns: observation number and subset code
+          nfacsub <- length(ss77)
+          persub <- floor(minobs/nfacsub + .00000001)
+          leftover <- minobs - persub * nfacsub
+          datacontrank <- rep(persub,nfacsub)
+          additional <- c(rep(1,leftover),rep(0,nfacsub))
+          additional <- additional[1:nfacsub]
+          datacontrank <- datacontrank + additional
 
-     ######################################
-     # remove factor variables and get rank
-     ######################################
-     datacont <- data[,!ufactor]
-     ufactornames <- names(datacont)          # includes Observation and response
-     ufactornames <- ufactornames[-1]         # includes response
-     contform.rhs <- ufactornames
-     contform.rhs <- contform.rhs[contform.rhs != lhsformula]
-     if(length(ufactornames)==1){             # there are no continuous independent variables
-          formulacont <- paste(lhsformula, "1", sep=" ~ ")
-          formulacont <- stats::formula(formulacont)
-          datacontrank <- 1
-     }
-     else{
-          if(length(contform.rhs) > 1){
-               contform.rhs <- paste(contform.rhs, collapse=" + ")
-          }
-          formulacont <- paste(lhsformula, contform.rhs, sep= " ~ ")
-          formulacont <- stats::formula(formulacont)
-          lmdatacont <- stats::lm(formulacont,datacont)                                                # lm on data without factor variables
-          datacontrank <- lmdatacont$rank
-     }
-                                 if(begin.diagnose <= 8){print("", quote = FALSE);print(paste(spacer,"Section 8",sep=" "),quote=FALSE);
-                                      Hmisc::prn(utils::head(datacont));Hmisc::prn(ufactornames);Hmisc::prn(formulacont);
-                                      Hmisc::prn(datacontrank);Hmisc::prn(nAsIs)       }
+                                if(begin.diagnose <= 8){print("", quote = FALSE);print(paste(spacer,"Section 8",sep=" "),quote=FALSE);
+                                      Hmisc::prn(yesfactor);Hmisc::prn(minobs);Hmisc::prn(persub);Hmisc::prn(additional);
+                                      Hmisc::prn(datacontrank)       }
 
-     if(yesfactor){                               # why pick some here and not in aStep1 ?  Seems to need this
-          # there are factors in the dataset
-          ss77 <- variablelist(datadf = data, prank=ndatacols)
-          pickm <- picksome(subsetlist=ss77, nobs=dim(data)[1], initial.sample = initial.sample, n.obs.per.level=nopl, rank=datacontrank)
-          dimpickm <- dim(pickm)[2]  
      }    # yesfactor
      #
      #################################################
      # Set up all output and intermediate structures #
      #################################################
      randset <- 1:initial.sample
-     dimx <- dim(data)
+     dimx <- dim(dataLM)
      dimx1 <- dimx[1]
 
-     x1 <- data[,-c(1,ycol)]
+     x1 <- dataLM[,-c(1,ycol)]
      if(!is.data.frame(x1))x1 <- data.frame(x1)
-     OBS <- data[,1]
-     Z <- data                         #  ??????
+     OBS <- dataLM[,1]
+     Z <- dataLM                         #  ??????
      zlist <- vector("list",initial.sample)         # zlist elements start with matrix result
      result <- matrix(0, nrow=dimx1, ncol=2)
+
      rows.in.model <- vector("list", dimx1)
+     rows.in.model.ls <- vector("list", dimx1)
+
      residuals <- matrix(0,nrow=dimx1,ncol=dimx1)
      param.est <- matrix(0,nrow=ncoeffs, ncol=dimx1)
      t.set <- param.est
@@ -170,13 +143,11 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
      modCook <- rep(0,dimx1)
      s.2 <- rep(0,dimx1)
      leverage <- matrix(0,nrow=1,ncol=3)
+
 ######################################################################################################################################
 # Step 1
      #################################################################################
      # Step 1 of the procedure follows.                                              #
-     # By creating an index, randomly reorder the rows of matrix Z = (X,y).          #
-     # Within each element of zlist, calculate the several estimates of b from the   #
-     # first p of these rows and calculate the median of the residuals in each set.  #
      #################################################################################
      medaugx <- matrix(1, nrow=initial.sample, ncol=2)                       #  median of augx
      for(i in 1:initial.sample){
@@ -187,38 +158,38 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
                                      Hmisc::prn(zlist);       }
 
      if(is.null(skip.step1)){
-          print("ENTERING STEP 1", quote=FALSE)
-          inner.rank <- datacontrank
-          ycolcont <- names(datacont)==lhsformula
+          print("ENTERING STEP 1", quote=FALSE);print(" ", quote=FALSE)
+          ycolcont <- names(dataLM)==lhsformula
           ycolcont <- (1:length(ycolcont))[ycolcont]
  
           if(yesfactor){
                ss77C <- vector("list", length(ss77))
                for(nn in 1:length(ss77)){
                     uv <- ss77[[nn]][,1]
-                    ss77C[[nn]] <- datacont[uv,]
+                    ss77C[[nn]] <- dataLM[uv,]
                }
                                  if(begin.diagnose <= 23){print("", quote = FALSE);print(paste(spacer,"Section 23a",sep=" "),quote=FALSE);
-                                     Hmisc::prn(utils::head(datacont));Hmisc::prn(datacontrank);Hmisc::prn(ycolcont)       }
+                                     Hmisc::prn(utils::head(dataLM));Hmisc::prn(datacontrank);Hmisc::prn(ycolcont)       }
 
-# inner.rank is used only to count out the number of observations to select from each factor subset (or te entire database), if no modifications
+              firstrim.out <- aStep1(yesfactor, df1=dataLM, df1.ls=ss77C , inner.rank=datacontrank, initial.sample, formulaA=nofactform, 
+                       nofactform=nofactform, ycol=ycolcont, b.d = begin.diagnose)                                                                            #aStep1
 
-              firstrim <- aStep1(yesfactor, df1=data, df1.ls=ss77C ,inner.rank=datacontrank + nAsIs, initial.sample, formula=formulacont, 
-                       ycol=ycolcont, nopl=n.obs.per.level, b.d = begin.diagnose)                                                         #aStep1
-
+              firstrim <- firstrim.out[[1]]     # a vector of observation numbers
+              firstrim.ls <- firstrim.out[[2]]  # a list, each element a subset of firstrim
 
               lenfr <- length(firstrim)
               rows.in.model[[lenfr]] <- firstrim  
+              rows.in.model.ls[[lenfr]] <- firstrim.ls
               SOON <- firstrim
               mstart <- length(SOON) + 1
           }          # factors present
           else{
                                  if(begin.diagnose <= 23){print("", quote = FALSE);print(paste(spacer,"Section 23b",sep=" "),quote=FALSE);
-                                     Hmisc::prn(utils::head(data));Hmisc::prn(formula);Hmisc::prn(datacontrank);Hmisc::prn(ycol)       }
+                                     Hmisc::prn(utils::head(data));Hmisc::prn(formulaLM);Hmisc::prn(datacontrank);Hmisc::prn(ycol)       }
 
-               firstrim <- aStep1(yesfactor, df1=data, df1.ls=NULL, inner.rank=datacontrank + nAsIs, initial.sample=initial.sample,  
-                       formula=formula,ycol=ycol, nopl=n.obs.per.level, b.d = begin.diagnose)                                                             #aStep1
-
+              firstrim.out <- aStep1(yesfactor, df1=dataLM, df1.ls=NULL, inner.rank=datacontrank, initial.sample=initial.sample,  
+                       formulaA=nofactform, ycol=ycol, b.d = begin.diagnose)                                          #aStep1
+               firstrim <- firstrim.out[[1]]
                lenfr <- length(firstrim)
                rows.in.model[[lenfr]] <- firstrim  
                SOON <- firstrim
@@ -231,7 +202,7 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
           nfirst <- length(skip.step1)
           rows.in.model[[nfirst]] <- skip.step1
           datastep1 <- data[as.vector(rows.in.model[[nfirst]]),]
-          lmchosen <- stats::lm(formula, datastep1, singular.ok=TRUE)                                  #  lm 
+          lmchosen <- stats::lm(formulaLM, datastep1, singular.ok=TRUE)                                  #  lm 
           betahat <- lmchosen$coefficients
           betaMMinus1 <- betahat
           randset <- 1:initial.sample
@@ -258,18 +229,17 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
      print("ENTERING STEP 2", quote=FALSE)
      thisy <- ycol
      if(yesfactor){
-          aStep2out <- aStep2(yesfactor, form.A2=formula, finalm=rows.in.model, rimbs=ss77, dfa2=data, ycol=thisy, mstart=mstart, 
-                        rnk=datacontrank+nAsIs, b.d=begin.diagnose)                                                    #   aStep2
+          pushaside <- formula.tools::rhs(formulaLM)=="1"
+          aStep2out <- aStep2(yesfactor, form.A2=formulaLM, finalm=rows.in.model, rimbs=ss77, dfa2=data, finalm.ls=rows.in.model.ls,
+                        ycol=thisy, mstart=mstart, rnk=datacontrank, b.d=begin.diagnose)                                       #   aStep2
      }       #  factors are present
      else{
-          nofactrank <- rnk
-          aStep2out <- aStep2(yesfactor, form.A2=formula, finalm=rows.in.model, rimbs=NULL, dfa2=data, ycol=thisy, mstart=mstart, 
-                        rnk=nofactrank+nAsIs, b.d=begin.diagnose)                                                    #   aStep2
+          nofactrank <- datacontrank
+          aStep2out <- aStep2(yesfactor, form.A2=formulaLM, finalm=rows.in.model, rimbs=NULL, dfa2=data, 
+                        ycol=thisy, mstart=mstart, rnk=nofactrank, b.d=begin.diagnose)                               #   aStep2    not done yet
      }      # no factors present
 
      rows.in.model <- aStep2out[[1]]
-#prn(rows.in.model)
-#stop("rows")
      fooResult <- aStep2out[[2]]
      resids2 <- aStep2out[[3]]
      sigma <- aStep2out[[4]]
@@ -307,8 +277,14 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
           medaugx <- matrix(1:dimx1, nrow=dimx1, ncol=2, byrow=FALSE)      # initialize medaugx
           medaugx[,2] <- 0 
           param.est[,i-1] <- betahat
-          if(i > rnk) s.2[i-1] <- sum(model.resids * model.resids)/(i-rnk)
-          #
+
+          datacontrank <- sum(datacontrank)
+
+          if(i > datacontrank) s.2[i-1] <- sum(model.resids * model.resids)/(i-datacontrank)
+
+                                 if(begin.diagnose <= 82){print("", quote = FALSE);print(paste(spacer,"Section 82",sep=" "),quote=FALSE);
+                                            Hmisc::prn(datacontrank);Hmisc::prn(rnk)      }
+
           #################################
           # Extract t values from summary #
           #################################
@@ -321,9 +297,9 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
           # Leverage #
           ############
           thisleverage <- 1
-          x1 <- data[,-c(1,ycol)]
+          x1 <- dataLM[,-c(1,ycol)]
           xtemp <- getthislmx
-                                 if(begin.diagnose <= 81){print("", quote = FALSE);print(paste(spacer,"Section 81",sep=" "),quote=FALSE);
+                                 if(begin.diagnose <= 83){print("", quote = FALSE);print(paste(spacer,"Section 83",sep=" "),quote=FALSE);
                                        Hmisc::prn(dimx1);Hmisc::prn(i);Hmisc::prn(xtemp)       }
 
           vvv <- eigen(t(xtemp) %*% xtemp)[[1]]
@@ -334,7 +310,7 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
           if(uuu > .Machine$double.eps*10000){
                crossinv <- solve(t(xtemp) %*% xtemp)
                for(j in 1:(i-1)){
-                   Zlatest2 <- data[rows.in.model[[i-1]],]
+                   Zlatest2 <- dataLM[rows.in.model[[i-1]],]
                    if(dim(xtemp)[2]==1){
                         thisleverage <- c(c(matrix(xtemp[j],nrow=1) %*% crossinv %*% matrix(xtemp[j],ncol=1)))
                         thisleverage <- c(i-1,Zlatest2[j,1],thisleverage)
@@ -396,13 +372,13 @@ function(formula, data, initial.sample=1000, n.obs.per.level=1, skip.step1=NULL,
                                  if(begin.diagnose <= 86){print("", quote = FALSE);print(paste(spacer,"Section 86",sep=" "),quote=FALSE);
                                        Hmisc::prn(ir);Hmisc::prn(aa);Hmisc::prn(bb)     }
          www <- aa %*% t(bb)
-         modCook[ir] <- (www %*% t(www))/(rnk*s.2[ir])
+         modCook[ir] <- (www %*% t(www))/(datacontrank*s.2[ir])
 
                                  if(begin.diagnose <= 89){print("", quote = FALSE);print(paste(spacer,"Section 89",sep=" "),quote=FALSE);
                                                    Hmisc::prn(ir);Hmisc::prn(www);Hmisc::prn(modCook[ir])       }
 
      }       #    ir
-      modCook <- modCook[-length(modCook)]
+     modCook <- modCook[-length(modCook)]
      #
      listout <- list(
 
