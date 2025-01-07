@@ -1,40 +1,40 @@
 \name{forsearch_cph}
 \alias{forsearch_cph}
-\title{Create Statistics Of Forward Search in a Cox Proportional Hazard Database}
+\title{Create Statistics of Forward Search in a Cox Proportional Hazard Database}
 \description{Prepares summary statistics at each stage of forward search for 
-        subsequent plotting.}
-\usage{forsearch_cph(alldata, formula.rhs, nofactform, initial.sample=1000, 
-        skip.step1=NULL, ties = "efron", maxdisturb=0.01,
-        proportion=TRUE, wiggle = 1, unblinded=TRUE, begin.diagnose= 100, verbose=TRUE)
+          subsequent plotting.}
+\usage{
+forsearch_cph(alldata, formula.rhs, nofactform, initial.sample=1000, 
+      skip.step1=NULL, ties = "efron", maxdisturb=.01, proportion=TRUE, 
+      unblinded=TRUE, begin.diagnose= 100, verbose=TRUE)
 }
 \arguments{
-  \item{alldata}{Data frame containing variables 'Observation', 'event.time',
-        'status', and independent variables, in that order}
-  \item{formula.rhs}{Character vector of names of independent variables in 
-        model}
-  \item{nofactform}{Right hand side of formula (omitting ~ and factor variables)}      
+  \item{alldata}{Data frame whose first 3 columns are Observation, event.time, 
+      and status, and whose last columns are independent variables. Factor 
+      variables must be defined in advance.}
+  \item{formula.rhs}{The right hand side of a formula object (omit tilde '~')}
+  \item{nofactform}{Formula, omitting all factor variables}
   \item{initial.sample}{Number of observations in Step 1 of forward search}
   \item{skip.step1}{NULL or a vector of integers for observations to be included
-           in Step 1}
-  \item{ties}{Method for handling ties in event time; = "efron", "breslow", or 
-          "exact"; see survival::coxph}
-  \item{maxdisturb}{Maximum amount to add randomly to event.time to prevent 
-          ties. }
-  \item{proportion}{TRUE causes evaluation of proportionality of Cox regression
-  }
-  \item{wiggle}{Multiplier to prevent change of identical observations. Used only
-          when there are no continuous independent variables}
+       in Step 1}
+  \item{ties}{Method for handling ties in event time, "efron", "breslow" or 
+        "exact"; see survival::coxph}
+  \item{maxdisturb}{Amount of maximum disturbance to add to each event time to
+        prevent ties}
+  \item{proportion}{Logical. TRUE causes running of survival::cox.zph on each 
+      stage}
   \item{unblinded}{TRUE causes printing of presumed analysis structure}
   \item{begin.diagnose}{Numeric. Indicates where in code to begin printing 
-           diagnostics. 0 prints all; 100 prints none}
-  \item{verbose}{TRUE causes function identifier display before and after run}
+      diagnostics. 0 prints all; 100 prints none}
+  \item{verbose}{TRUE causes function identifier to display before and after run}
 }
+\details{Step 1 requires one additional observation to be included in database to 
+     prevent failure of Wald statistic in Step 2 calculation of coxph function}
 \value{LIST
    \item{Rows in stage }{Observation numbers of rows included at each stage}
    \item{Number of model parameters }{Number of fixed coefficients in Cox model}
    \item{Fixed parameter estimates }{Vector of parameter estimates at each stage}
    \item{Wald Test }{Vector of Wald tests at each stage}
-   \item{Proportionality Test}{Result of Cox proportionality test, if run}
    \item{LogLikelihood }{Vector of null and overall coefficients log likelihoods at
         each stage}
    \item{Likelihood ratio test }{Vector of LRTs at each stage}
@@ -45,29 +45,20 @@
 Atkinson, A and M Riani. Robust Diagnostic Regression Analysis, Springer, New York, 2000.}
 \author{William R. Fairweather}
 \examples{
-\dontrun{
-{# Forsearch for Cox Proportional Survival, including Step 1
-veteran <- survival::veteran
-veteran <- veteran[order(veteran$celltype),]
-veteranx <- veteran[,c(3,4,1,2)]
-veteranx$trt <- as.factor(veteranx$trt)
-dimv <- dim(veteran)[1]
-Observation <- 1:dimv
-veteranx <- data.frame(Observation,veteranx)
-names(veteranx)[2] <- "event.time"
-form.1 <- "trt + celltype"  
-forskip <- NULL
-# forskip <- c(12,  23,  38,  71,  91, 104, 116, 130,  31,  73,  62,  76)
-cphtest1a.out <- forsearch_cph(alldata=veteranx, formula.rhs=form.1, 
-       skip.step1=forskip, ties="efron", wiggle=1, unblinded=TRUE, 
-       initial.sample=467, begin.diagnose = 100, verbose = TRUE)
+%\dontrun{
+Observation <- 1:60
+xx1 <- runif(60)
+xx2 <- runif(60)
+treat <- c(rep("A",30),rep("B",20),rep("C",10))
+treat <- as.factor(treat)
+event.time <- trunc(100*runif(60))
+statusx <- c(rep(1,22),rep(0,8),rep(1,17),rep(0,3),rep(1,6),rep(0,4))
+index3 <- sample(1:60,60)
+xindep <- data.frame(Observation,event.time,status=statusx,xx1,xx2,treat)
+formula.rhs <- "xx1 + xx2 + treat"
+coxph.out05 <- forsearch_cph(alldata=xindep, formula.rhs=formula.rhs, 
+    nofactform="xx1 + xx2", skip.step1=NULL, ties="efron", initial.sample=500, 
+    begin.diagnose=100)
 }
-{# Same, but skipping Step 1.
-forskip <- c(12, 6, 31, 23, 38, 62, 71, 73, 91,  84, 104, 101, 116, 125,128,76)
-cphtest1b.out <- forsearch_cph(alldata=veteranx, formula.rhs=form.1, 
-      skip.step1=forskip, ties="efron", unblinded=TRUE, 
-      initial.sample=467, begin.diagnose = 100, verbose = TRUE) 
-}
-}
-}
+%}
 \keyword{  datagen  }

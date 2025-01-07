@@ -79,12 +79,7 @@
 </div>
 <div id="a-consideration-for-cox-proportional-hazard-calculations" class="section level2">
 <h2>A Consideration for Cox Proportional Hazard Calculations</h2>
-<p>Some observations in a Cox Proportional Hazards database will be censored. If too many censored observations were to be included in Step 1 or in one of the minimal subsets of Step 2, the estimation function might fail. To prevent this, only uncensored observations are considered for Step 1 and for the initial subsetting of Step 2.</p>
-</div>
-<div id="nonlinear-models" class="section level2">
-<h2>Nonlinear Models</h2>
-<p>It is well known that nonlinear statistical models provide greater challenges to the statistician than do linear models. This is especially true for the forward search process because the process begins and proceeds with very few observations. In addition, the model formula may contain difficulties that are not present in linear models. We are concerned here particularly with multiphasic models.</p>
-<p>Consider a nonlinear model y = f(t, phi ) in which the response y depends on independent variables phi through a single input variable t, with A &lt;= t &lt;= B. If the model may be written y = (A &lt;= t &lt;= A1) * f1(t, phi¬1) + (A1 &lt; t &lt;= A2) * f2(t, phi2) + … + (Ar &lt; t &lt;= B) * fr(t,phir), where none of the phi1, phi2, …, phir sets of coefficients are the same, the model is defined to be multiphasic. Otherwise, it is defined to be monophasic. It is easy to see how a multiphasic model could produce a small subset of observations all from one phase of the range of t that would not permit prediction of all the model parameters. The forsearch_nls( ) function addresses this problem and prevents this possibility. As an example of a multiphasic model, consider the 6-minute walk test (6MWT) described in the vignette of the nlstools package (<a href="https://CRAN.R-project.org/package=nlstools" class="uri">https://CRAN.R-project.org/package=nlstools</a>).</p>
+<p>Some observations in a Cox Proportional Hazards database will be censored. If too many censored observations were to be included in Step 1 or in one of the minimal subsets of Step 2, the estimation function might fail. To prevent this, only uncensored observations are considered for Step 1 and for the initial subsetting of Step 2. ## Another consideration for Nonlinear Models A model is nonlinear only when we consider the entire formula. For example, if we consider only the formula that applies to one of the pairs of variables, this subformula is that of a straight line, clearly not nonlinear. In order to ensure that enough observations will be taken at each stage that it will be possible to estimate all the unknown parameters, we introduce into the database the variable Section that identifies the section of the model that each observation belongs to. Forsearch_nls will then be sure to sample from each section at every stage of the search.</p>
 </div>
 <div id="extracting-the-intermediate-statistics" class="section level2">
 <h2>Extracting the Intermediate Statistics</h2>
@@ -92,7 +87,7 @@
 </div>
 <div id="dependence-on-the-user" class="section level2">
 <h2>Dependence on the User</h2>
-<p>The forsearch_foo functions depend heavily on knowing which variables are factors. In turn, we depend on the user to identify all factor variables in the database by the as.factor() function prior to calling forsearch_foo. This includes grouping variables in forsearch_lme(). Variables that are not factors must not be declared to be factors.</p>
+<p>The forsearch_foo functions depend heavily on knowing which variables are factors. In turn, we depend on the user to identify all factor variables in the database by the as.factor() or factor() function prior to calling forsearch_foo. This includes grouping variables in forsearch_lme(). Variables that are not factors must not be declared to be factors.</p>
 <p>Should dichotomous variables be declared to be factors? When one evaluates such variables in a large dataset, it doesn’t matter. You get the same result either way. The same goes for interactions among dichotomous factors. However, the nature of a forward search is to begin with very few observations. It is possible at early stages that the subset would not contain examples of many or even most of the possible crossed levels. Although this would argue for making all dichotomies factor variables, it should be recalled that this can greatly increase the number of observations included in Step 1.</p>
 </div>
 <div id="reference" class="section level2">

@@ -85,7 +85,7 @@ function (yesfactor, df1, df1.ls, inner.rank, initial.sample, formulaA, nofactfo
 
                     errorsmall <- df1[, ycol] - predsmall
                     sserrorsmall <- sort(errorsmall^2)  
-                    SSE[i] <- sserrorsmall[MED]
+                    SSE[r] <- sserrorsmall[MED]
                }     # r
 
                                 if(b.d <= 33){print("", quote = FALSE);print(paste(spacehere,"Section 33",sep=" "),quote=FALSE);

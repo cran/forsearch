@@ -8,8 +8,8 @@ Derives the first set of observation numbers for forsearch in linear mixed
      effects models
 }
 \usage{
-bStep1(yesfactor, df1, df1.ls, groups, inner.rank, initial.sample, 
-      nofactform = NULL, formulaA, randform, ycol, b.d)
+bStep1(yesfactor, df1, df1.ls, groups, inner.rank, source, initial.sample, 
+      nofactform = NULL, formulaA, randform, inc, ycol, b.d)
 }
 \arguments{
   \item{yesfactor}{Logical. TRUE if there are factors in the X matrix
@@ -22,6 +22,8 @@ bStep1(yesfactor, df1, df1.ls, groups, inner.rank, initial.sample,
 }
   \item{inner.rank}{Rank of X matrix of lme analysis on entire database
 }
+  \item{source}{Vector list of subsets provding observations
+}
   \item{initial.sample}{Number of random samples from which to take set of
        initial observations
 }
@@ -30,6 +32,8 @@ bStep1(yesfactor, df1, df1.ls, groups, inner.rank, initial.sample,
   \item{formulaA}{Formula for all effects including factors and constructed variables
 }
   \item{randform}{One-sided random effects formula
+  }
+  \item{inc}{Logical. TRUE causes relaxation of lmeControl
   }
   \item{ycol}{Response column number
 }

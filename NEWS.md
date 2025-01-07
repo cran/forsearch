@@ -1,3 +1,18 @@
+1/7/2025 forsearch version 6.4.0
+================================
+* Major changes: None
+ 
+* Moderate changes:
+  + Added vignette on Study Credibility  
+  + Added arguments to forsearch_nls to liberalize controls
+  + Added function logist3 to calculate 3-parameter logistic 
+  
+* Minor changes and bug fixes:
+  + Removed phases in forsearch_nls in favor of sections
+  + Returned to use of stats::predict for all forsearch
+    functions
+  + Updated all examples  
+
 11/15/2024 forsearch version 6.3.0
 ==================================
 * Major changes: None
@@ -13,8 +28,7 @@
   + Added arguments to forsearch_lme to liberalize controls
   + Changed from predict to predict.lme, predict.glm and
     predict.coxph in xStep1 and xStep2 
-  + Added vignette on Study Credibility  
-  
+ 
 * Minor changes and bug fixes: 
   + Modified showme to limit output for forsearch_lme
   + Added graphs for forsearch_lme

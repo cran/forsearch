@@ -18,7 +18,7 @@ function (fe, finalm, rimbs, dfa2, onlyfactor=FALSE, ycol, cphties, mstart, rnk,
      #       b.d               Number at which to begin diagnostic listings
      #
      spacer <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX        cStep2               "
-# print("in cStep2")
+
      yf <- TRUE        # Continue with yesfactor even though it is now always TRUE
      nobs <- dim(dfa2)[1]
      nfacts <- length(rimbs)
@@ -84,8 +84,8 @@ function (fe, finalm, rimbs, dfa2, onlyfactor=FALSE, ycol, cphties, mstart, rnk,
                 thispredict <- stats::predict(thiscph, dfa2, type="lp")                                         #  predict
 
                 residuals2[,i] <- thispredict - dfa2[,2]
-                dfa2aug[,1] <- (thispredict - dfa2[,2])^2 + dfa2$wiggle
-                dfa2aug <- dfa2aug[order(dfa2aug[,1]),]
+                dfa2aug[,1] <- (thispredict - dfa2[,2])^2
+                dfa2aug <- dfa2aug[order(dfa2aug[,1],dfa2aug$Observation),]
                #
                ##########################################################################
                # Get obs numbers for initial set of countSubs obs in each factor subset #
@@ -94,18 +94,11 @@ function (fe, finalm, rimbs, dfa2, onlyfactor=FALSE, ycol, cphties, mstart, rnk,
                finalStage <- NULL
                for(j in 1:nfacts){
                     uu <- dfa2aug[dfa2aug$holdISG==namesrimbs[j],]
-# prn(uu)
                     uu <- uu[1:countSubs[j],2]
-#prn(uu) 
                     finalStage <- c(finalStage,uu)
-#prn(finalStage)
                }    #   j
                collect.final <- c(collect.final, finalStage)
                #
- 
-#                           if(b.d <= 69 ){ print("",quote=FALSE);print(paste(spacer,"Section 69",sep=" "),quote=FALSE);
-#                                Hmisc::prn(galaxy);Hmisc::prn(rnk2);print(" ");print("rim entering dStep2:");
-#                                Hmisc::prn(thisrim); print(" ");print("Step2:");Hmisc::prn(cumrim);     stop("in dStep2 b.d 69")   }
 
                           if(b.d <= 69 ){ print("",quote=FALSE);print(paste(spacer,"Section 69",sep=" "),quote=FALSE);
                                  Hmisc::prn(thispredict);Hmisc::prn(dfa2[rim,]);Hmisc::prn(rim);
@@ -127,7 +120,6 @@ function (fe, finalm, rimbs, dfa2, onlyfactor=FALSE, ycol, cphties, mstart, rnk,
           stop("In cStep2 with yf=FALSE")
      }               # no factors present  
 
-#stop("end of cStep2")
      outlist <- list(finalm, fooResult, residuals2)
 
      return(outlist)

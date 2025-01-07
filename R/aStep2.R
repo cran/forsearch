@@ -96,7 +96,7 @@ function (yesfactor, form.A2, finalm, rimbs, onlyfactor=FALSE, dfa2, finalm.ls=N
                }      # j
 
                            if(b.d <= 69 ){ print("",quote=FALSE);print(paste(spacer,"Section 69",sep=" "),quote=FALSE);
-  #                               Hmisc::prn(dfa2[rim,]);Hmisc::prn(rim);
+                                 Hmisc::prn(dfa2[rim,]);Hmisc::prn(rim);
                                  print("The following is step 1:");Hmisc::prn(dfa2[1:(mstart-1),]);
                                  print("The following is the srart of step 2:");Hmisc::prn(sort(dfa2[1:(mstart-1),1]));          stop("in bStep2 b.d 69")   }
 
@@ -145,5 +145,6 @@ function (yesfactor, form.A2, finalm, rimbs, onlyfactor=FALSE, dfa2, finalm.ls=N
      }               # no factors present  
 
      outlist <- list(finalm, fooResult, residuals2, sigma)
+
      return(outlist)
 }

@@ -137,5 +137,6 @@ function(yf, f2, dfa2, onlyfactor=FALSE, ms, finalm, fbg, rnk2, ycol, fam, b.d)
      }    #  i in ms: nobs-1
 
      outlist <- list(finalm, fooResult)
+
      return(outlist)
 }

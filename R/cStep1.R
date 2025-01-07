@@ -92,7 +92,7 @@ function (df1, df1.ls, inner.rank, initial.sample, f.e, cphties, ycol, b.d)
                     predsmall <- stats::predict(object=lmsmall, newdata=universe)                       # predict.coxph
 
                     errorsmall <- universe[, ycol] - predsmall
-                    sserrorsmall <- sort(errorsmall^2) + universe$wiggle 
+                    sserrorsmall <- sort(errorsmall^2)
                     SSE[r] <- sserrorsmall[MED]
                }     # r
                                 if(b.d <= 49){print("", quote = FALSE);print(paste(spacehere,"Section 49",sep=" "),quote=FALSE);
@@ -106,7 +106,7 @@ function (df1, df1.ls, inner.rank, initial.sample, f.e, cphties, ycol, b.d)
 
           rimout <- sort(SSErim)
      }      #   yesfactor
- print("leaving cStep1")
-#stop("cStep1")
+# print("leaving cStep1")
+
      return(rimout)
 }

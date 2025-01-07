@@ -1,6 +1,6 @@
 #' @export
 forsearch_lme <-
-function(fixedform, nofactform, alldata, randomform, groupnames, initial.sample=1000, wiggle=1,
+function(fixedform, nofactform, alldata, randomform, groupname, randfactnames=NULL, initial.sample=1000,
     skip.step1=NULL, unblinded=TRUE, begin.diagnose= 100, incCont=FALSE, verbose=TRUE)
 {
      #                                           forsearch_lme 
@@ -10,11 +10,12 @@ function(fixedform, nofactform, alldata, randomform, groupnames, initial.sample=
      #                 estimated coefficients, variance of random effects. 
      #
      # INPUT    fixedform          2-sided formula for fixed effects
-     #          nofaactform        2-sided formula for fixed effects, omitting factors but retaining
-     #                                           random terms 
+     #          nofactform         2-sided formula for fixed effects, omitting factors but retaining
+     #                                           random terms                                           NEEDED?
      #          alldata            Data frame, first column of which must be "Observation".    
      #          randomform         1-sided formula for random effects
-     #          groupnames         Character string of names of grouping variables within randomform
+     #          groupname          Quoted name of single grouping variable within randomform
+     #          randfactnames      Quoted names of random factor variables in randomform, or NULL
      #          initial.sample     Number of reorderings of observations (= m in Atkinson and Riani)
      #          skip.step1         NULL or a list, each element of which is a vector of integers for 
      #                                 observations from 1 subgroup to be included in Step 1
@@ -25,9 +26,6 @@ function(fixedform, nofactform, alldata, randomform, groupnames, initial.sample=
      #                                 allowable tolerances for duration of this function
      #          verbose            Logical. TRUE causes printing of function ID before and after running.
      # 
-
-     #   begin.diagnose      Step 0: 1 - 19        Step 1: 20     -     49     Step 2:   50 - 59         Extraction:     81 - 
-     #                                                bStep1:  31 - 39                    bStep2:  60 - 80
 
      MC <- match.call()
      if(verbose) {
@@ -44,32 +42,23 @@ function(fixedform, nofactform, alldata, randomform, groupnames, initial.sample=
      options(warn=-1)
      on.exit(options(warn=0))
 
+     ##################
+     # Set lmeControl #
+     ##################
      if(incCont){
-#          savecontrol <- nlme::lmeControl()
-#          str(lCtr <- lmeControl(maxIter = 1000, msMaxIter = 1000, tolerance = 1e-2, 
-#                 niterEM = 1000, msMaxEval = 1000, msTol = 1e-2, optimMethod = "L-BFGS-B",
-#                 msVerbose = FALSE, returnObject = FALSE) )
-#          do.call(nlme::nlmeControl, lCtr)
-#          on.exit(expr(nlme::nlmeControl <- saveControl), add=TRUE)
-     print("If convergence fails, try setting nlme::lmeControl manually on the console.")
+          utils::str(lCtr <- nlme::lmeControl(maxIter = 1000, msMaxIter = 1000, tolerance = 1e-2, 
+                 niterEM = 1000, msMaxEval = 1000, msTol = 1e-2, optimMethod = "L-BFGS-B",
+                 msVerbose = FALSE, returnObject = FALSE) )
+          do.call(nlme::lmeControl, lCtr)
      }
      nalldata1 <- dim(alldata)[1]
-     wiggle <- wiggle * stats::runif(nalldata1)/100         # wiggle
-     alldata <- data.frame(alldata, wiggle)
-
      nalldata2 <- dim(alldata)[2]
      alldataNames <- names(alldata)
      #
-     ########################################################
-     # Ensure that first independent varible is Observation #
-     # and that grouping variables are not factors          #
-     ########################################################
+     #########################################################
+     # Ensure that first independent variable is Observation #
+     #########################################################
      if(alldataNames[1] != "Observation") stop("First column of data must be 'Observation'")
-     ngroups <- length(groupnames)                                               # number of group nestings
-     for(i in 1:ngroups){
-          index <- groupnames[i]==alldataNames
-          alldata[,index] <- as.character(alldata[,index])
-     }
      #
      ##########################
      # Locate response column #
@@ -77,24 +66,34 @@ function(fixedform, nofactform, alldata, randomform, groupnames, initial.sample=
      respName <- formula.tools::lhs(fixedform)
      ycolfixed <- (1:nalldata2)[respName==alldataNames]
      #
+     ###############################################################
+     # Locate grouping variable and ensure that it is not a factor #
+     ###############################################################
+     if(length(groupname) > 1)stop("Only one group name is allowed")
+     groupcol <- (1:nalldata2)[groupname==alldataNames]
+     if(is.factor(alldata[,groupcol])) stop("groupname must not be a factor in the database")
+     #
      ######################################################################################
      # Create all files needed below:                                                     #
      #    fixdat.df,   alldata with factor level indicator and group variable indicator   #
-     #    fixdatouter.list, a 3-layer list with 1st layer factor subset levels and second # see below
-     #        layer group subset within factor layers. If there are no factors, the       #
+     #                                                                                    #
+     #    fixdatouter.list, a 2-layer list with 1st layer group subset levels and second  #
+     #        layer factor subset within group layers. If there are no factors, the       #
      #        layer will be a list of 1 level. The name of that level will be 'None'      #                                                              #
+     #                                                                                    #
      #    fixdatcombo.list, a list whose elements are data frames by combiation of        #
      #        factor subset and group level                                               #
      ######################################################################################
      fixdat.df <- alldata
+     #
      ##############################################################
      # Check for factor status of fixedform and get factor names  #
+     # Add factor subset indicator if there are any factors       #
      ##############################################################
      ufactor <- rep(TRUE, nalldata2)
      for(m in 1:nalldata2) ufactor[m] <- is.factor(alldata[,m])
      yesfactor <- any(ufactor)     
      #
-     # Add factor subset indicator if there are any factors #
      fixedISG <- "_None"                                       # default if no factors
      if(yesfactor){
           factorNames <- alldataNames[ufactor]  
@@ -105,48 +104,26 @@ function(fixedform, nofactform, alldata, randomform, groupnames, initial.sample=
           for(nn in 1:nalldata2){
                isfactor[nn] <- is.factor(fixdat.df[,nn])
           }
+          factorcount <- sum(isfactor)
           justfactors <- fixdat.df[isfactor]                        
           fixedISG <- apply(justfactors, 1, paste,collapse="/")
           fixedISG <- paste("_", fixedISG, sep="")
      }     #   yesfactor                                         # does this work with F1 and F2?
      fixdat.df <- data.frame(fixdat.df, fixedISG)   
-
-     ######################################
-     # Add the grouping codes to the data #
-     ######################################
-     groupcols <- match(groupnames, names(alldata))
-     isgroup <- (1:nalldata2)[groupcols]
-     ngrouplevels <- length(isgroup) 
-     if(ngroups==1){
-          groupISG <- alldata[, isgroup]
-          groupISG <- paste("_", groupISG, sep="")
-     }
-     else{
-             stop("multiple grouping needs work in _lme")
-     }
-     grouplevels <- unique(groupISG)
-     ngrouplevels <- length(unique(groupISG))
-     fixdat.df <- data.frame(fixdat.df, groupISG)                                             
-     #
-                     if(begin.diagnose <=17){ print(paste(spacer,"Section 17",sep=" "),quote=FALSE);
-                               Hmisc::prn(utils::head(fixdat.df));Hmisc::prn(utils::tail(fixdat.df));
-                               Hmisc::prn(dim(fixdat.df))   }
-     #
-     #########################
-     # Append a combined ISG #
-     #########################
-     comboISG <- paste(fixdat.df$fixedISG, fixdat.df$groupISG, sep="_F,G")
-     fixdat.df <- data.frame(fixdat.df, comboISG)
-     ################################################################################################################
-     # We will perform lme analyses on the factor subsets of fixdat.df. We need to get the inner rank of these      # 
-     # factor subsets. To ge this, we will run lm on one factor subset where the model consists of the fixed effects #
-     # plus the part of te random effects to the left of the '|' symbol.                                             #
-     ################################################################################################################
-
-
      namesSubsets <- unique(fixedISG)
      nsubsets <- length(namesSubsets)                                  # number of model factor levels
-
+     #
+     ###############################################################
+     # Identify factor-group cells                                 #
+     # Append a combined ISG and determine number of combo subsets #
+     ###############################################################
+     comboISG <- paste(fixdat.df$fixedISG, fixdat.df[,groupcol], sep="_F,G ")
+     fixdat.df <- data.frame(fixdat.df, comboISG)
+     ucombo <- unique(comboISG)
+     nucombo <- length(ucombo)
+     #
+     ugroups <- unique(fixdat.df[,groupcol])
+     ngrouplevels <- length(ugroups)
      ###################################################
      # Structure fixdatouter.list and then populate it #
      ###################################################
@@ -155,22 +132,23 @@ function(fixedform, nofactform, alldata, randomform, groupnames, initial.sample=
      for(k in 1:ngrouplevels){
           fixdatouter.list[[k]] <- fixdatinner.list
      }
+     grouplevels <- unique(alldata[,groupcol])
+     ngrouplevels <- length(grouplevels)
      for(k in 1:ngrouplevels){
           for(j in 1:nsubsets){
               uu <- fixdat.df[    fixdat.df$fixedISG==namesSubsets[j] ,]
-              vv <- uu[    uu$groupISG==grouplevels[k]    ,     ]
+              vv <- uu[    uu[,groupcol] == grouplevels[k]    ,     ]
               fixdatouter.list[[k]][[j]] <- vv
           }     #   j
      }          #   k         
      #
-     ##############################################
-     # Break up fixdat.df into a list by comboISG #
-     ##############################################
-     ucomboISG <- unique(comboISG)
-     ncomboISG <- length(ucomboISG)
-     fixdatcombo.list <- list(ucomboISG)
-     for(i in 1:ncomboISG){
-          fixdatcombo.list[[i]] <- fixdat.df[fixdat.df$comboISG==ucomboISG[i]   ,]
+     ###################################################
+     # Structure fixdatcombo.list and then populate it #
+     ###################################################
+     fixdatcombo.list <- vector("list", nucombo)
+     for(i in 1:nucombo){
+          uu <- fixdat.df[ fixdat.df$comboISG==ucombo[i], ]
+          fixdatcombo.list[[i]] <- uu
      }
 #
 ###########################################################################################################################################
@@ -181,40 +159,84 @@ function(fixedform, nofactform, alldata, randomform, groupnames, initial.sample=
      zlist <- vector("list",initial.sample)         # zlist elements start with matrix result
 
      if(is.null(skip.step1)){
-          ##########################################################################   
-          # Get rank of model without groups by calculating lm on 1st group's data #
-          ##########################################################################
-          agroup <- fixdat.df[fixdat.df$groupISG==grouplevels[[1]],]
-
-          lmAlldata <- stats::lm(formula=fixedform, data=agroup)
-          coeflmAll <- stats::coefficients(lmAlldata)
-          ncoeffs <- length(coeflmAll)
           print("BEGINNING STEP 1", quote=FALSE)
           print(" ", quote=FALSE)
 
-          basenumber <- floor(ncoeffs/nsubsets + .000001)
-          additional <- rep(0,nsubsets)
-          nadd <- ncoeffs - basenumber*nsubsets
-          if(nadd > 0) additional[1:nadd] <- 1 
-          inner.rnk <- rep(basenumber, nsubsets) + additional 
+          ###############################################################################
+          # Determine the number of coefficients in the entire database analyzed by lme #
+          ###############################################################################
+          lmeAll <- nlme::lme(fixed=fixedform, data=alldata, random=randomform)                        # lme no control
+          coeffAll <- stats::coef(lmeAll)
+          coeffAll <- coeffAll[1,]
+          ncoeffs <- length(coeffAll)
+          #
           if(yesfactor){
+               #####################################################
+               # Determine the structure of the database           #
+               # number of group, factor, and continuous variables #
+               #####################################################
+               nG <- length(groupname)
+               nF <- sum(isfactor)
+               nC <- nalldata2 - nF - nG - 2    #excludes, Observation, response
+               ##################################################
+               # Calculate inner.r and source matrix (yf TRUE   #
+               # nG determines which part of step1.dist is run  #
+               ##################################################
+               ufixed <- unique(fixedISG)
+
+               ##############################################
+               # Determine now many observations are needed #
+               ##############################################
+               N <- max(nucombo,ncoeffs) + nC
+               ########################################
+               # Now determine how to distribute them #
+               ########################################
+               basenumber <- max(1,floor(N/nucombo + .00001)   )
+               additional <- rep(0, nucombo)
+               nadd <- N - basenumber * nucombo
+               if(nadd > 0)additional[1:nadd] <- 1
+               inner.r <- rep(basenumber, times=nucombo) + additional
+               inner.r <- inner.r[1:nucombo]
+               #
                ################################################################################
                # Define number of source slots and define the number of observations per slot #
                ################################################################################
                firstrim <- bStep1(yesfactor, df1=fixdat.df, df1.ls=fixdatouter.list, groups=grouplevels, 
-                            inner.rank=inner.rnk, 
+                            inner.rank=inner.r, source=comboISG, 
                             initial.sample=initial.sample, nofactform=nofactform,formulaA=fixedform, 
-                            randform=randomform, ycol=ycolfixed, b.d=begin.diagnose)                         #  bStep1 
+                            randform=randomform, inc=incCont, ycol=ycolfixed, b.d=begin.diagnose)          #  bStep1 
+          SOON <- sort(firstrim)
+          nfirstrim <- length(firstrim) 
+          mstart <- nfirstrim + 1
+          rows.in.model[[nfirstrim]] <- sort(firstrim)
           }     # End of yesfactor
-
           else{
+               nG <- 1
+               nC <- nalldata2 - nG - 2    #excludes, Observation, response
+               #################################################
+               # Calculate inner.r and source matrix (yf FALSE #
+               #################################################
+               ufixed <- unique(fixedISG)
+               ##############################################
+               # Determine now many observations are needed #
+               ##############################################
+               N <- max(nucombo,ncoeffs) + nC
+               ########################################
+               # Now determine how to distribute them #
+               ########################################
+               basenumber <- max(1,floor(N/nucombo + .00001)   )
+               additional <- rep(0, nucombo)
+               nadd <- N - basenumber * nucombo
+               if(nadd > 0)additional[1:nadd] <- 1
+               inner.r <- rep(basenumber, times=nucombo) + additional
+               inner.r <- inner.r[1:nucombo]
+               #
                firstrim <- bStep1(yesfactor, df1=fixdat.df, df1.ls=fixdatouter.list, groups=grouplevels,
-                            inner.rank=inner.rnk, initial.sample=initial.sample, nofactform=nofactform, 
-                            formulaA=fixedform, randform=randomform, ycol=ycolfixed, b.d=begin.diagnose)     #  bStep1 
+                            inner.rank=inner.r, source=comboISG, initial.sample=initial.sample, nofactform=nofactform, 
+                            formulaA=fixedform, randform=randomform, inc=incCont, ycol=ycolfixed, b.d=begin.diagnose)     #  bStep1 
 
           }     # no factor present
           SOON <- sort(firstrim)
-          
           nfirstrim <- length(firstrim) 
           mstart <- nfirstrim + 1
           rows.in.model[[nfirstrim]] <- sort(firstrim)
@@ -233,8 +255,7 @@ function(fixedform, nofactform, alldata, randomform, groupnames, initial.sample=
      # 
                                                if(begin.diagnose <=43) {print(paste(spacer,"Section 43",sep=" "),quote=FALSE);
                                                   Hmisc::prn(SOON)   }
-
-#stop("before entering step 2")
+# stop("before entering step 2")
 ########################################################################################################################################################################
 # Step 2
      print("BEGINNING STEP 2", quote=FALSE)
@@ -243,12 +264,11 @@ function(fixedform, nofactform, alldata, randomform, groupnames, initial.sample=
      #############################################################################
      # Bind a combination index to fixdat.df and add a column for squared errors #
      #############################################################################
-     comboISG <- paste(fixdat.df$groupISG, fixdat.df$fixedISG, sep="&")
      diffs2 <- 0
-     fixdat.df <- data.frame(fixdat.df, comboISG, diffs2)
      pushaside <- formula.tools::rhs(randomform)=="1"
-     zzzz <- bStep2(yf=yesfactor, f2=fixedform, dfa2=fixdat.df, onlyfactor=pushaside, randm2=randomform, ms=mstart, ycol=ycolfixed,
-                    initn=inner.rnk, finalm=rows.in.model, fbg=fixdatcombo.list, b.d=begin.diagnose)                 # bStep2
+     if(yesfactor){inner.r <- rep(inner.r, length(SOON))}
+     zzzz <- bStep2(yf=yesfactor, f2=fixedform, dfa2=fixdat.df, onlyfactor=pushaside, randm2=randomform, ms=mstart, 
+                    ycol=ycolfixed, initn=inner.r, inc=incCont, finalm=rows.in.model, fbg=fixdatcombo.list, b.d=begin.diagnose)     # bStep2
 
      rows.in.set <- zzzz[[1]]
      LME <- zzzz[[2]]
@@ -402,15 +422,14 @@ function(fixedform, nofactform, alldata, randomform, groupnames, initial.sample=
                                        if(begin.diagnose <= 92){print(paste(spacer,"Section 92         dd=",dd));
                                                    Hmisc::prn(anova.pvalues[,dd])}
           #
-
           ############################################################
           #           Leverage=                        leverage[-1,] #
           ############################################################
           thisleverage <- 1
           if(is.matrix(x1)){
                for(j in 1:dd){
-                                        if(begin.diagnose <= 93){print(paste(spacer,"Section 93         dd=",dd));Hmisc::prn(j);
-                                                   Hmisc::prn(dim(x1)[2]);Hmisc::prn(matrix(xtemp[j,],nrow=1));Hmisc::prn(det(crossinv))       }
+ #                                       if(begin.diagnose <= 93){print(paste(spacer,"Section 93         dd=",dd));Hmisc::prn(j);
+ #                                                  Hmisc::prn(dim(x1)[2]);Hmisc::prn(matrix(xtemp[j,],nrow=1));Hmisc::prn(det(crossinv))       }
 
                     if(solvecross){
                          Zlatest2 <- data.frame(Zlatest)
@@ -523,7 +542,7 @@ function(fixedform, nofactform, alldata, randomform, groupnames, initial.sample=
      }
 
                                        if(begin.diagnose <= 99){print(paste(spacer,"Section 99"));
-                                                   Hmisc::prn(inner.rnk)     }
+                                                   Hmisc::prn(inner.r)     }
 
     listout <- list(
           "Number of observations in Step 1"=   mstart-1,

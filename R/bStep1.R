@@ -1,5 +1,5 @@
 bStep1 <-
-function (yesfactor, df1, df1.ls, groups, inner.rank, initial.sample, nofactform=NULL, formulaA, randform, ycol, b.d) 
+function (yesfactor, df1, df1.ls, groups, inner.rank, source, initial.sample, nofactform=NULL, formulaA, randform, inc, ycol, b.d) 
 {
 
      #                                    bStep1   
@@ -12,25 +12,33 @@ function (yesfactor, df1, df1.ls, groups, inner.rank, initial.sample, nofactform
      #            df1.ls         List of df1 by factor subset or NULL
      #            groups         groupISG
      #            inner.rank     Vector. Number of observations to pull from each factor subset, or from overall database otherwise
+     #            source         Data frame of subsets. Only used for information, not calculations
      #            initial.sample Number of random samples from which to take rim
-     #            Nofactform     2-sided formula without factors
+     #            nofactform     2-sided formula without factors                   NEEDED???
      #            formulaA       Formula for all effects including factors and constructed variables    
-     #            nofactform     1-sided Formula for group and random effects, omitting factors
+     #            randform       
+     #            inc            Logical, TRUE causes relaxation of lmeControl
      #            ycol           Response column number
      #            b.d            begin.diagnose Ranges from 20 to 32
-     #
-     # Strategy   Runs calculations on each group separately up to the point of selecting a rim for that group NO
-     #                 and passes them out as a list by group .
      #
      spacehere <- "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%      bStep1           "    
 # print("in bStep1") 
 
                      if(b.d <=31 ){ print("",quote=FALSE);print(paste(spacehere,"Section 31",sep=" "),quote=FALSE);
                          Hmisc::prn(yesfactor);Hmisc::prn(utils::head(df1));Hmisc::prn(df1.ls);Hmisc::prn(inner.rank);
-                         Hmisc::prn(initial.sample);Hmisc::prn(nofactform);Hmisc::prn(dim(df1));Hmisc::prn(formulaA);
-                         Hmisc::prn(ycol);print("End of bStep1 argument listing")   }
-     #
+                         Hmisc::prn(source);Hmisc::prn(initial.sample);Hmisc::prn(nofactform);Hmisc::prn(dim(df1));
+                         Hmisc::prn(formulaA);Hmisc::prn(ycol);print("End of bStep1 argument listing")   }
 
+     if(inc){
+          ##################
+          # Set lmeControl #
+          ##################
+          utils::str(lCtr <- nlme::lmeControl(maxIter = 1000, msMaxIter = 1000, tolerance = 1e-2, 
+               niterEM = 1000, msMaxEval = 1000, msTol = 1e-2, optimMethod = "L-BFGS-B",
+               msVerbose = FALSE, returnObject = FALSE) )
+               do.call(nlme::lmeControl, lCtr)
+     }
+     #
      Nlevels <- length(groups)
      nfacts <- length(inner.rank)
      ngroups <- length(df1.ls)
@@ -66,14 +74,16 @@ function (yesfactor, df1, df1.ls, groups, inner.rank, initial.sample, nofactform
      ###########################################
      MED <- floor( dim(df1)[1]/2 + .00001 )
      SSE <- rep(-99, initial.sample)
-     concatout <- matrix(-99, nrow=initial.sample, ncol= sum(inner.rank)*Nlevels)
+     concatout <- matrix(-99, nrow=initial.sample, ncol= sum(inner.rank))
      for(r in 1:initial.sample){
+          m <- 1
           subrim <- NULL
           for(k in 1:nfixed){
                for(j in 1:Nlevels){
                     piddly <- hold.cands[[j]][[k]][r,]
-                    piddly <- piddly[1:inner.rank[k]  ]
+                    piddly <- piddly[1:inner.rank[m]  ]
                     subrim <- c(subrim, piddly)
+                    m <- m + 1
                }    # in j
           }         # in k
           concatout[r,] <- sort(subrim)
@@ -87,7 +97,7 @@ function (yesfactor, df1, df1.ls, groups, inner.rank, initial.sample, nofactform
           lmesmall <- nlme::lme(fixed = formulaA, data = smalldata, random = randform)         # lme
           predsmall <- stats::predict(lmesmall, data=df1)                                # predict
 
-          error2 <- (df1[, ycol] - predsmall)^2 + df1$wiggle
+          error2 <- (df1[, ycol] - predsmall)^2
           error2 <- sort(error2)
           mederror2 <- error2[MED]
           SSE[r] <- mederror2

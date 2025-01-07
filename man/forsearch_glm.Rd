@@ -81,11 +81,12 @@ Traffic<-c(0.436,0.424,0.424,0.426,0.419,0.419,0.439,0.439,0.431,0.436,0.436,
 Deaths<-c(7,1,1,1,5,2,4,2,1,1,2,5,35,1,4,1,2,1,1,3,1,3,13,2,1,1,1,4,1,2,1,5,7,
     1,1,3,2,1,2,1,2,6,1,1,1,10,5,1,1,6,3,1,2,1,2,1,1,6,2,2,4,2,49,1,7,5,9)
 train2022 <- data.frame(Observation, Year, RollingStock, Traffic, Deaths)
-forsearch_glm(initial.sample = 100, response.cols = 5, 
+test02<-forsearch_glm(initial.sample = 100, response.cols = 5, 
     indep.cols = 2:4, formula=Deaths~Year + RollingStock + Traffic,
     formula.cont.rhs="Year + Traffic", 
     family = poisson("log"), data = train2022, 
     estimate.phi = TRUE, skip.step1 = NULL, 
     unblinded = TRUE, begin.diagnose=100)
-}}
+}
+}
 \keyword{ datagen }

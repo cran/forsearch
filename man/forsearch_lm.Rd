@@ -48,9 +48,8 @@ x1 <- runif(16)
 x2 <- runif(16)
 x3 <- runif(16)
 lmtest1 <- data.frame(Observation,y,x1,x2,x3)
-forsearch_lm(formula=y~x1+x2+x3, data=lmtest1, initial.sample=200,begin.diagnose=100)
-}
-\dontrun{
+test1 <- forsearch_lm(formula=y~x1+x2+x3, nofactform=y~x1+x2+x3, data=lmtest1, 
+     initial.sample=200,begin.diagnose=100)
 
 # Analysis of variance 
 Observation <- 1:30
@@ -59,7 +58,8 @@ AN1 <- as.factor(c(rep("A1",5),rep("A2",5),rep("A3",5)))
 AN1 <- c(AN1,AN1)
 AN2 <- as.factor(c(rep("B1",15),rep("B2",15)))
 lmtest2 <- data.frame(Observation,y,AN1,AN2)
-forsearch_lm(formula=y~AN1*AN2, data=lmtest2, initial.sample=200,begin.diagnose=100)
+test2 <- forsearch_lm(formula=y~AN1*AN2, nofactform=y~1, data=lmtest2, 
+       initial.sample=200, begin.diagnose=100)
 
 # Analysis of covariance
 Observation <- 1:60
@@ -69,14 +69,16 @@ AN1 <- c(AN1,AN1)
 AN2 <- as.factor(c(rep("B1",30),rep("B2",30)))
 COV <- runif(60)
 lmtest3 <- data.frame(Observation,y,AN1,AN2,COV)
-forsearch_lm(formula=y~AN1*AN2+COV, data=lmtest3, initial.sample=200,begin.diagnose=100)
+test3 <- forsearch_lm(formula=y~AN1*AN2+COV, nofactform=y~COV, data=lmtest3, 
+      initial.sample=200,begin.diagnose=100)
 
 # Polynomial regression
 C1 <- 7*runif(60) + 1
 y <- 4 + C1 - 6*C1^2 + 9*C1^3 + rnorm(60)
 Observation <- 1:60
 dfpoly <- data.frame(Observation,C1,y) 
-forsearch_lm(formula = y ~ C1 + I(C1^2) + I(C1^3), data = dfpoly,  initial.sample = 200, 
+test4 <- forsearch_lm(formula = y ~ C1 + I(C1^2) + I(C1^3), data = dfpoly,  
+     nofactform=y ~ C1 + I(C1^2) + I(C1^3),initial.sample = 200, 
      begin.diagnose=100)
 }
 }

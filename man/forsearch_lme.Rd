@@ -9,8 +9,8 @@
    final stage to extract the intermediate statistics based on increasing sample size.
 }
 \usage{
-forsearch_lme(fixedform, nofactform, alldata, randomform, groupnames, initial.sample=1000, 
-   wiggle=1, skip.step1=NULL, unblinded=TRUE, begin.diagnose = 100, 
+forsearch_lme(fixedform, nofactform, alldata, randomform, groupname, randfactnames=NULL,
+   initial.sample=1000, skip.step1=NULL, unblinded=TRUE, begin.diagnose = 100, 
    incCont=FALSE, verbose = TRUE)
 }
 \arguments{
@@ -18,10 +18,10 @@ forsearch_lme(fixedform, nofactform, alldata, randomform, groupnames, initial.sa
   \item{nofactform}{2-sided formula for fixed effects, omitting factors}
   \item{alldata}{data frame, first column of which must be "Observation"}
   \item{randomform}{1-sided formula for random effects}
-  \item{groupnames}{Vector of quoted names of group variables in randomform}
+  \item{groupname}{Quoted name of group variable in randomform. Nested grouping
+           not permitted in this version}
+  \item{randfactnames}{Vector of quoted names of random factor variables}
   \item{initial.sample}{Number of observations in Step 1 of forward search}
-  \item{wiggle}{Multiplier to prevent change of identical observations. Used only
-          when there are no continuous independent variables}
   \item{skip.step1}{NULL or a vector of integers for observations to be included
          in Step 1}
   \item{unblinded}{TRUE causes printing of presumed analysis structure}
@@ -67,10 +67,10 @@ y <- runif(160)
 x1 <- runif(160)
 x2 <- runif(160)
 x3 <- runif(160)
-group <- as.factor(rep(c("G1","G2"),each=80))
+group <- rep(c("G1","G2"),each=80)
 lmetest1 <- data.frame(Observation,y,x1,x2,x3,group)
 forsearch_lme(fixedform=y~x1+x2+x3, nofactform=y~x1+x2+x3, alldata=lmetest1, 
-   randomform= ~1|group, groupnames=c("G1","G2"), initial.sample=200)
+   randomform= ~1|group, groupname="group", initial.sample=200)
 
 # Analysis of variance in grouped data
 Observation <- 1:60
@@ -79,27 +79,27 @@ AN1 <- as.factor(c(rep("A1",5),rep("A2",5),rep("A3",5)))
 AN1 <- c(AN1,AN1,AN1,AN1)
 AN2 <- as.factor(c(rep("B1",15),rep("B2",15)))
 AN2 <- c(AN2,AN2)
-group <- as.factor(rep(c("G1","G2"),each=30))
+group <- rep(c("G1","G2"),each=30)
 lmetest2 <- data.frame(Observation,y,AN1,AN2,group)
-%lmetest2 <- nlme::groupedData(formula = y ~ 1|group, alldata = lmetest2)
 forsearch_lme(fixedform=y~AN1*AN2, nofactform=y~1, alldata=lmetest2, 
-   randomform= ~1|group, groupnames=c("G1","G2"),initial.sample=500)
+   randomform= ~1|group, groupname="group",initial.sample=500)
 
 # Analysis of covariance in grouped data
 
 Observation <- 1:120
 y <- runif(120)
-AN1 <- as.factor(c(rep("A1",10),rep("A2",10),rep("A3",10)))
-AN1 <- c(AN1,AN1,AN1,AN1)
-AN2 <- as.factor(c(rep("B1",10),rep("B2",10)))
+AN1 <- as.factor(c(rep("A1",10),rep("A2",10),rep("A3",10),rep("A4",10)))
+AN1 <- c(AN1,AN1,AN1)
+AN2 <- as.factor(c(rep("B1",5),rep("B2",5)))
 AN2 <- c(AN2,AN2,AN2,AN2,AN2,AN2)
+AN2 <- c(AN2,AN2)
 COV <- runif(120)
-group <- as.factor(rep(c("G1","G2"),each=30))
+group <- rep(c("G1","G2"),each=30)
 group <- c(group,group)
 lmetest3 <- data.frame(Observation,y,AN1,AN2,COV,group)
-%lmetest3 <- nlme::groupedData(formula = y ~ 1 | group, data = lmetest3)
-forsearch_lme(fixedform=y~AN1*AN2+COV,nofactform=y~AN1*AN2+Cov,alldata=lmetest3,
-        randomform= ~ 1 | group,groupnames=c("G1","G2"),initial.sample=500)
+test3<-forsearch_lme(fixedform=y~AN1*AN2+COV,nofactform=y~COV,alldata=lmetest3,
+        randomform= ~ 1 | group,groupname="group",initial.sample=500,
+        begin.diagnose=100)
 }
 }
 \keyword{ datagen }

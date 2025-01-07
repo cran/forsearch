@@ -1,7 +1,7 @@
 Package: forsearch
 Title: Diagnostic Analysis Using Forward Search Procedure for Various
         Models
-Version: 6.3.0
+Version: 6.4.0
 Authors@R: person("William","Fairweather",
         email = "wrf343@flowervalleyconsulting.com", role = c("aut", "cre"))
 Description: Identifies potential data outliers and their impact on estimates and 
@@ -12,19 +12,19 @@ Description: Identifies potential data outliers and their impact on estimates an
          nls {stats}, lme {nlme}, or coxph {survival}, or their equivalent in
          another language.  Includes graphics functions to display the 
          descriptive statistics.
-Depends: R (>= 4.2)
+Depends: R (>= 4.3.0)
 License: GPL (>= 3)
 SystemRequirements: gmp (>= 4.1)
 Encoding: UTF-8
-RoxygenNote: 7.2.3
-Imports: Hmisc(>= 4.7-0), Cairo(>= 1.6-0), formula.tools(>= 1.7.0),
-        ggplot2(>= 3.4.0), nlme(>= 3.1-157), survival(>= 3.4),
-        tibble(>= 3.1.8)
+RoxygenNote: 7.3.2
+Imports: Hmisc(>= 5.2-1), Cairo(>= 1.6-2), formula.tools(>= 1.7.1),
+        ggplot2(>= 3.5.1), nlme(>= 3.1-166), rlang(>= 1.1.4),
+        survival(>= 3.3-3), tibble(>= 3.2.1)
 Suggests: rmarkdown, knitr
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2024-11-15 15:00:11 UTC; NO
+Packaged: 2025-01-07 18:12:37 UTC; NO
 Author: William Fairweather [aut, cre]
 Maintainer: William Fairweather <wrf343@flowervalleyconsulting.com>
 Repository: CRAN
-Date/Publication: 2024-11-16 14:20:12 UTC
+Date/Publication: 2025-01-07 18:30:01 UTC

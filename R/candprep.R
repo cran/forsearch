@@ -87,7 +87,6 @@ function (yf, dfa2=NULL, fixd.ls=NULL, preprnk, inner.rank, in.sam, makearray=FA
                                  Hmisc::prn(candarray)     }
 
      #
-#stop("candarray in makelist no yf")
      ####################################
      # Convert to list if not makearray #
      ####################################
@@ -142,7 +141,7 @@ function (yf, dfa2=NULL, fixd.ls=NULL, preprnk, inner.rank, in.sam, makearray=FA
 # Make a common 4-level matrix out of each input and perform the same sampling loops
 ########################################################################################
 
- print("leaving candprep")
+# print("leaving candprep")
 
      return(candarray)
 }

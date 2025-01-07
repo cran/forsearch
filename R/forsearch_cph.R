@@ -1,7 +1,7 @@
 #' @export
 forsearch_cph <-
 function(alldata, formula.rhs, nofactform, initial.sample=1000, skip.step1=NULL,
-    ties = "efron", maxdisturb=.01, proportion=TRUE, wiggle=1, unblinded=TRUE, begin.diagnose= 100, verbose=TRUE)
+    ties = "efron", maxdisturb=.01, proportion=TRUE, unblinded=TRUE, begin.diagnose= 100, verbose=TRUE)
 {
      #                                           forsearch_cph    
      #
@@ -14,7 +14,6 @@ function(alldata, formula.rhs, nofactform, initial.sample=1000, skip.step1=NULL,
      #          skip.step1         NULL or a list, each element of which is a vector of integers for observations from 1 subgroup to be included in Step 1
      #          ties               Character string specifying the method for handling ties in event time.  See survival::coxph() for definitions.
      #          proportion         TRUE causes running of survival::cox.zph on each stage
-     #          wiggle
      #          unblinded          TRUE permits printing of ultimate coxph analysis, as specified above
      #          begin.diagnose     Numeric. Indicates where in code to begin printing diagnostics. 0 prints all; 100 prints none.
      #          verbose            Logical. TRUE causes printing of function ID before and after running.
@@ -44,8 +43,6 @@ function(alldata, formula.rhs, nofactform, initial.sample=1000, skip.step1=NULL,
      nindepvars <- nalldata2 - 3
 
      OBS <- alldata[,1]
-     wiggle <- wiggle*stats::runif(nalldata1)/100
-     alldata <- cbind(alldata, wiggle)
      nalldata2 <- dim(alldata)[2]
      alldataNames <- names(alldata)
 
